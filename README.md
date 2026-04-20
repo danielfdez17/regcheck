@@ -1,113 +1,87 @@
 # RegCheck - Rules to actionable list translator
 
-Un mes es poco, así que hay que ser brutalmente práctico: si intentas cubrir varias normativas o hacer algo muy “inteligente”, no llegas. La clave es **un MVP muy enfocado + una mejora clara que parezca evolución real**.
+# 🚀 MVP
 
-Te propongo un enfoque concreto que sí puedes construir en ese tiempo y que además tiene valor real.
+### 💡 What it does
 
----
+An enterprise introduces:
+- Type of company (small enterprise, SaaS, etc...)
+- Rules to be applied (e.g. GDPR, ISO/IEC 27001)
 
-# 🚀 PROYECTO 1 (MVP)
+The project returns:
 
-## 👉 “Traductor de normativa a checklist accionable”
-
-### 💡 Qué hace
-
-Una empresa introduce:
-
-- Tipo de empresa (pyme, SaaS, etc.)
-- Normativa aplicable (ej. GDPR, ISO/IEC 27001)
-
-Y tu herramienta devuelve:
-- Checklist claro de cumplimiento
-- Clasificado por prioridad
-- Con acciones concretas (no teoría)
+- Clear checklist of fullfil
+- Priority classified
+- To-do actions list
 
 ---
 
-## 🎯 Funcionalidades mínimas (lo justo para llegar)
+## 🎯 Minimum functionalities 
 
-1. **Selector de normativa**
-    - GDPR (empieza solo con esta si quieres ir seguro)
+1. **Rule selector**
+    - GDPR
 
-2. **Motor básico (reglas simples)**
-    - Ejemplo:
-        - “Si manejas datos personales → necesitas política de privacidad”
-        - “Si tienes empleados → registro de actividades de tratamiento”
+2. **Basic engine (simple rules)**
+    - Example:
+        - "If you handle personal data -> you need privacy policies"
+        - "If you have employees -> treatment activity registration"
 
-3. **Generación de checklist**
-    - Estado: pendiente / en progreso / completado
+3. **Checklist generation**
+    - Status: pending / in progress / done
 
-4. **Export básico**
-    - PDF o CSV o Markdown
+4. **Basic export**
+    - PDF or CSV or Markdown
 
 ---
 
-## 🧱 Cómo implementarlo rápido
+## 🧱 Fast implementation
 
 - Backend: Python (FastAPI) o Node.js
-- Frontend: React o incluso algo simple tipo HTML + Bootstrap
-- Base de datos: SQLite
-
-👉 No necesitas IA aquí. Regla de oro: **hardcodea lo necesario para llegar**.
+- Frontend: React 
+- Database: SQLite
 
 ---
 
-## 🎁 Valor real que puedes vender
+## 🎁 Real value can be sold
 
-- Simplifica normativa compleja
-- Útil para pymes (gran mercado)
-
----
-
-# 🗓️ PLAN REALISTA (1 MES)
-
-## Semana 1
-
-- Definir alcance (solo GDPR recomendable)
-- Diseñar estructura de controles
-- Backend básico
-
-## Semana 2
-
-- Frontend + checklist funcional
-- Primer MVP funcionando
-
-## Semana 3
-
-- Añadir autoevaluación
-- Lógica de scoring
-
-## Semana 4
-
-- UX, exportación, pulido
-- Demo final
+- Simplifies complex rules
+- Useful for small companies
 
 ---
 
-# ⚠️ Decisiones clave (importantes)
+# 🗓️ ONE MONTH PLANNING
 
-- ❗ Empieza con **una sola normativa** (GDPR ideal en Europa)
-- ❗ No intentes automatizar integraciones (eso es nivel empresa grande)
-- ❗ Prioriza UX simple y claro
+## Week 1
+
+- Scop definition: GDPR only
+- Control structure design
+- Basic backend
+
+## Week 2
+
+- Frontend + functional checklist
+- Working MVP
+
+## Week 3
+
+- Add self evaluation
+- Scoring logic
+
+## Week 4
+
+- UX, export, polish
+- Final demo
 
 ---
 
-# 💡 Nombre conceptual del proyecto
+# ⚠️ Key decisions
 
-- “Compliance Simplified”
-- “RegCheck”
-- “CyberComply Lite”
-
----
-
-# 🧭 En qué te debes centrar
-
-Tu valor no es la normativa en sí, es:  
-👉 **hacerla entendible y accionable**
+- ❗ Starting with **only one rule**
+- ❗ No integrations automation
+- ❗ UX clear and simple is high priority
 
 ---
 
-Si quieres, en el siguiente paso puedo:
+# 🧭 Value of the app
 
-- Diseñarte la **arquitectura exacta (tablas, endpoints, lógica)**
-- O darte directamente un **esqueleto de código listo para empezar**
+Making the rules **understandable and actionable**
