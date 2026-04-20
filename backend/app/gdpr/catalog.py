@@ -1,9 +1,12 @@
-"""Static GDPR domain catalog used for the first API slice."""
+"""GDPR catalog services backed by persistent SQLite entities."""
 
 from __future__ import annotations
 
 from fastapi import HTTPException, status
+from sqlalchemy import or_
+from sqlmodel import Session, select
 
+from app.db.models import ChecklistItemModel, DomainModeModel, RuleOptionModel
 from app.gdpr.schemas import (
     ChecklistItem,
     DomainMode,
@@ -13,94 +16,29 @@ from app.gdpr.schemas import (
     RuleOption,
 )
 
-GDPR_DOMAIN_MODE = DomainMode(
-    id="gdpr",
-    label="GDPR",
-    description="Select the GDPR domain to generate an actionable compliance checklist.",
-    is_default=True,
-)
-
-GDPR_RULES: list[RuleOption] = [
-    RuleOption(
-        id="personal_data_processing",
-        label="Personal data processing",
-        description="You process personal data for customers, leads, employees, or vendors.",
-        checklist_item_ids=[
-            "document-processing-activities",
-            "publish-privacy-policy",
-            "track-retention-periods",
-            "define-dsr-process",
-            "assign-privacy-owner",
-        ],
-    ),
-]
-
-GDPR_CHECKLIST_ITEMS: dict[str, ChecklistItem] = {
-    "document-processing-activities": ChecklistItem(
-        id="document-processing-activities",
-        title="Document processing activities",
-        description="""
-        Keep a record of what personal data you collect,
-        why you collect it, and where you store it.
-        """,
-        priority="high",
-        rule_id="personal_data_processing",
-    ),
-    "publish-privacy-policy": ChecklistItem(
-        id="publish-privacy-policy",
-        title="Publish a privacy policy",
-        description="""
-        Explain the legal basis, retention policy, and rights available to data subjects.
-        """,
-        priority="high",
-        rule_id="personal_data_processing",
-    ),
-    "track-retention-periods": ChecklistItem(
-        id="track-retention-periods",
-        title="Track retention periods",
-        description="""
-        Define how long each category of personal data is kept and when it must be deleted.
-        """,
-        priority="medium",
-        rule_id="personal_data_processing",
-    ),
-    "define-dsr-process": ChecklistItem(
-        id="define-dsr-process",
-        title="Define a data subject request process",
-        description="""
-        Create a process to handle access, rectification, deletion, and portability requests.
-        """,
-        priority="high",
-        rule_id="personal_data_processing",
-    ),
-    "assign-privacy-owner": ChecklistItem(
-        id="assign-privacy-owner",
-        title="Assign a privacy owner",
-        description="""
-        Ensure a named owner is accountable for GDPR governance and follow-up actions.
-        """,
-        priority="medium",
-        rule_id="personal_data_processing",
-    ),
-}
-
-
-def get_gdpr_rule_selector() -> GDPRRuleSelectorResponse:
+def get_gdpr_rule_selector(session: Session) -> GDPRRuleSelectorResponse:
     """Return the available GDPR rule selector payload."""
 
+    domain_mode = load_domain_mode(session)
+    available_rules = load_rule_options(session, [domain_mode.id])
+
     return GDPRRuleSelectorResponse(
-        domain_mode=GDPR_DOMAIN_MODE,
-        available_rules=GDPR_RULES,
+        domain_mode=domain_mode,
+        available_rules=available_rules,
     )
 
 
-def build_gdpr_checklist(request: GDPRChecklistRequest) -> GDPRChecklistResponse:
+def build_gdpr_checklist(session: Session, request: GDPRChecklistRequest) -> GDPRChecklistResponse:
     """Build a GDPR checklist preview from the selected rules."""
 
-    selected_rule_ids = request.selected_rule_ids or [rule.id for rule in GDPR_RULES]
-    selected_rules = [rule for rule in GDPR_RULES if rule.id in selected_rule_ids]
+    domain_mode = load_domain_mode(session)
+    available_rules = load_rule_options(session, [domain_mode.id])
+    available_rule_ids = [rule.id for rule in available_rules]
 
-    unknown_rule_ids = sorted(set(selected_rule_ids) - {rule.id for rule in GDPR_RULES})
+    selected_rule_ids = request.selected_rule_ids or available_rule_ids
+    selected_rules = [rule for rule in available_rules if rule.id in selected_rule_ids]
+
+    unknown_rule_ids = sorted(set(selected_rule_ids) - set(available_rule_ids))
     if unknown_rule_ids:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -110,17 +48,87 @@ def build_gdpr_checklist(request: GDPRChecklistRequest) -> GDPRChecklistResponse
             },
         )
 
-    selected_item_ids = {
-        item_id for rule in selected_rules for item_id in rule.checklist_item_ids
-    }
-    checklist_items = [
-        GDPR_CHECKLIST_ITEMS[item_id]
-        for item_id in GDPR_CHECKLIST_ITEMS.items()
-        if item_id in selected_item_ids
-    ]
+    checklist_items = load_checklist_items(session, selected_rule_ids)
 
     return GDPRChecklistResponse(
-        domain_mode=GDPR_DOMAIN_MODE,
+        domain_mode=domain_mode,
         selected_rules=selected_rules,
         checklist_items=checklist_items,
     )
+
+
+def load_domain_mode(session: Session) -> DomainMode:
+    """Load the default GDPR domain mode from persistence."""
+
+    domain_mode_row = session.exec(
+        select(DomainModeModel).where(DomainModeModel.id == "gdpr")
+    ).first()
+    if domain_mode_row is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"message": "GDPR domain mode is not configured in persistence."},
+        )
+
+    return DomainMode.model_validate(domain_mode_row.model_dump())
+
+
+def load_rule_options(session: Session, domain_mode_ids: list[str]) -> list[RuleOption]:
+    """Load rules and attach associated checklist item identifiers."""
+
+    if not domain_mode_ids:
+        return []
+
+    domain_mode_filter = build_or_filter(RuleOptionModel.domain_mode_id, domain_mode_ids)
+    rule_rows = session.exec(select(RuleOptionModel).where(domain_mode_filter)).all()
+
+    if not rule_rows:
+        return []
+
+    rule_ids = [rule.id for rule in rule_rows]
+    rule_filter = build_or_filter(ChecklistItemModel.rule_id, rule_ids)
+    item_rows = session.exec(select(ChecklistItemModel).where(rule_filter)).all()
+
+    item_ids_by_rule: dict[str, list[str]] = {}
+    for item_row in item_rows:
+        item_ids_by_rule.setdefault(item_row.rule_id, []).append(item_row.id)
+
+    return [
+        RuleOption(
+            id=rule_row.id,
+            label=rule_row.label,
+            description=rule_row.description,
+            checklist_item_ids=item_ids_by_rule.get(rule_row.id, []),
+        )
+        for rule_row in rule_rows
+    ]
+
+
+def load_checklist_items(session: Session, rule_ids: list[str]) -> list[ChecklistItem]:
+    """Load checklist items for selected rule identifiers."""
+
+    if not rule_ids:
+        return []
+
+    rule_filter = build_or_filter(ChecklistItemModel.rule_id, rule_ids)
+    item_rows = session.exec(select(ChecklistItemModel).where(rule_filter)).all()
+
+    return [
+        ChecklistItem(
+            id=item_row.id,
+            title=item_row.title,
+            description=item_row.description,
+            priority=item_row.priority,
+            status=item_row.status,
+            rule_id=item_row.rule_id,
+        )
+        for item_row in item_rows
+    ]
+
+
+def build_or_filter(field, values: list[str]):
+    """Build a SQLAlchemy OR predicate for one field and many values."""
+
+    if len(values) == 1:
+        return field == values[0]
+
+    return or_(*(field == value for value in values))

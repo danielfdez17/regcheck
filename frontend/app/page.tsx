@@ -1,4 +1,12 @@
 import ThemeToggle from "./theme-toggle";
+import {
+  createChecklist,
+  getRuleSelector,
+  type ChecklistItem,
+  type RuleOption,
+  type GDPRRuleSelectorResponse,
+} from "../lib/regcheck-api";
+import GdprPlayground from "./gdpr-playground";
 
 const FEATURES = [
   "GDPR rule selector",
@@ -20,15 +28,66 @@ const API_ENDPOINTS = [
   },
 ];
 
-const CHECKLIST_ITEMS = [
-  "Document processing activities",
-  "Publish a privacy policy",
-  "Track retention periods",
-  "Define a data subject request process",
-  "Assign a privacy owner",
-];
+interface HomePageData {
+  connected: boolean;
+  errorMessage: string | null;
+  selector: GDPRRuleSelectorResponse | null;
+  initialChecklist: {
+    rule: RuleOption | null;
+    checklistItems: ChecklistItem[];
+  };
+}
 
-export default function HomePage() {
+async function loadHomePageData(): Promise<HomePageData> {
+  try {
+    const selector = await getRuleSelector();
+    const firstRule = selector.available_rules[0] ?? null;
+
+    if (firstRule === null) {
+      return {
+        connected: true,
+        errorMessage: "Backend is reachable but no GDPR rules are configured.",
+        selector,
+        initialChecklist: {
+          rule: null,
+          checklistItems: [],
+        },
+      };
+    }
+
+    const checklist = await createChecklist([firstRule.id]);
+
+    return {
+      connected: true,
+      errorMessage: null,
+      selector,
+      initialChecklist: {
+        rule: firstRule,
+        checklistItems: checklist.checklist_items,
+      },
+    };
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unexpected error while connecting to backend.";
+
+    return {
+      connected: false,
+      errorMessage: message,
+      selector: null,
+      initialChecklist: {
+        rule: null,
+        checklistItems: [],
+      },
+    };
+  }
+}
+
+export default async function HomePage() {
+  const { connected, errorMessage, selector, initialChecklist } =
+    await loadHomePageData();
+
   return (
     <main className="page">
       <section className="hero hero-grid">
@@ -45,23 +104,36 @@ export default function HomePage() {
           <div className="badge-row" aria-label="Available mode">
             <span className="badge">GDPR domain mode</span>
             <span className="badge badge-soft">Checklist entities</span>
+            <span className="badge badge-soft">
+              {connected ? "Backend connected" : "Backend disconnected"}
+            </span>
           </div>
-        </div>
-
-        <div className="panel panel-highlight">
-          <p className="panel-kicker">Default rule selector</p>
-          <h2>Personal data processing</h2>
-          <p>
-            Use this rule when the company collects customer, employee, or
-            vendor personal data.
-          </p>
-          <ul className="checklist-mini">
-            {CHECKLIST_ITEMS.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          {errorMessage && <p className="status-note">{errorMessage}</p>}
         </div>
       </section>
+
+      {selector ? (
+        <GdprPlayground
+          initialChecklist={{
+            domain_mode: selector.domain_mode,
+            selected_rules:
+              initialChecklist.rule !== null ? [initialChecklist.rule] : [],
+            checklist_items: initialChecklist.checklistItems,
+          }}
+          initialSelector={selector}
+        />
+      ) : (
+        <section className="grid">
+          <article className="panel panel-highlight">
+            <p className="panel-kicker">Default rule selector</p>
+            <h2>Rule unavailable</h2>
+            <p>
+              The frontend could not load the backend selector, so no live input
+              controls are available yet.
+            </p>
+          </article>
+        </section>
+      )}
 
       <section className="grid">
         <article className="panel">
