@@ -1,24 +1,31 @@
-SHELL := /bin/bash
+SHELL := /usr/bin/bash
+.SHELLFLAGS := -ec
 ROOT  := $(dir $(lastword $(MAKEFILE_LIST)))
 -include $(ROOT).env
 export
 
-CYAN	:= \033[36m
-GREEN	:= \033[32m
-YELLOW	:= \033[33m
-RED		:= \033[31m
-RESET	:= \033[0m
-OK		:= $(GREEN)✔ 
-FAIL	:= $(RED)✘ 
-WARN	:= $(YELLOW)⚠ 
-INFO	:= $(CYAN)ℹ 
+
+BLUE := \033[0;34m
+GREEN := \033[0;32m
+YELLOW := \033[0;33m
+RESET := \033[0m
+CYAN := \033[0;36m
+ORANGE := \033[0;31m
+RED := \033[0;31m
+SUCCESS := $(GREEN)✓
+FAIL := $(RED)✗
+INFO := $(CYAN)ℹ
+WARN := $(YELLOW)⚠
 
 DC := docker compose -f $(ROOT)docker-compose.yml
 
 .DEFAULT_GOAL := help
 help: ## Show available targets
-	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*## "}; {printf "$(CYAN)%-22s$(RESET) %s\n", $$1, $$2}'
+	@echo -e "$(CYAN)List of available targets$(RESET)"
+	@echo ""
+	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' Makefile | \
+		awk 'BEGIN {FS = ":.*## "}; {printf "  $(CYAN)%-18s$(RESET) %s\n", $$1, $$2}'
+	@echo ""
 
 # ── Development ──────────────────────────────────────────────────────────
 
@@ -146,6 +153,12 @@ update-submodules: ## Update git submodules (e.g. ui-collection)
 	@echo -e "$(INFO) Updating git submodules…$(RESET)"
 	@git submodule update --init --recursive --remote
 	@echo -e "$(OK) Submodules updated$(RESET)"
+
+push-new-branch: ## Pushes a new branch using a script
+	@bash ./vendor/scripts/git/push_to_origin.sh
+
+merge-to-dev: ## Merges the current branch into dev using a script
+	@bash ./vendor/scripts/git/merge_to_dev.sh
 
 .PHONY: help install dev dev-docker up stop down build typecheck \
         re clean \
