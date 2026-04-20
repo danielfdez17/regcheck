@@ -34,7 +34,7 @@ install: ## Install frontend (Next.js) and backend (FastAPI) dependencies locall
 	@echo -e "$(WARN) Unimplemented rule $(RESET)"
 #	npm --prefix frontend install
 #	python -m pip install -r backend/requirements.txt
-	@echo -e "$(OK) Dependencies installed$(RESET)"
+	@echo -e "$(SUCCESS) Dependencies installed$(RESET)"
 
 dev: update-submodules ## Start Next.js frontend (:3001) + FastAPI backend (:8000) locally
 	@echo -e "$(INFO) Starting frontend on http://localhost:3001 and backend on http://localhost:8000$(RESET)"
@@ -46,7 +46,7 @@ dev-docker: ## Start full stack via Docker (Next.js :3001 + FastAPI :8000 + Mong
 	@echo -e "$(INFO) Starting full stack (frontend + backend + MongoDB) via Docker…$(RESET)"
 	@echo -e "$(INFO) Unimplemented rule $(RESET)"
 # 	$(DC) up -d
-	@echo -e "$(OK) Stack running:$(RESET)"
+	@echo -e "$(SUCCESS) Stack running:$(RESET)"
 	@echo -e "  Frontend:   http://localhost:$${FRONTEND_PORT:-3001}"
 	@echo -e "  Backend:    http://localhost:$${BACKEND_PORT:-8000}"
 	@echo -e "  MongoDB:    localhost:$${MONGO_PORT:-27017}"
@@ -56,12 +56,12 @@ up: dev-docker ## Alias for dev-docker
 stop: ## Stop Docker stack
 	@echo -e "$(INFO) Unimplemented rule $(RESET)"
 # 	@$(DC) stop
-	@echo -e "$(OK) Stack stopped$(RESET)"
+	@echo -e "$(SUCCESS) Stack stopped$(RESET)"
 
 down: ## Stop and remove Docker containers + networks
 	@echo -e "$(INFO) Unimplemented rule $(RESET)"
 # 	@$(DC) down
-	@echo -e "$(OK) Stack removed$(RESET)"
+	@echo -e "$(SUCCESS) Stack removed$(RESET)"
 
 # ── Build ────────────────────────────────────────────────────────────────
 
@@ -70,13 +70,13 @@ build: ## Build frontend for production and validate backend modules
 	@echo -e "$(INFO) Unimplemented rule $(RESET)"
 # 	npm --prefix frontend run build
 # 	python -m compileall backend
-	@echo -e "$(OK) Build complete$(RESET)"
+	@echo -e "$(SUCCESS) Build complete$(RESET)"
 
 typecheck: ## Run TypeScript type-checking for Next.js frontend
 	@echo -e "$(INFO) Type-checking…$(RESET)"
 	@echo -e "$(INFO) Unimplemented rule $(RESET)"
 # 	npm --prefix frontend run typecheck
-	@echo -e "$(OK) No type errors$(RESET)"
+	@echo -e "$(SUCCESS) No type errors$(RESET)"
 
 # ── Analysis & Quality ──────────────────────────────────────────────────
 
@@ -84,7 +84,7 @@ lint: ## Run ESLint on frontend with zero-tolerance for warnings
 	@echo -e "$(INFO) Linting frontend source files…$(RESET)"
 	@echo -e "$(INFO) Unimplemented rule $(RESET)"
 # 	npm --prefix frontend run lint -- --max-warnings=0
-	@echo -e "$(OK) No lint errors$(RESET)"
+	@echo -e "$(SUCCESS) No lint errors$(RESET)"
 
 pylint: ## Run Pylint on FastAPI backend code
 	@echo -e "$(INFO) Running Pylint on all Python files…$(RESET)"
@@ -93,7 +93,7 @@ pylint: ## Run Pylint on FastAPI backend code
 		echo -e "$(WARN) No Python files found$(RESET)"; \
 	else \
 		python3 -m pylint $$PY_FILES; \
-		echo -e "$(OK) Pylint analysis complete$(RESET)"; \
+		echo -e "$(SUCCESS) Pylint analysis complete$(RESET)"; \
 	fi
 
 sonar: ## Run SonarQube Scan (requires SonarQube container up)
@@ -152,7 +152,7 @@ clean: ## Remove frontend and backend build artifacts
 update-submodules: ## Update git submodules (e.g. ui-collection)
 	@echo -e "$(INFO) Updating git submodules…$(RESET)"
 	@git submodule update --init --recursive --remote
-	@echo -e "$(OK) Submodules updated$(RESET)"
+	@echo -e "$(SUCCESS) Submodules updated$(RESET)"
 
 push-new-branch: ## Pushes a new branch using a script
 	@bash ./vendor/scripts/git/push_to_origin.sh
