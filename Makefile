@@ -142,8 +142,11 @@ clean: ## Remove frontend and backend build artifacts
 
 
 # ── Utilities ────────────────────────────────────────────────────────────
-
+update-submodules: ## Update git submodules (e.g. ui-collection)
+	@echo -e "$(INFO) Updating git submodules…$(RESET)"
+	@git submodule update --init --recursive --remote
+	@echo -e "$(OK) Submodules updated$(RESET)"
 
 .PHONY: help install dev dev-docker up stop down build typecheck \
-        db-up db-shell db-reset re clean logs logs-vite logs-mongo \
-        kill-ports status lint lint-fix audit ci sonar update-submodules
+        re clean \
+        lint audit ci sonar update-submodules
