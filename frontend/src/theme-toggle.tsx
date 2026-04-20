@@ -1,5 +1,3 @@
-"use client";
-
 import type { ThemeMode } from "./theme-provider";
 import { useTheme } from "./theme-provider";
 

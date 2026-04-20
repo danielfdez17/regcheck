@@ -40,8 +40,8 @@ help: ## Show available targets
 
 # ── Development ──────────────────────────────────────────────────────────
 
-install: ## Install frontend (Next.js) and backend (FastAPI) dependencies locally
-	@$(call print_banner,Install frontend (Next.js) and backend (FastAPI) dependencies locally)
+install: ## Install frontend (Vite) and backend (FastAPI) dependencies locally
+	@$(call print_banner,Install frontend (Vite) and backend (FastAPI) dependencies locally)
 	@echo -e "$(INFO) Installing frontend and backend dependencies…$(RESET)"
 	@$(PYTHON) -m venv $(VENV)
 	@$(VENV_BIN)/python -m pip install --upgrade pip
@@ -49,18 +49,18 @@ install: ## Install frontend (Next.js) and backend (FastAPI) dependencies locall
 	@$(VENV_BIN)/python -m pip install -r backend/requirements.txt
 	@echo -e "$(SUCCESS) Dependencies installed$(RESET)"
 
-dev-frontend: ## Start Next.js frontend only (http://localhost:3001)
-	@$(call print_banner,Start Next.js frontend only (http://localhost:3001))
-	@echo -e "$(INFO) Starting Next.js frontend on http://localhost:3001$(RESET)"
-	@pnpm --dir frontend run dev --port $${FRONTEND_PORT:-3001}
+dev-frontend: ## Start Vite frontend only (http://localhost:3001)
+	@$(call print_banner,Start Vite frontend only (http://localhost:3001))
+	@echo -e "$(INFO) Starting Vite frontend on http://localhost:3001$(RESET)"
+	@pnpm --dir frontend exec node scripts/dev-frontend.mjs
 
 dev-backend: ## Start FastAPI backend only (http://localhost:8000)
 	@$(call print_banner,Start FastAPI backend only (http://localhost:8000))
 	@echo -e "$(INFO) Starting FastAPI backend on http://localhost:8000$(RESET)"
 	@$(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}
 
-dev-docker: ## Start full stack via Docker (Next.js :3001 + FastAPI :8000)
-	@$(call print_banner,Start full stack via Docker (Next.js :3001 + FastAPI :8000))
+dev-docker: ## Start full stack via Docker (Vite :3001 + FastAPI :8000)
+	@$(call print_banner,Start full stack via Docker (Vite :3001 + FastAPI :8000))
 	@echo -e "$(INFO) Starting full stack (frontend + backend) via Docker…$(RESET)"
 	@$(DC) up -d --build
 	@echo -e "$(SUCCESS) Stack running:$(RESET)"
@@ -88,8 +88,8 @@ build: ## Build frontend for production and validate backend modules
 	@$(VENV_BIN)/python -m compileall backend
 	@echo -e "$(SUCCESS) Build complete$(RESET)"
 
-typecheck: ## Run TypeScript type-checking for Next.js frontend
-	@$(call print_banner,Run TypeScript type-checking for Next.js frontend)
+typecheck: ## Run TypeScript type-checking for Vite frontend
+	@$(call print_banner,Run TypeScript type-checking for Vite frontend)
 # 	@echo -e "$(INFO) Type-checking…$(RESET)"
 	@pnpm --dir frontend run typecheck
 	@echo -e "$(SUCCESS) No type errors$(RESET)"
@@ -99,7 +99,7 @@ typecheck: ## Run TypeScript type-checking for Next.js frontend
 lint: ## Run ESLint on frontend with zero-tolerance for warnings
 	@$(call print_banner,Run ESLint on frontend with zero-tolerance for warnings)
 # 	@echo -e "$(INFO) Linting frontend source files…$(RESET)"
-	@pnpm --dir frontend exec next lint --max-warnings=0
+	@pnpm --dir frontend run lint
 	@echo -e "$(SUCCESS) No lint errors$(RESET)"
 
 pylint: ## Run Pylint on FastAPI backend code
@@ -142,7 +142,7 @@ re: ## Full restart: wipe everything and start fresh
 
 clean: ## Remove frontend and backend build artifacts
 	@$(call print_banner,Remove frontend and backend build artifacts)
-	@rm -rf frontend/.next frontend/node_modules backend/__pycache__ backend/.pytest_cache
+	@rm -rf frontend/dist frontend/.next frontend/node_modules backend/__pycache__ backend/.pytest_cache
 	@echo -e "$(GREEN)✔ Cleaned$(RESET)"
 
 # ── Logs ─────────────────────────────────────────────────────────────────

@@ -6,8 +6,8 @@ The homepage now calls live backend endpoints instead of rendering static checkl
 
 ## Implementation steps
 
-- Added a typed API client in frontend/lib/regcheck-api.ts.
-- Added server-side data loading in frontend/app/page.tsx.
+- Added a typed API client in frontend/src/lib/regcheck-api.ts.
+- Added client-side data loading in frontend/src/App.tsx.
 - Added connection state rendering (connected or disconnected).
 - Added container-safe backend URL in docker-compose frontend environment.
 

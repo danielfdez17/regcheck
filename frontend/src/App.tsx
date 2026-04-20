@@ -1,12 +1,14 @@
+import { useEffect, useState } from "react";
+
+import GdprPlayground from "./gdpr-playground";
 import ThemeToggle from "./theme-toggle";
 import {
   createChecklist,
   getRuleSelector,
   type ChecklistItem,
-  type RuleOption,
   type GDPRRuleSelectorResponse,
-} from "../lib/regcheck-api";
-import GdprPlayground from "./gdpr-playground";
+  type RuleOption,
+} from "./lib/regcheck-api";
 
 const FEATURES = [
   "GDPR rule selector",
@@ -84,9 +86,52 @@ async function loadHomePageData(): Promise<HomePageData> {
   }
 }
 
-export default async function HomePage() {
-  const { connected, errorMessage, selector, initialChecklist } =
-    await loadHomePageData();
+export default function App() {
+  const [pageData, setPageData] = useState<HomePageData | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchHomePageData() {
+      const nextPageData = await loadHomePageData();
+
+      if (isMounted) {
+        setPageData(nextPageData);
+      }
+    }
+
+    void fetchHomePageData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  if (pageData === null) {
+    return (
+      <main className="page">
+        <section className="hero hero-grid">
+          <div>
+            <div className="hero-top">
+              <p className="eyebrow">RegCheck MVP</p>
+              <ThemeToggle />
+            </div>
+            <h1>Turn regulatory rules into clear actions.</h1>
+            <p className="lead">
+              Loading the GDPR rule selector and generating the first checklist.
+            </p>
+          </div>
+          <article className="panel panel-highlight">
+            <p className="panel-kicker">Backend status</p>
+            <h2>Connecting...</h2>
+            <p>The frontend is fetching the initial selector state.</p>
+          </article>
+        </section>
+      </main>
+    );
+  }
+
+  const { connected, errorMessage, selector, initialChecklist } = pageData;
 
   return (
     <main className="page">
@@ -117,7 +162,7 @@ export default async function HomePage() {
           initialChecklist={{
             domain_mode: selector.domain_mode,
             selected_rules:
-              initialChecklist.rule !== null ? [initialChecklist.rule] : [],
+              initialChecklist.rule === null ? [] : [initialChecklist.rule],
             checklist_items: initialChecklist.checklistItems,
           }}
           initialSelector={selector}

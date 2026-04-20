@@ -1,13 +1,10 @@
-"use client";
-
 import { useState } from "react";
 
 import {
   createChecklist,
   type GDPRChecklistResponse,
   type GDPRRuleSelectorResponse,
-  type RuleOption,
-} from "../lib/regcheck-api";
+} from "./lib/regcheck-api";
 
 type GdprPlaygroundProps = {
   initialSelector: GDPRRuleSelectorResponse;
@@ -70,7 +67,7 @@ export default function GdprPlayground({
 
         <div className="rule-list">
           {selector.available_rules.map((rule) => (
-            <label className="rule-card" key={rule.id}>
+            <label aria-label={rule.label} className="rule-card" key={rule.id}>
               <input
                 checked={selectedRuleIds.includes(rule.id)}
                 className="rule-checkbox"

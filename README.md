@@ -55,7 +55,7 @@ The project returns:
 Current stack scaffold:
 
 - Backend: FastAPI (Python)
-- Frontend: Next.js + React + TypeScript
+- Frontend: Vite + React + TypeScript
 - Local quality checks: typecheck, lint, pylint
 - Containerized dev stack: Docker Compose (frontend + backend)
 
@@ -69,6 +69,9 @@ Current stack scaffold:
    - `make ci`
 4. Run app with containers:
    - `make dev-docker`
+5. Run the frontend locally with restart controls:
+   - `make dev-frontend`
+   - Type `r` and press `Enter` to restart the Vite server without stopping the terminal session.
 
 Endpoints:
 

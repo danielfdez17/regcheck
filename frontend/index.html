@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-theme-mode="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="RegCheck translates GDPR rules into actionable checklists."
+    />
+    <title>RegCheck</title>
+    <script>
+      (() => {
+        const storageKey = "regcheck-theme";
+        const root = document.documentElement;
+        const browserWindow = globalThis.window;
+        const savedTheme = browserWindow.localStorage.getItem(storageKey);
+        const theme =
+          savedTheme === "light" || savedTheme === "dark" || savedTheme === "system"
+            ? savedTheme
+            : "dark";
+        const systemTheme = browserWindow.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+        const resolvedTheme = theme === "system" ? systemTheme : theme;
+
+        root.dataset.theme = resolvedTheme;
+        root.dataset.themeMode = theme;
+        root.style.colorScheme = resolvedTheme;
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

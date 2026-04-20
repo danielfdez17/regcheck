@@ -11,4 +11,4 @@ COPY frontend /app/frontend
 
 EXPOSE 3001
 
-CMD ["pnpm", "run", "dev", "--", "--hostname", "0.0.0.0", "--port", "3001"]
+CMD ["pnpm", "exec", "vite", "--host", "0.0.0.0", "--port", "3001", "--strictPort"]
