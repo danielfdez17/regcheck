@@ -111,12 +111,7 @@ audit: ## Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQu
 	@$(MAKE) -s lint
 	@$(MAKE) -s pylint
 	@echo -e "$(CYAN)Step 4/4: SonarQube Scan…$(RESET)"
-	@$(MAKE) sonar
-
-ci: ## Run the same checks as GitHub Actions locally
-	@$(MAKE) -s typecheck
-	@$(MAKE) -s lint
-	@$(MAKE) -s pylint
+	@$(MAKE) -s sonar
 
 # ── Database ─────────────────────────────────────────────────────────────
 

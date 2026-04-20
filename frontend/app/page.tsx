@@ -1,3 +1,5 @@
+import ThemeToggle from "./theme-toggle";
+
 const FEATURES = [
   "GDPR rule selector",
   "Actionable checklist generation",
@@ -31,7 +33,10 @@ export default function HomePage() {
     <main className="page">
       <section className="hero hero-grid">
         <div>
-          <p className="eyebrow">RegCheck MVP</p>
+          <div className="hero-top">
+            <p className="eyebrow">RegCheck MVP</p>
+            <ThemeToggle />
+          </div>
           <h1>Turn regulatory rules into clear actions.</h1>
           <p className="lead">
             The first GDPR domain mode is available now: select a rule, generate
