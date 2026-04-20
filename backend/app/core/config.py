@@ -1,0 +1,16 @@
+"""Application settings loaded from environment variables."""
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Runtime configuration values for the API service."""
+
+    app_name: str = "RegCheck API"
+    app_version: str = "0.1.0"
+    debug: bool = False
+
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="REGCHECK_")
+
+
+settings = Settings()

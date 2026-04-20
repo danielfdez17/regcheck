@@ -18,6 +18,9 @@ INFO := $(CYAN)ℹ
 WARN := $(YELLOW)⚠
 
 DC := docker compose -f $(ROOT)docker-compose.yml
+PYTHON ?= python3
+VENV := .venv
+VENV_BIN := $(VENV)/bin
 
 .DEFAULT_GOAL := help
 help: ## Show available targets
@@ -31,80 +34,72 @@ help: ## Show available targets
 
 install: ## Install frontend (Next.js) and backend (FastAPI) dependencies locally
 	@echo -e "$(INFO) Installing frontend and backend dependencies…$(RESET)"
-	@echo -e "$(WARN) Unimplemented rule $(RESET)"
-#	npm --prefix frontend install
-#	python -m pip install -r backend/requirements.txt
+	$(PYTHON) -m venv $(VENV)
+	$(VENV_BIN)/python -m pip install --upgrade pip
+	npm --prefix frontend install
+	$(VENV_BIN)/python -m pip install -r backend/requirements.txt
 	@echo -e "$(SUCCESS) Dependencies installed$(RESET)"
 
-dev: update-submodules ## Start Next.js frontend (:3001) + FastAPI backend (:8000) locally
+dev: ## Start Next.js frontend (:3001) + FastAPI backend (:8000) locally
 	@echo -e "$(INFO) Starting frontend on http://localhost:3001 and backend on http://localhost:8000$(RESET)"
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	npm --prefix frontend run dev -- --port 3001
-# 	uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+	@echo -e "$(WARN) Run in two terminals:$(RESET)"
+	@echo -e "  1) npm --prefix frontend run dev -- --port $${FRONTEND_PORT:-3001}"
+	@echo -e "  2) $(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}"
 
-dev-docker: ## Start full stack via Docker (Next.js :3001 + FastAPI :8000 + MongoDB)
-	@echo -e "$(INFO) Starting full stack (frontend + backend + MongoDB) via Docker…$(RESET)"
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	$(DC) up -d
+dev-docker: ## Start full stack via Docker (Next.js :3001 + FastAPI :8000)
+	@echo -e "$(INFO) Starting full stack (frontend + backend) via Docker…$(RESET)"
+	$(DC) up -d --build
 	@echo -e "$(SUCCESS) Stack running:$(RESET)"
 	@echo -e "  Frontend:   http://localhost:$${FRONTEND_PORT:-3001}"
 	@echo -e "  Backend:    http://localhost:$${BACKEND_PORT:-8000}"
-	@echo -e "  MongoDB:    localhost:$${MONGO_PORT:-27017}"
 
 up: dev-docker ## Alias for dev-docker
 
 stop: ## Stop Docker stack
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	@$(DC) stop
+	@$(DC) stop
 	@echo -e "$(SUCCESS) Stack stopped$(RESET)"
 
 down: ## Stop and remove Docker containers + networks
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	@$(DC) down
+	@$(DC) down
 	@echo -e "$(SUCCESS) Stack removed$(RESET)"
 
 # ── Build ────────────────────────────────────────────────────────────────
 
 build: ## Build frontend for production and validate backend modules
 	@echo -e "$(INFO) Building frontend and validating backend…$(RESET)"
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	npm --prefix frontend run build
-# 	python -m compileall backend
+	npm --prefix frontend run build
+	$(VENV_BIN)/python -m compileall backend
 	@echo -e "$(SUCCESS) Build complete$(RESET)"
 
 typecheck: ## Run TypeScript type-checking for Next.js frontend
 	@echo -e "$(INFO) Type-checking…$(RESET)"
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	npm --prefix frontend run typecheck
+	npm --prefix frontend run typecheck
 	@echo -e "$(SUCCESS) No type errors$(RESET)"
 
 # ── Analysis & Quality ──────────────────────────────────────────────────
 
 lint: ## Run ESLint on frontend with zero-tolerance for warnings
 	@echo -e "$(INFO) Linting frontend source files…$(RESET)"
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	npm --prefix frontend run lint -- --max-warnings=0
+	npm --prefix frontend run lint -- --max-warnings=0
 	@echo -e "$(SUCCESS) No lint errors$(RESET)"
 
 pylint: ## Run Pylint on FastAPI backend code
 	@echo -e "$(INFO) Running Pylint on all Python files…$(RESET)"
-	@PY_FILES=$$(find . -type f -name '*.py' -not -path './.git/*' -not -path './.venv/*' -not -path './venv/*'); \
+	@PY_FILES=$$(find backend -type f -name '*.py' -not -path './.git/*' -not -path './.venv/*' -not -path './venv/*' -not -path './frontend/node_modules/*'); \
 	if [ -z "$$PY_FILES" ]; then \
 		echo -e "$(WARN) No Python files found$(RESET)"; \
 	else \
-		python3 -m pylint $$PY_FILES; \
+		$(VENV_BIN)/python -m pylint $$PY_FILES; \
 		echo -e "$(SUCCESS) Pylint analysis complete$(RESET)"; \
 	fi
 
 sonar: ## Run SonarQube Scan (requires SonarQube container up)
 	@echo -e "$(INFO)Step: SonarQube Scan…$(RESET)"
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	@if [ "$$(docker ps -q -f name=sonarqube)" ]; then \
-# 		echo -e "$(INFO)Running Sonar scanner…$(RESET)"; \
-# 		npx sonar-scanner || echo -e "$(RED)✘ Sonar scan failed$(RESET)"; \
-# 	else \
-# 		echo -e "$(YELLOW)⚠ SonarQube container not running, skipping scan$(RESET)"; \
-# 	fi
+	@if command -v sonar-scanner >/dev/null 2>&1; then \
+		sonar-scanner; \
+	else \
+		echo -e "$(WARN) sonar-scanner is not installed, skipping$(RESET)"; \
+	fi
 
 audit: ## Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQube up)
 	@echo -e "$(CYAN)══════════════════════════════════════════════════$(RESET)"
@@ -114,14 +109,7 @@ audit: ## Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQu
 	@$(MAKE) lint
 	@$(MAKE) pylint
 	@echo -e "$(CYAN)Step 4/4: SonarQube Scan…$(RESET)"
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	@if [ "$$(docker ps -q -f name=sonarqube)" ]; then \
-# 		echo -e "$(CYAN)Running Sonar scanner…$(RESET)"; \
-# 		# Comando para ejecutar el scanner (ajusta la ruta si tienes sonar-scanner local) \
-# 		npx sonar-scanner || echo -e "$(RED)✘ Sonar scan failed$(RESET)"; \
-# 	else \
-# 		echo -e "$(YELLOW)⚠ SonarQube container not running, skipping scan$(RESET)"; \
-# 	fi
+	@$(MAKE) sonar
 
 ci: ## Run the same checks as GitHub Actions locally
 	@$(MAKE) typecheck
@@ -135,14 +123,12 @@ ci: ## Run the same checks as GitHub Actions locally
 
 re: ## Full restart: wipe everything and start fresh
 	@echo -e "$(CYAN)══ Full restart ══$(RESET)"
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	$(DC) down -v --remove-orphans 2>/dev/null || true
-# 	$(DC) up -d
+	$(DC) down -v --remove-orphans 2>/dev/null || true
+	$(DC) up -d --build
 	@echo -e "$(GREEN)══ Restart complete ══$(RESET)"
 
 clean: ## Remove frontend and backend build artifacts
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	rm -rf frontend/.next frontend/node_modules backend/__pycache__ backend/.pytest_cache
+	rm -rf frontend/.next frontend/node_modules backend/__pycache__ backend/.pytest_cache
 	@echo -e "$(GREEN)✔ Cleaned$(RESET)"
 
 # ── Logs ─────────────────────────────────────────────────────────────────

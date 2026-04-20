@@ -1,0 +1,34 @@
+{
+  "folders": [
+    {
+      "name": "frontend",
+      "path": "frontend",
+    },
+    {
+      "name": "backend",
+      "path": "backend",
+    },
+    {
+      "name": "vendor",
+      "path": "vendor",
+    },
+    {
+      "name": "root",
+      "path": ".",
+      "exclude": ["frontend", "backend", "vendor"],
+      "settings": {
+        "files.exclude": {
+          "**/.git": true,
+          "**/.svn": true,
+          "**/.hg": true,
+          "**/.DS_Store": true,
+          "**/Thumbs.db": true,
+          "**/frontend": true,
+          "**/backend": true,
+          "**/vendor": true,
+          "LICENSE": true,
+        },
+      },
+    },
+  ],
+}

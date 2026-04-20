@@ -5,6 +5,7 @@
 ### 💡 What it does
 
 An enterprise introduces:
+
 - Type of company (small enterprise, SaaS, etc...)
 - Rules to be applied (e.g. GDPR, ISO/IEC 27001)
 
@@ -16,36 +17,64 @@ The project returns:
 
 ---
 
-## 🎯 Minimum functionalities 
+## 🎯 Minimum functionalities
 
 1. **Rule selector**
-    - GDPR
+   - GDPR
 
 2. **Basic engine (simple rules)**
-    - Example:
-        - "If you handle personal data -> you need privacy policies"
-        - "If you have employees -> treatment activity registration"
+   - Example:
+     - "If you handle personal data -> you need privacy policies"
+     - "If you have employees -> treatment activity registration"
 
 3. **Checklist generation**
-    - Status: pending / in progress / done
+   - Status: pending / in progress / done
 
 4. **Basic export**
-    - PDF or CSV or Markdown
+   - PDF or CSV or Markdown
 
 ---
 
 ## 🧱 Fast implementation
 
 - Backend: Python (FastAPI) o Node.js
-- Frontend: React 
+- Frontend: React
 - Database: SQLite
 
 ---
 
-## 🎁 Real value can be sold
+## 🎁 Real value that can be sold
 
 - Simplifies complex rules
 - Useful for small companies
+
+---
+
+## 🛠️ Infrastructure bootstrapped
+
+Current stack scaffold:
+
+- Backend: FastAPI (Python)
+- Frontend: Next.js + React + TypeScript
+- Local quality checks: typecheck, lint, pylint
+- Containerized dev stack: Docker Compose (frontend + backend)
+
+### Quick start
+
+1. Copy environment defaults:
+   - `cp .env.example .env`
+2. Install dependencies in project-local environments:
+   - `make install`
+3. Validate project quality checks:
+   - `make ci`
+4. Run app with containers:
+   - `make dev-docker`
+
+Endpoints:
+
+- Frontend: http://localhost:3001
+- Backend: http://localhost:8000
+- Health: http://localhost:8000/api/v1/health
 
 ---
 
