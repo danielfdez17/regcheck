@@ -79,17 +79,15 @@ lint: ## Run ESLint on frontend with zero-tolerance for warnings
 # 	npm --prefix frontend run lint -- --max-warnings=0
 	@echo -e "$(OK) No lint errors$(RESET)"
 
-lint-fix: ## Automatically fix linting errors where possible
-	@echo -e "$(INFO) Fixing lint errors…$(RESET)"
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	npm --prefix frontend run lint -- --fix
-	@echo -e "$(OK) Lint fix complete$(RESET)"
-
 pylint: ## Run Pylint on FastAPI backend code
-	@echo -e "$(INFO) Running Pylint on backend…$(RESET)"
-	@echo -e "$(INFO) Unimplemented rule $(RESET)"
-# 	python -m pylint backend
-	@echo -e "$(OK) Pylint analysis complete$(RESET)"
+	@echo -e "$(INFO) Running Pylint on all Python files…$(RESET)"
+	@PY_FILES=$$(find . -type f -name '*.py' -not -path './.git/*' -not -path './.venv/*' -not -path './venv/*'); \
+	if [ -z "$$PY_FILES" ]; then \
+		echo -e "$(WARN) No Python files found$(RESET)"; \
+	else \
+		python3 -m pylint $$PY_FILES; \
+		echo -e "$(OK) Pylint analysis complete$(RESET)"; \
+	fi
 
 sonar: ## Run SonarQube Scan (requires SonarQube container up)
 	@echo -e "$(INFO)Step: SonarQube Scan…$(RESET)"
