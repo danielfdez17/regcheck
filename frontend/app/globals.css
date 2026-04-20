@@ -1,10 +1,15 @@
 :root {
-  --bg: #f4efe6;
-  --panel: #fff9f0;
-  --text: #1d2a2f;
-  --accent: #157a6e;
-  --accent-soft: #2fb8a6;
-  --border: #d7c6ab;
+  --bg: #f1eadf;
+  --bg-alt: #e5f2ef;
+  --panel: rgba(255, 250, 243, 0.88);
+  --panel-strong: #fff8ef;
+  --text: #152229;
+  --muted: #5b696c;
+  --accent: #116e67;
+  --accent-soft: #d9f0ec;
+  --accent-strong: #0c4d48;
+  --border: #d7c8b4;
+  --shadow: 0 18px 50px rgba(21, 34, 41, 0.1);
 }
 
 * {
@@ -17,12 +22,26 @@ body {
   font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at 10% 15%, #fff7ea 0%, transparent 40%),
-    radial-gradient(circle at 90% 85%, #d9f7f2 0%, transparent 45%), var(--bg);
+    radial-gradient(
+      circle at 10% 15%,
+      rgba(255, 247, 234, 0.95) 0%,
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(217, 240, 236, 0.88) 0%,
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 85%,
+      rgba(229, 242, 239, 0.9) 0%,
+      transparent 34%
+    ),
+    linear-gradient(160deg, var(--bg) 0%, #f8f4eb 48%, var(--bg-alt) 100%);
 }
 
 .page {
-  max-width: 900px;
+  max-width: 1120px;
   margin: 0 auto;
   padding: 2rem 1rem 4rem;
 }
@@ -30,8 +49,10 @@ body {
 .hero {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 1.5rem;
   padding: 1.5rem;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
 }
 
 .eyebrow {
@@ -44,24 +65,132 @@ body {
 
 h1 {
   margin: 0.5rem 0 0.75rem;
-  line-height: 1.15;
+  line-height: 1.08;
+  font-size: clamp(2.4rem, 5vw, 4.4rem);
+  max-width: 11ch;
 }
 
-.features {
+h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.lead {
+  max-width: 56ch;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.9fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
   margin-top: 1.25rem;
-  background: var(--panel);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 0.875rem;
+}
+
+.badge-soft {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.panel {
+  background: var(--panel-strong);
   border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.panel-highlight {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 251, 245, 0.98),
+      rgba(251, 247, 240, 0.98)
+    ),
+    var(--panel-strong);
+}
+
+.panel-kicker {
+  margin: 0 0 0.5rem;
+  color: var(--accent);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.checklist-mini,
+.feature-list {
+  margin: 1rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.checklist-mini li,
+.feature-list li {
+  margin: 0.45rem 0;
+  line-height: 1.45;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.endpoint-list {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.endpoint {
+  padding: 0.95rem;
   border-radius: 1rem;
-  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(215, 200, 180, 0.8);
 }
 
-.features ul {
-  margin: 0.75rem 0 0;
-  padding-left: 1.25rem;
+.endpoint-method {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 999px;
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
 }
 
-.features li {
-  margin: 0.5rem 0;
+.endpoint-path {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.endpoint p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
 }
 
 @media (max-width: 640px) {
@@ -70,7 +199,12 @@ h1 {
   }
 
   .hero,
-  .features {
+  .panel {
     padding: 1rem;
+  }
+
+  .hero-grid,
+  .grid {
+    grid-template-columns: 1fr;
   }
 }
