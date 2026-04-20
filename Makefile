@@ -17,6 +17,13 @@ FAIL := $(RED)✗
 INFO := $(CYAN)ℹ
 WARN := $(YELLOW)⚠
 
+# Reusable text banner: $(call print_banner,Your message)
+define print_banner
+echo -e "$(CYAN)══════════════════════════════════════════════════$(RESET)"; \
+echo -e "$(CYAN)  $(1)$(RESET)"; \
+echo -e "$(CYAN)══════════════════════════════════════════════════$(RESET)"
+endef
+
 DC := docker compose -f $(ROOT)docker-compose.yml
 PYTHON ?= python3
 VENV := .venv
@@ -24,7 +31,8 @@ VENV_BIN := $(VENV)/bin
 
 .DEFAULT_GOAL := help
 help: ## Show available targets
-	@echo -e "$(CYAN)List of available targets$(RESET)"
+	@$(call print_banner,Show available targets)
+# 	@echo -e "$(CYAN)List of available targets$(RESET)"
 	@echo ""
 	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' Makefile | \
 		awk 'BEGIN {FS = ":.*## "}; {printf "  $(CYAN)%-18s$(RESET) %s\n", $$1, $$2}'
@@ -33,6 +41,7 @@ help: ## Show available targets
 # ── Development ──────────────────────────────────────────────────────────
 
 install: ## Install frontend (Next.js) and backend (FastAPI) dependencies locally
+	@$(call print_banner,Install frontend (Next.js) and backend (FastAPI) dependencies locally)
 	@echo -e "$(INFO) Installing frontend and backend dependencies…$(RESET)"
 	@$(PYTHON) -m venv $(VENV)
 	@$(VENV_BIN)/python -m pip install --upgrade pip
@@ -41,14 +50,17 @@ install: ## Install frontend (Next.js) and backend (FastAPI) dependencies locall
 	@echo -e "$(SUCCESS) Dependencies installed$(RESET)"
 
 dev-frontend: ## Start Next.js frontend only (http://localhost:3001)
+	@$(call print_banner,Start Next.js frontend only (http://localhost:3001))
 	@echo -e "$(INFO) Starting Next.js frontend on http://localhost:3001$(RESET)"
 	@pnpm --dir frontend run dev --port $${FRONTEND_PORT:-3001}
 
 dev-backend: ## Start FastAPI backend only (http://localhost:8000)
+	@$(call print_banner,Start FastAPI backend only (http://localhost:8000))
 	@echo -e "$(INFO) Starting FastAPI backend on http://localhost:8000$(RESET)"
 	@$(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}
 
 dev-docker: ## Start full stack via Docker (Next.js :3001 + FastAPI :8000)
+	@$(call print_banner,Start full stack via Docker (Next.js :3001 + FastAPI :8000))
 	@echo -e "$(INFO) Starting full stack (frontend + backend) via Docker…$(RESET)"
 	@$(DC) up -d --build
 	@echo -e "$(SUCCESS) Stack running:$(RESET)"
@@ -58,35 +70,41 @@ dev-docker: ## Start full stack via Docker (Next.js :3001 + FastAPI :8000)
 up: dev-docker ## Alias for dev-docker
 
 stop: ## Stop Docker stack
+	@$(call print_banner,Stop Docker stack)
 	@$(DC) stop
 	@echo -e "$(SUCCESS) Stack stopped$(RESET)"
 
 down: ## Stop and remove Docker containers + networks
+	@$(call print_banner,Stop and remove Docker containers + networks)
 	@$(DC) down
 	@echo -e "$(SUCCESS) Stack removed$(RESET)"
 
 # ── Build ────────────────────────────────────────────────────────────────
 
 build: ## Build frontend for production and validate backend modules
-	@echo -e "$(INFO) Building frontend and validating backend…$(RESET)"
+	@$(call print_banner,Build frontend for production and validate backend modules)
+# 	@echo -e "$(INFO) Building frontend and validating backend…$(RESET)"
 	@pnpm --dir frontend run build
 	@$(VENV_BIN)/python -m compileall backend
 	@echo -e "$(SUCCESS) Build complete$(RESET)"
 
 typecheck: ## Run TypeScript type-checking for Next.js frontend
-	@echo -e "$(INFO) Type-checking…$(RESET)"
+	@$(call print_banner,Run TypeScript type-checking for Next.js frontend)
+# 	@echo -e "$(INFO) Type-checking…$(RESET)"
 	@pnpm --dir frontend run typecheck
 	@echo -e "$(SUCCESS) No type errors$(RESET)"
 
 # ── Analysis & Quality ──────────────────────────────────────────────────
 
 lint: ## Run ESLint on frontend with zero-tolerance for warnings
-	@echo -e "$(INFO) Linting frontend source files…$(RESET)"
+	@$(call print_banner,Run ESLint on frontend with zero-tolerance for warnings)
+# 	@echo -e "$(INFO) Linting frontend source files…$(RESET)"
 	@pnpm --dir frontend exec next lint --max-warnings=0
 	@echo -e "$(SUCCESS) No lint errors$(RESET)"
 
 pylint: ## Run Pylint on FastAPI backend code
-	@echo -e "$(INFO) Running Pylint on all Python files…$(RESET)"
+	@$(call print_banner,Run Pylint on FastAPI backend code)
+# 	@echo -e "$(INFO) Running Pylint on all Python files…$(RESET)"
 	@PY_FILES=$$(find backend -type f -name '*.py' -not -path './.git/*' -not -path './.venv/*' -not -path './venv/*' -not -path './frontend/node_modules/*'); \
 	if [ -z "$$PY_FILES" ]; then \
 		echo -e "$(WARN) No Python files found$(RESET)"; \
@@ -104,13 +122,10 @@ sonar: ## Run SonarQube Scan (requires SonarQube container up)
 	fi
 
 audit: ## Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQube up)
-	@echo -e "$(CYAN)══════════════════════════════════════════════════$(RESET)"
-	@echo -e "$(CYAN)  Full Audit — TypeScript + ESLint + Pylint + SonarQube $(RESET)"
-	@echo -e "$(CYAN)══════════════════════════════════════════════════$(RESET)"
+	@$(call print_banner,Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQube up))
 	@$(MAKE) -s typecheck
 	@$(MAKE) -s lint
 	@$(MAKE) -s pylint
-	@echo -e "$(CYAN)Step 4/4: SonarQube Scan…$(RESET)"
 	@$(MAKE) -s sonar
 
 # ── Database ─────────────────────────────────────────────────────────────
@@ -119,12 +134,14 @@ audit: ## Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQu
 # ── Reset ────────────────────────────────────────────────────────────────
 
 re: ## Full restart: wipe everything and start fresh
+	@$(call print_banner,Full Restart: wipe everything and start fresh)
 	@echo -e "$(CYAN)══ Full restart ══$(RESET)"
 	@$(DC) down -v --remove-orphans 2>/dev/null || true
 	@$(DC) up -d --build
 	@echo -e "$(GREEN)══ Restart complete ══$(RESET)"
 
 clean: ## Remove frontend and backend build artifacts
+	@$(call print_banner,Remove frontend and backend build artifacts)
 	@rm -rf frontend/.next frontend/node_modules backend/__pycache__ backend/.pytest_cache
 	@echo -e "$(GREEN)✔ Cleaned$(RESET)"
 
@@ -132,7 +149,8 @@ clean: ## Remove frontend and backend build artifacts
 
 
 # ── Utilities ────────────────────────────────────────────────────────────
-update-submodules: ## Update git submodules (e.g. ui-collection)
+update-submodules: ## Update git submodules
+	@$(call print_banner,Update git submodules)
 	@echo -e "$(INFO) Updating git submodules…$(RESET)"
 	@git submodule update --init --recursive --remote
 	@echo -e "$(SUCCESS) Submodules updated$(RESET)"
