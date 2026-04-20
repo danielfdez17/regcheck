@@ -36,7 +36,7 @@ install: ## Install frontend (Next.js) and backend (FastAPI) dependencies locall
 	@echo -e "$(INFO) Installing frontend and backend dependencies…$(RESET)"
 	$(PYTHON) -m venv $(VENV)
 	$(VENV_BIN)/python -m pip install --upgrade pip
-	npm --prefix frontend install
+	pnpm --dir frontend install
 	$(VENV_BIN)/python -m pip install -r backend/requirements.txt
 	@echo -e "$(SUCCESS) Dependencies installed$(RESET)"
 
@@ -44,12 +44,12 @@ install: ## Install frontend (Next.js) and backend (FastAPI) dependencies locall
 # 	@echo -e "$(WARN) Run in two terminals:$(RESET)"
 # 	@$(MAKE) -s dev-frontend
 # 	@$(MAKE) -s dev-backend
-# 	@echo -e "  1) npm --prefix frontend run dev -- --port $${FRONTEND_PORT:-3001}"
+# 	@echo -e "  1) pnpm --dir frontend run dev -- --port $${FRONTEND_PORT:-3001}"
 # 	@echo -e "  2) $(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}"
 
 dev-frontend: ## Start Next.js frontend only (http://localhost:3001)
 	@echo -e "$(INFO) Starting Next.js frontend on http://localhost:3001$(RESET)"
-	npm --prefix frontend run dev -- --port $${FRONTEND_PORT:-3001}
+	pnpm --dir frontend run dev -- --port $${FRONTEND_PORT:-3001}
 
 dev-backend: ## Start FastAPI backend only (http://localhost:8000)
 	@echo -e "$(INFO) Starting FastAPI backend on http://localhost:8000$(RESET)"
@@ -76,20 +76,20 @@ down: ## Stop and remove Docker containers + networks
 
 build: ## Build frontend for production and validate backend modules
 	@echo -e "$(INFO) Building frontend and validating backend…$(RESET)"
-	npm --prefix frontend run build
+	pnpm --dir frontend run build
 	$(VENV_BIN)/python -m compileall backend
 	@echo -e "$(SUCCESS) Build complete$(RESET)"
 
 typecheck: ## Run TypeScript type-checking for Next.js frontend
 	@echo -e "$(INFO) Type-checking…$(RESET)"
-	npm --prefix frontend run typecheck
+	pnpm --dir frontend run typecheck
 	@echo -e "$(SUCCESS) No type errors$(RESET)"
 
 # ── Analysis & Quality ──────────────────────────────────────────────────
 
 lint: ## Run ESLint on frontend with zero-tolerance for warnings
 	@echo -e "$(INFO) Linting frontend source files…$(RESET)"
-	npm --prefix frontend run lint -- --max-warnings=0
+	pnpm --dir frontend exec next lint --max-warnings=0
 	@echo -e "$(SUCCESS) No lint errors$(RESET)"
 
 pylint: ## Run Pylint on FastAPI backend code
