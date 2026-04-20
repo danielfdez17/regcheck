@@ -1,0 +1,3 @@
+[submodule "vendor/scripts"]
+	path = vendor/scripts
+	url = https://github.com/danielfdez17/scripts.git
