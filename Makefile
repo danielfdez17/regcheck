@@ -34,30 +34,23 @@ help: ## Show available targets
 
 install: ## Install frontend (Next.js) and backend (FastAPI) dependencies locally
 	@echo -e "$(INFO) Installing frontend and backend dependencies…$(RESET)"
-	$(PYTHON) -m venv $(VENV)
-	$(VENV_BIN)/python -m pip install --upgrade pip
-	pnpm --dir frontend install
-	$(VENV_BIN)/python -m pip install -r backend/requirements.txt
+	@$(PYTHON) -m venv $(VENV)
+	@$(VENV_BIN)/python -m pip install --upgrade pip
+	@pnpm --dir frontend install
+	@$(VENV_BIN)/python -m pip install -r backend/requirements.txt
 	@echo -e "$(SUCCESS) Dependencies installed$(RESET)"
-
-# dev: ## Start Next.js frontend (:3001) + FastAPI backend (:8000) locally
-# 	@echo -e "$(WARN) Run in two terminals:$(RESET)"
-# 	@$(MAKE) -s dev-frontend
-# 	@$(MAKE) -s dev-backend
-# 	@echo -e "  1) pnpm --dir frontend run dev -- --port $${FRONTEND_PORT:-3001}"
-# 	@echo -e "  2) $(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}"
 
 dev-frontend: ## Start Next.js frontend only (http://localhost:3001)
 	@echo -e "$(INFO) Starting Next.js frontend on http://localhost:3001$(RESET)"
-	pnpm --dir frontend run dev -- --port $${FRONTEND_PORT:-3001}
+	@pnpm --dir frontend run dev --port $${FRONTEND_PORT:-3001}
 
 dev-backend: ## Start FastAPI backend only (http://localhost:8000)
 	@echo -e "$(INFO) Starting FastAPI backend on http://localhost:8000$(RESET)"
-	$(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}
+	@$(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}
 
 dev-docker: ## Start full stack via Docker (Next.js :3001 + FastAPI :8000)
 	@echo -e "$(INFO) Starting full stack (frontend + backend) via Docker…$(RESET)"
-	$(DC) up -d --build
+	@$(DC) up -d --build
 	@echo -e "$(SUCCESS) Stack running:$(RESET)"
 	@echo -e "  Frontend:   http://localhost:$${FRONTEND_PORT:-3001}"
 	@echo -e "  Backend:    http://localhost:$${BACKEND_PORT:-8000}"
@@ -76,20 +69,20 @@ down: ## Stop and remove Docker containers + networks
 
 build: ## Build frontend for production and validate backend modules
 	@echo -e "$(INFO) Building frontend and validating backend…$(RESET)"
-	pnpm --dir frontend run build
-	$(VENV_BIN)/python -m compileall backend
+	@pnpm --dir frontend run build
+	@$(VENV_BIN)/python -m compileall backend
 	@echo -e "$(SUCCESS) Build complete$(RESET)"
 
 typecheck: ## Run TypeScript type-checking for Next.js frontend
 	@echo -e "$(INFO) Type-checking…$(RESET)"
-	pnpm --dir frontend run typecheck
+	@pnpm --dir frontend run typecheck
 	@echo -e "$(SUCCESS) No type errors$(RESET)"
 
 # ── Analysis & Quality ──────────────────────────────────────────────────
 
 lint: ## Run ESLint on frontend with zero-tolerance for warnings
 	@echo -e "$(INFO) Linting frontend source files…$(RESET)"
-	pnpm --dir frontend exec next lint --max-warnings=0
+	@pnpm --dir frontend exec next lint --max-warnings=0
 	@echo -e "$(SUCCESS) No lint errors$(RESET)"
 
 pylint: ## Run Pylint on FastAPI backend code
@@ -114,16 +107,16 @@ audit: ## Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQu
 	@echo -e "$(CYAN)══════════════════════════════════════════════════$(RESET)"
 	@echo -e "$(CYAN)  Full Audit — TypeScript + ESLint + Pylint + SonarQube $(RESET)"
 	@echo -e "$(CYAN)══════════════════════════════════════════════════$(RESET)"
-	@$(MAKE) typecheck
-	@$(MAKE) lint
-	@$(MAKE) pylint
+	@$(MAKE) -s typecheck
+	@$(MAKE) -s lint
+	@$(MAKE) -s pylint
 	@echo -e "$(CYAN)Step 4/4: SonarQube Scan…$(RESET)"
 	@$(MAKE) sonar
 
 ci: ## Run the same checks as GitHub Actions locally
-	@$(MAKE) typecheck
-	@$(MAKE) lint
-	@$(MAKE) pylint
+	@$(MAKE) -s typecheck
+	@$(MAKE) -s lint
+	@$(MAKE) -s pylint
 
 # ── Database ─────────────────────────────────────────────────────────────
 
@@ -132,12 +125,12 @@ ci: ## Run the same checks as GitHub Actions locally
 
 re: ## Full restart: wipe everything and start fresh
 	@echo -e "$(CYAN)══ Full restart ══$(RESET)"
-	$(DC) down -v --remove-orphans 2>/dev/null || true
-	$(DC) up -d --build
+	@$(DC) down -v --remove-orphans 2>/dev/null || true
+	@$(DC) up -d --build
 	@echo -e "$(GREEN)══ Restart complete ══$(RESET)"
 
 clean: ## Remove frontend and backend build artifacts
-	rm -rf frontend/.next frontend/node_modules backend/__pycache__ backend/.pytest_cache
+	@rm -rf frontend/.next frontend/node_modules backend/__pycache__ backend/.pytest_cache
 	@echo -e "$(GREEN)✔ Cleaned$(RESET)"
 
 # ── Logs ─────────────────────────────────────────────────────────────────
