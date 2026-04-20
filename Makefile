@@ -40,11 +40,20 @@ install: ## Install frontend (Next.js) and backend (FastAPI) dependencies locall
 	$(VENV_BIN)/python -m pip install -r backend/requirements.txt
 	@echo -e "$(SUCCESS) Dependencies installed$(RESET)"
 
-dev: ## Start Next.js frontend (:3001) + FastAPI backend (:8000) locally
-	@echo -e "$(INFO) Starting frontend on http://localhost:3001 and backend on http://localhost:8000$(RESET)"
-	@echo -e "$(WARN) Run in two terminals:$(RESET)"
-	@echo -e "  1) npm --prefix frontend run dev -- --port $${FRONTEND_PORT:-3001}"
-	@echo -e "  2) $(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}"
+# dev: ## Start Next.js frontend (:3001) + FastAPI backend (:8000) locally
+# 	@echo -e "$(WARN) Run in two terminals:$(RESET)"
+# 	@$(MAKE) -s dev-frontend
+# 	@$(MAKE) -s dev-backend
+# 	@echo -e "  1) npm --prefix frontend run dev -- --port $${FRONTEND_PORT:-3001}"
+# 	@echo -e "  2) $(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}"
+
+dev-frontend: ## Start Next.js frontend only (http://localhost:3001)
+	@echo -e "$(INFO) Starting Next.js frontend on http://localhost:3001$(RESET)"
+	npm --prefix frontend run dev -- --port $${FRONTEND_PORT:-3001}
+
+dev-backend: ## Start FastAPI backend only (http://localhost:8000)
+	@echo -e "$(INFO) Starting FastAPI backend on http://localhost:8000$(RESET)"
+	$(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}
 
 dev-docker: ## Start full stack via Docker (Next.js :3001 + FastAPI :8000)
 	@echo -e "$(INFO) Starting full stack (frontend + backend) via Docker…$(RESET)"
@@ -146,6 +155,6 @@ push-new-branch: ## Pushes a new branch using a script
 merge-to-dev: ## Merges the current branch into dev using a script
 	@bash ./vendor/scripts/git/merge_to_dev.sh
 
-.PHONY: help install dev dev-docker up stop down build typecheck \
+.PHONY: help install dev-frontend dev-backend dev-docker up stop down build typecheck \
         re clean \
         lint audit ci sonar update-submodules
