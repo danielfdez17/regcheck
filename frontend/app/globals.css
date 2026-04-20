@@ -50,16 +50,8 @@ body {
   font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
   color: var(--text);
   background:
-    radial-gradient(
-      circle at 10% 15%,
-      var(--bg-glow-a) 0%,
-      transparent 35%
-    ),
-    radial-gradient(
-      circle at 85% 20%,
-      var(--bg-glow-b) 0%,
-      transparent 28%
-    ),
+    radial-gradient(circle at 10% 15%, var(--bg-glow-a) 0%, transparent 35%),
+    radial-gradient(circle at 85% 20%, var(--bg-glow-b) 0%, transparent 28%),
     radial-gradient(
       circle at 90% 85%,
       rgba(255, 255, 255, 0.06) 0%,

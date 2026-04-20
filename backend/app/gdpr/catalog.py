@@ -39,35 +39,46 @@ GDPR_CHECKLIST_ITEMS: dict[str, ChecklistItem] = {
     "document-processing-activities": ChecklistItem(
         id="document-processing-activities",
         title="Document processing activities",
-        description="Keep a record of what personal data you collect, why you collect it, and where you store it.",
+        description="""
+        Keep a record of what personal data you collect,
+        why you collect it, and where you store it.
+        """,
         priority="high",
         rule_id="personal_data_processing",
     ),
     "publish-privacy-policy": ChecklistItem(
         id="publish-privacy-policy",
         title="Publish a privacy policy",
-        description="Explain the legal basis, retention policy, and rights available to data subjects.",
+        description="""
+        Explain the legal basis, retention policy, and rights available to data subjects.
+        """,
         priority="high",
         rule_id="personal_data_processing",
     ),
     "track-retention-periods": ChecklistItem(
         id="track-retention-periods",
         title="Track retention periods",
-        description="Define how long each category of personal data is kept and when it must be deleted.",
+        description="""
+        Define how long each category of personal data is kept and when it must be deleted.
+        """,
         priority="medium",
         rule_id="personal_data_processing",
     ),
     "define-dsr-process": ChecklistItem(
         id="define-dsr-process",
         title="Define a data subject request process",
-        description="Create a process to handle access, rectification, deletion, and portability requests.",
+        description="""
+        Create a process to handle access, rectification, deletion, and portability requests.
+        """,
         priority="high",
         rule_id="personal_data_processing",
     ),
     "assign-privacy-owner": ChecklistItem(
         id="assign-privacy-owner",
         title="Assign a privacy owner",
-        description="Ensure a named owner is accountable for GDPR governance and follow-up actions.",
+        description="""
+        Ensure a named owner is accountable for GDPR governance and follow-up actions.
+        """,
         priority="medium",
         rule_id="personal_data_processing",
     ),
@@ -104,7 +115,7 @@ def build_gdpr_checklist(request: GDPRChecklistRequest) -> GDPRChecklistResponse
     }
     checklist_items = [
         GDPR_CHECKLIST_ITEMS[item_id]
-        for item_id in GDPR_CHECKLIST_ITEMS
+        for item_id in GDPR_CHECKLIST_ITEMS.items()
         if item_id in selected_item_ids
     ]
 
