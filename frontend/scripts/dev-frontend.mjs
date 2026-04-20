@@ -6,8 +6,13 @@ const host = process.env.FRONTEND_HOST ?? "0.0.0.0";
 
 let childProcess = null;
 let restartRequested = false;
+let shutdownRequested = false;
 
 function startServer() {
+  if (shutdownRequested) {
+    return;
+  }
+
   childProcess = spawn(
     "pnpm",
     ["exec", "vite", "--host", host, "--port", port, "--strictPort"],
@@ -18,6 +23,11 @@ function startServer() {
 
   childProcess.on("exit", (exitCode, exitSignal) => {
     childProcess = null;
+
+    if (shutdownRequested) {
+      process.exit(exitCode ?? 0);
+      return;
+    }
 
     if (restartRequested) {
       restartRequested = false;
@@ -41,6 +51,26 @@ function restartServer() {
   childProcess.kill("SIGTERM");
 }
 
+function shutdownServer(signal = "SIGTERM") {
+  shutdownRequested = true;
+  restartRequested = false;
+
+  if (childProcess === null) {
+    process.exit(0);
+    return;
+  }
+
+  const processToStop = childProcess;
+  processToStop.kill(signal);
+
+  // Fallback in case Vite hangs during shutdown and does not release the port.
+  setTimeout(() => {
+    if (childProcess === processToStop) {
+      processToStop.kill("SIGKILL");
+    }
+  }, 1500);
+}
+
 const input = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -55,18 +85,17 @@ input.on("line", (line) => {
   }
 
   if (command === "q" || command === "quit" || command === "exit") {
-    process.exit(0);
+    input.close();
+    shutdownServer();
   }
 });
 
 process.on("SIGINT", () => {
-  if (childProcess !== null) {
-    childProcess.kill("SIGINT");
-  }
-
   input.close();
-  process.exit(0);
+  shutdownServer("SIGINT");
 });
 
-console.log("Frontend dev server controls: type r + Enter to restart, q + Enter to quit.");
+console.log(
+  "Frontend dev server controls: type r + Enter to restart, q + Enter to quit.",
+);
 startServer();

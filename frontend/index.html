@@ -15,10 +15,14 @@
         const browserWindow = globalThis.window;
         const savedTheme = browserWindow.localStorage.getItem(storageKey);
         const theme =
-          savedTheme === "light" || savedTheme === "dark" || savedTheme === "system"
+          savedTheme === "light" ||
+          savedTheme === "dark" ||
+          savedTheme === "system"
             ? savedTheme
             : "dark";
-        const systemTheme = browserWindow.matchMedia("(prefers-color-scheme: dark)").matches
+        const systemTheme = browserWindow.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches
           ? "dark"
           : "light";
         const resolvedTheme = theme === "system" ? systemTheme : theme;
