@@ -14,7 +14,7 @@
             "state": {
               "type": "kanban",
               "state": {
-                "file": "docs/obsidian/RegCheck.md",
+                "file": "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
                 "kanbanViewState": {
                   "kanban-plugin": "board",
                   "list-collapse": [
@@ -27,7 +27,7 @@
               },
               "pinned": true,
               "icon": "lucide-trello",
-              "title": "RegCheck"
+              "title": "RegCheck (20-04-2026 -> 25-05-2026)"
             }
           }
         ]
@@ -165,13 +165,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "docs/obsidian/RegCheck.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of RegCheck"
+              "title": "Outline"
             }
           }
         ],
@@ -225,10 +224,10 @@
       "obsidian-kanban:Create new board": false
     }
   },
-  "active": "5e4770212bdbed57",
+  "active": "5ba4bd1c6cb3edd8",
   "lastOpenFiles": [
+    "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
     "docs/obsidian/templates/Kanban.md",
-    "docs/obsidian/RegCheck.md",
     "docs/obsidian/templates",
     "docs/obsidian/000 - To-do list features (Tokyo Night appearance).md",
     "next-steps.md",
