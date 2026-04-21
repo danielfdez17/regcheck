@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "ec3375d956227888",
+        "id": "fb75b98e16988286",
         "type": "tabs",
         "children": [
           {
-            "id": "3d2ccf358a8e7c17",
+            "id": "f5d2e6b2932ed809",
             "type": "leaf",
             "pinned": true,
             "state": {
@@ -225,15 +225,15 @@
       "obsidian-kanban:Create new board": false
     }
   },
-  "active": "3d2ccf358a8e7c17",
+  "active": "5e4770212bdbed57",
   "lastOpenFiles": [
+    "docs/obsidian/templates/Kanban.md",
+    "docs/obsidian/RegCheck.md",
+    "docs/obsidian/templates",
     "docs/obsidian/000 - To-do list features (Tokyo Night appearance).md",
     "next-steps.md",
     "README.md",
-    "docs/obsidian/RegCheck.md",
     "Untitled.canvas",
-    "docs/obsidian/templates/Kanban.md",
-    "docs/obsidian/templates",
     "docs/obsidian/Untitled.md",
     "docs/obsidian/reports/21-04-2026.md",
     "docs/obsidian/reports/000 - Daily Report Template.md",
