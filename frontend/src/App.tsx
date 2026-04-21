@@ -27,8 +27,15 @@ const API_ENDPOINTS = [
   {
     method: "POST",
     path: "/api/v1/gdpr/checklists",
-    summary: "Generates a checklist from company profile context and chosen rule ids.",
+    summary:
+      "Generates a checklist from company profile context and chosen rule ids.",
   },
+];
+
+const NAV_ITEMS = [
+  { label: "Overview", href: "#overview" },
+  { label: "Playground", href: "#playground" },
+  { label: "API", href: "#api" },
 ];
 
 interface HomePageData {
@@ -98,6 +105,45 @@ async function loadHomePageData(): Promise<HomePageData> {
   }
 }
 
+function AppNavbar() {
+  return (
+    <header className="app-navbar">
+      <div className="app-navbar-inner">
+        <a className="brand" href="#overview">
+          <span className="brand-mark" aria-hidden="true">
+            RC
+          </span>
+          <span className="brand-copy">
+            <strong>RegCheck</strong>
+            <span>GDPR Compliance Workspace</span>
+          </span>
+        </a>
+
+        <nav aria-label="Primary" className="app-nav-links">
+          {NAV_ITEMS.map((item) => (
+            <a href={item.href} key={item.href}>
+              {item.label}
+            </a>
+          ))}
+        </nav>
+
+        <ThemeToggle />
+      </div>
+    </header>
+  );
+}
+
+function AppFooter() {
+  return (
+    <footer className="app-footer">
+      <div className="app-footer-inner">
+        <p>RegCheck MVP</p>
+        <p>Operational GDPR rule mapping and checklist generation.</p>
+      </div>
+    </footer>
+  );
+}
+
 export default function App() {
   const [pageData, setPageData] = useState<HomePageData | null>(null);
 
@@ -121,101 +167,114 @@ export default function App() {
 
   if (pageData === null) {
     return (
-      <main className="page">
-        <section className="hero hero-grid">
-          <div>
-            <div className="hero-top">
-              <p className="eyebrow">RegCheck MVP</p>
-              <ThemeToggle />
-            </div>
-            <h1>Turn regulatory rules into clear actions.</h1>
-            <p className="lead">
-              Loading the GDPR rule selector and generating the first checklist.
-            </p>
+      <div className="app-shell">
+        <AppNavbar />
+        <main className="app-main">
+          <div className="page">
+            <section className="hero hero-grid" id="overview">
+              <div>
+                <p className="eyebrow">RegCheck MVP</p>
+                <h1>Turn regulatory rules into clear actions.</h1>
+                <p className="lead">
+                  Loading the GDPR rule selector and generating the first
+                  checklist.
+                </p>
+              </div>
+              <article className="panel panel-highlight">
+                <p className="panel-kicker">Backend status</p>
+                <h2>Connecting...</h2>
+                <p>The frontend is fetching the initial selector state.</p>
+              </article>
+            </section>
           </div>
-          <article className="panel panel-highlight">
-            <p className="panel-kicker">Backend status</p>
-            <h2>Connecting...</h2>
-            <p>The frontend is fetching the initial selector state.</p>
-          </article>
-        </section>
-      </main>
+        </main>
+        <AppFooter />
+      </div>
     );
   }
 
   const { connected, errorMessage, selector, initialChecklist } = pageData;
 
   return (
-    <main className="page">
-      <section className="hero hero-grid">
-        <div>
-          <div className="hero-top">
-            <p className="eyebrow">RegCheck MVP</p>
-            <ThemeToggle />
-          </div>
-          <h1>Turn regulatory rules into clear actions.</h1>
-          <p className="lead">
-            The first GDPR domain mode now supports company profile intake,
-            service-driven recommendations, and evidence-focused checklists.
-          </p>
-          <div className="badge-row" aria-label="Available mode">
-            <span className="badge">GDPR domain mode</span>
-            <span className="badge badge-soft">Checklist entities</span>
-            <span className="badge badge-soft">
-              {connected ? "Backend connected" : "Backend disconnected"}
-            </span>
-          </div>
-          {errorMessage && <p className="status-note">{errorMessage}</p>}
-        </div>
-      </section>
+    <div className="app-shell">
+      <AppNavbar />
 
-      {selector ? (
-        <GdprPlayground
-          initialChecklist={{
-            domain_mode: selector.domain_mode,
-            selected_rules:
-              initialChecklist.rule === null ? [] : [initialChecklist.rule],
-            checklist_items: initialChecklist.checklistItems,
-            recommended_rule_ids: [],
-          }}
-          initialSelector={selector}
-        />
-      ) : (
-        <section className="grid">
-          <article className="panel panel-highlight">
-            <p className="panel-kicker">Default rule selector</p>
-            <h2>Rule unavailable</h2>
-            <p>
-              The frontend could not load the backend selector, so no live input
-              controls are available yet.
-            </p>
-          </article>
-        </section>
-      )}
-
-      <section className="grid">
-        <article className="panel">
-          <h2>Initial infrastructure ready</h2>
-          <ul className="feature-list">
-            {FEATURES.map((feature) => (
-              <li key={feature}>{feature}</li>
-            ))}
-          </ul>
-        </article>
-
-        <article className="panel">
-          <h2>API endpoints</h2>
-          <div className="endpoint-list">
-            {API_ENDPOINTS.map((endpoint) => (
-              <div className="endpoint" key={endpoint.path}>
-                <span className="endpoint-method">{endpoint.method}</span>
-                <span className="endpoint-path">{endpoint.path}</span>
-                <p>{endpoint.summary}</p>
+      <main className="app-main">
+        <div className="page">
+          <section className="hero hero-grid" id="overview">
+            <div>
+              <p className="eyebrow">RegCheck MVP</p>
+              <h1>Turn regulatory rules into clear actions.</h1>
+              <p className="lead">
+                The first GDPR domain mode now supports company profile intake,
+                service-driven recommendations, and evidence-focused checklists.
+              </p>
+              <div className="badge-row" aria-label="Available mode">
+                <span className="badge">GDPR domain mode</span>
+                <span className="badge badge-soft">Checklist entities</span>
+                <span className="badge badge-soft">
+                  {connected ? "Backend connected" : "Backend disconnected"}
+                </span>
               </div>
-            ))}
-          </div>
-        </article>
-      </section>
-    </main>
+              {errorMessage && <p className="status-note">{errorMessage}</p>}
+            </div>
+          </section>
+
+          {selector ? (
+            <div id="playground">
+              <GdprPlayground
+                initialChecklist={{
+                  domain_mode: selector.domain_mode,
+                  selected_rules:
+                    initialChecklist.rule === null
+                      ? []
+                      : [initialChecklist.rule],
+                  checklist_items: initialChecklist.checklistItems,
+                  recommended_rule_ids: [],
+                }}
+                initialSelector={selector}
+              />
+            </div>
+          ) : (
+            <section className="grid">
+              <article className="panel panel-highlight">
+                <p className="panel-kicker">Default rule selector</p>
+                <h2>Rule unavailable</h2>
+                <p>
+                  The frontend could not load the backend selector, so no live
+                  input controls are available yet.
+                </p>
+              </article>
+            </section>
+          )}
+
+          <section className="grid" id="api">
+            <article className="panel">
+              <h2>Initial infrastructure ready</h2>
+              <ul className="feature-list">
+                {FEATURES.map((feature) => (
+                  <li key={feature}>{feature}</li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="panel">
+              <h2>API endpoints</h2>
+              <div className="endpoint-list">
+                {API_ENDPOINTS.map((endpoint) => (
+                  <div className="endpoint" key={endpoint.path}>
+                    <span className="endpoint-method">{endpoint.method}</span>
+                    <span className="endpoint-path">{endpoint.path}</span>
+                    <p>{endpoint.summary}</p>
+                  </div>
+                ))}
+              </div>
+            </article>
+          </section>
+        </div>
+      </main>
+
+      <AppFooter />
+    </div>
   );
 }
