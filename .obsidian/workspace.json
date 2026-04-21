@@ -4,17 +4,30 @@
     "type": "split",
     "children": [
       {
-        "id": "84082972279beff9",
+        "id": "ec3375d956227888",
         "type": "tabs",
         "children": [
           {
-            "id": "baef0f2586fde203",
+            "id": "3d2ccf358a8e7c17",
             "type": "leaf",
+            "pinned": true,
             "state": {
-              "type": "empty",
-              "state": {},
-              "icon": "lucide-file",
-              "title": "New tab"
+              "type": "kanban",
+              "state": {
+                "file": "docs/obsidian/RegCheck.md",
+                "kanbanViewState": {
+                  "kanban-plugin": "board",
+                  "list-collapse": [
+                    false,
+                    false,
+                    false,
+                    false
+                  ]
+                }
+              },
+              "pinned": true,
+              "icon": "lucide-trello",
+              "title": "RegCheck"
             }
           }
         ]
@@ -49,7 +62,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "[\"kanban-plugin\"]",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -152,17 +165,17 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "docs/obsidian/00-index.md",
+                "file": "docs/obsidian/RegCheck.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of 00-index"
+              "title": "Outline of RegCheck"
             }
           }
         ],
-        "currentTab": 4
+        "currentTab": 2
       },
       {
         "id": "724136aed89e4cb7",
@@ -208,28 +221,37 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false
+      "bases:Create new base": false,
+      "obsidian-kanban:Create new board": false
     }
   },
-  "active": "c10f8ea903c6c77d",
+  "active": "3d2ccf358a8e7c17",
   "lastOpenFiles": [
+    "docs/obsidian/000 - To-do list features (Tokyo Night appearance).md",
+    "next-steps.md",
+    "README.md",
+    "docs/obsidian/RegCheck.md",
+    "Untitled.canvas",
+    "docs/obsidian/templates/Kanban.md",
+    "docs/obsidian/templates",
+    "docs/obsidian/Untitled.md",
+    "docs/obsidian/reports/21-04-2026.md",
+    "docs/obsidian/reports/000 - Daily Report Template.md",
+    "docs/obsidian/reports/000 - Daily Report Template",
+    "docs/obsidian/reports",
+    "2026-04-21.md",
+    "regcheck.db-journal",
     "regcheck.code-workspace",
     "frontend/vite.config.ts",
     "frontend/tsconfig.json",
     "frontend/src/vite-env.d.ts",
     "frontend/src/theme-toggle.tsx",
     "frontend/src/theme-provider.tsx",
-    "frontend/src/main.tsx",
-    "frontend/src/gdpr-playground.tsx",
-    "frontend/src/App.tsx",
-    "frontend/scripts/dev-frontend.mjs",
-    "frontend/scripts",
     "docs/obsidian/05-frontend-backend-integration.md",
     "docs/obsidian/04-validation-and-operations.md",
     "docs/obsidian/03-fastapi-db-integration.md",
     "docs/obsidian/02-sqlite-schema-and-seeding.md",
     "docs/obsidian/01-sqlite-persistence-goal.md",
-    "docs/obsidian/00-index.md",
-    "README.md"
+    "docs/obsidian/00-index.md"
   ]
 }

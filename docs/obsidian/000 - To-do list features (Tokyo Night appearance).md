@@ -1,0 +1,38 @@
+- [ ] to-do
+- [/] incomplete \[/]
+- [x] done \[x] or \[X]
+- [-] cancelled \[-]
+- [<] scheduling \[<]
+- [?] question \[?]
+- [!] important \[!]
+- [*] star \[\*]
+- ["] quote \["]
+- [l] location \[l]
+- [b] bookmark \[b]
+- [i] information \[i]
+- [S] savings \[S]
+- [I] idea \[I]
+- [p] pros \[p]
+- [c] cons \[c]
+- [u] up \[u]
+- [d] down \[d]
+```
+- [ ] to-do
+- [/] incomplete
+- [x] done
+- [-] canceled
+- [<] scheduling
+- [?] question
+- [!] important
+- [*] star
+- ["] quote
+- [l] location
+- [b] bookmark
+- [i] information
+- [S] savings
+- [I] idea
+- [p] pros
+- [c] cons
+- [u] up
+- [d] down
+```
