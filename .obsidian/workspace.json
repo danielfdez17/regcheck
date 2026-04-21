@@ -1,19 +1,19 @@
 {
   "main": {
-    "id": "673bb2d776a3fc20",
+    "id": "22828327f0e739ab",
     "type": "split",
     "children": [
       {
-        "id": "2864dc4574b34fcf",
+        "id": "84082972279beff9",
         "type": "tabs",
         "children": [
           {
-            "id": "da644dc011c1207f",
+            "id": "baef0f2586fde203",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "obsidian/00-index.md",
+                "file": "docs/obsidian/00-index.md",
                 "mode": "source",
                 "source": false
               },
@@ -27,15 +27,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "fa6a1757381a920f",
+    "id": "d7665529b832ba8d",
     "type": "split",
     "children": [
       {
-        "id": "280987675cab365a",
+        "id": "be30815c1a51ca77",
         "type": "tabs",
         "children": [
           {
-            "id": "12f4a7eb7824a7da",
+            "id": "5e4770212bdbed57",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -48,7 +48,7 @@
             }
           },
           {
-            "id": "53b4e250ee375741",
+            "id": "f4d5158f7d83d165",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -65,7 +65,7 @@
             }
           },
           {
-            "id": "f02d49934b83e6b0",
+            "id": "9ad44a58673d78a3",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -81,20 +81,20 @@
     "width": 300
   },
   "right": {
-    "id": "57ea95b0a481d82e",
+    "id": "d48ee6acb8762a26",
     "type": "split",
     "children": [
       {
-        "id": "04c48e03ab792518",
+        "id": "b941914142220f0a",
         "type": "tabs",
         "children": [
           {
-            "id": "ed911d9bdc8d334a",
+            "id": "de97603420d8c941",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "obsidian/00-index.md",
+                "file": "README.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,25 +104,25 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for 00-index"
+              "title": "Backlinks for README"
             }
           },
           {
-            "id": "413bbc09c45b04ea",
+            "id": "3f8f04963871bb60",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "obsidian/00-index.md",
+                "file": "README.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from 00-index"
+              "title": "Outgoing links from README"
             }
           },
           {
-            "id": "b913f7038c50aae7",
+            "id": "ef20a8b2a4ba8c7b",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -137,7 +137,7 @@
             }
           },
           {
-            "id": "d8aa2bc02d82f953",
+            "id": "06c2c87591db251b",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -151,12 +151,12 @@
             }
           },
           {
-            "id": "8d57260d7077d147",
+            "id": "c10f8ea903c6c77d",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "obsidian/00-index.md",
+                "file": "docs/obsidian/00-index.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -169,11 +169,11 @@
         "currentTab": 4
       },
       {
-        "id": "3fc82163d5ad4f93",
+        "id": "724136aed89e4cb7",
         "type": "tabs",
         "children": [
           {
-            "id": "33e67cdca22b3c89",
+            "id": "5ba4bd1c6cb3edd8",
             "type": "leaf",
             "state": {
               "type": "graph",
@@ -185,11 +185,11 @@
         ]
       },
       {
-        "id": "f0a6e692f2d3138b",
+        "id": "b4f1d657bb4454ac",
         "type": "tabs",
         "children": [
           {
-            "id": "6a1173e18baaa671",
+            "id": "02d336950d7704e9",
             "type": "leaf",
             "state": {
               "type": "calendar",
@@ -202,12 +202,12 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 379.5
   },
   "left-ribbon": {
     "hiddenItems": {
-      "graph:Open graph view": false,
       "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
       "canvas:Create new canvas": false,
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
@@ -215,11 +215,8 @@
       "bases:Create new base": false
     }
   },
-  "active": "12f4a7eb7824a7da",
+  "active": "c10f8ea903c6c77d",
   "lastOpenFiles": [
-    "obsidian/02-sqlite-schema-and-seeding.md",
-    "obsidian/01-sqlite-persistence-goal.md",
-    "obsidian/00-index.md",
-    "obsidian/05-frontend-backend-integration.md"
+    "README.md"
   ]
 }

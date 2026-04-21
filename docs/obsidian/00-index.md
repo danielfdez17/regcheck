@@ -1,5 +1,38 @@
 # RegCheck Knowledge Net
 
+## Project description
+
+### Submit 1
+
+#### Expected data from companies
+
+- Company type, even though it is not the most important field
+- Department type (HHRR, Development, Satelites, Cyber, etc)
+- Service to be audited: what they do. Depending on the service, the app generates a form to apply some rules:
+
+> [!example]  
+> - Cyber -> SOC
+> - Satellites -> development of photovoltaic panels
+> - Web page auditory 
+
+- Rules to be applicable (i.e. ***GDPR***, ISO/IEC 27001)
+
+### Form to be filled depending on what departments/services do
+
+- ¿Software development? -> DevSecOps
+- ¿Cloud usage? -> Cloud controls (use hierarchical delegation) or _on premise_ (harder)
+- ¿Do they have physics buildings? -> Access control and cameras
+- ¿Remote work using VPN? -> ¿Is the VPN secure? ¿Do they have password policies?
+
+### What the app returns
+
+- Clear compliance checklist
+- Priority classified
+- With concrete actions to solve the issues
+- Ask for every rule check the evidence, then the app is also a repository of evidences
+
+---
+
 ## Topic
 
 - [[01-sqlite-persistence-goal]]
