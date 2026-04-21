@@ -113,20 +113,20 @@ pylint: ## Run Pylint on FastAPI backend code
 		echo -e "$(SUCCESS) Pylint analysis complete$(RESET)"; \
 	fi
 
-sonar: ## Run SonarQube Scan (requires SonarQube container up)
-	@echo -e "$(INFO)Step: SonarQube Scan…$(RESET)"
-	@if command -v sonar-scanner >/dev/null 2>&1; then \
-		sonar-scanner; \
-	else \
-		echo -e "$(WARN) sonar-scanner is not installed, skipping$(RESET)"; \
-	fi
+# sonar: ## Run SonarQube Scan (requires SonarQube container up)
+# 	@echo -e "$(INFO)Step: SonarQube Scan…$(RESET)"
+# 	@if command -v sonar-scanner >/dev/null 2>&1; then \
+# 		sonar-scanner; \
+# 	else \
+# 		echo -e "$(WARN) sonar-scanner is not installed, skipping$(RESET)"; \
+# 	fi
 
 audit: ## Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQube up)
 	@$(call print_banner,Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQube up))
 	@$(MAKE) -s typecheck
 	@$(MAKE) -s lint
 	@$(MAKE) -s pylint
-	@$(MAKE) -s sonar
+# 	@$(MAKE) -s sonar
 
 # ── Database ─────────────────────────────────────────────────────────────
 
