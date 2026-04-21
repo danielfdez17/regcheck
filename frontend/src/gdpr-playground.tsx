@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { OptionCard, ResponseBlock } from "./components/gdpr-playground-parts";
 import {
   createChecklist,
   type CompanyProfileInput,
@@ -151,101 +152,67 @@ export default function GdprPlayground({
         <p className="response-label">Department types</p>
         <div className="rule-list">
           {selector.profile_options.department_types.map((departmentType) => (
-            <label
-              aria-label={departmentType}
-              className="rule-card"
+            <OptionCard
+              ariaLabel={departmentType}
+              checked={departmentTypes.includes(departmentType)}
               key={departmentType}
-            >
-              <input
-                checked={departmentTypes.includes(departmentType)}
-                className="rule-checkbox"
-                onChange={() => toggleDepartment(departmentType)}
-                type="checkbox"
-              />
-              <span>
-                <strong>{departmentType}</strong>
-              </span>
-            </label>
+              label={departmentType}
+              onChange={() => toggleDepartment(departmentType)}
+            />
           ))}
         </div>
 
         <p className="response-label">Applicable frameworks</p>
         <div className="rule-list">
           {selector.profile_options.framework_options.map((framework) => (
-            <label aria-label={framework} className="rule-card" key={framework}>
-              <input
-                checked={requestedFrameworks.includes(framework)}
-                className="rule-checkbox"
-                onChange={() => toggleFramework(framework)}
-                type="checkbox"
-              />
-              <span>
-                <strong>{framework}</strong>
-              </span>
-            </label>
+            <OptionCard
+              ariaLabel={framework}
+              checked={requestedFrameworks.includes(framework)}
+              key={framework}
+              label={framework}
+              onChange={() => toggleFramework(framework)}
+            />
           ))}
         </div>
 
         <p className="response-label">Operational context</p>
         <div className="rule-list">
-          <label aria-label="Cloud usage" className="rule-card">
-            <input
-              checked={usesCloud}
-              className="rule-checkbox"
-              onChange={() => setUsesCloud((currentValue) => !currentValue)}
-              type="checkbox"
-            />
-            <span>
-              <strong>Cloud usage</strong>
-            </span>
-          </label>
-          <label
-            aria-label="Physical buildings with access control"
-            className="rule-card"
-          >
-            <input
-              checked={hasPhysicalBuildings}
-              className="rule-checkbox"
-              onChange={() =>
-                setHasPhysicalBuildings((currentValue) => !currentValue)
-              }
-              type="checkbox"
-            />
-            <span>
-              <strong>Physical buildings with access control</strong>
-            </span>
-          </label>
-          <label aria-label="Remote work over VPN" className="rule-card">
-            <input
-              checked={supportsRemoteWorkVpn}
-              className="rule-checkbox"
-              onChange={() =>
-                setSupportsRemoteWorkVpn((currentValue) => !currentValue)
-              }
-              type="checkbox"
-            />
-            <span>
-              <strong>Remote work over VPN</strong>
-            </span>
-          </label>
+          <OptionCard
+            ariaLabel="Cloud usage"
+            checked={usesCloud}
+            label="Cloud usage"
+            onChange={() => setUsesCloud((currentValue) => !currentValue)}
+          />
+          <OptionCard
+            ariaLabel="Physical buildings with access control"
+            checked={hasPhysicalBuildings}
+            label="Physical buildings with access control"
+            onChange={() =>
+              setHasPhysicalBuildings((currentValue) => !currentValue)
+            }
+          />
+          <OptionCard
+            ariaLabel="Remote work over VPN"
+            checked={supportsRemoteWorkVpn}
+            label="Remote work over VPN"
+            onChange={() =>
+              setSupportsRemoteWorkVpn((currentValue) => !currentValue)
+            }
+          />
         </div>
 
         <p className="response-label">Manual rule override (optional)</p>
 
         <div className="rule-list">
           {selector.available_rules.map((rule) => (
-            <label aria-label={rule.label} className="rule-card" key={rule.id}>
-              <input
-                checked={selectedRuleIds.includes(rule.id)}
-                className="rule-checkbox"
-                onChange={() => toggleRule(rule.id)}
-                type="checkbox"
-              />
-              <span>
-                <strong>{rule.label}</strong>
-                <span>{rule.description}</span>
-              </span>
-            </label>
+            <OptionCard
+              ariaLabel={rule.label}
+              checked={selectedRuleIds.includes(rule.id)}
+              description={rule.description}
+              key={rule.id}
+              label={rule.label}
+              onChange={() => toggleRule(rule.id)}
+            />
           ))}
         </div>
 
@@ -269,37 +236,28 @@ export default function GdprPlayground({
         <h2>{checklist.domain_mode.label}</h2>
         <p>{checklist.domain_mode.description}</p>
 
-        <div className="response-block">
-          <p className="response-label">Recommended rules from profile</p>
-          <ul className="checklist-mini">
-            {checklist.recommended_rule_ids.map((ruleId) => (
-              <li key={ruleId}>{ruleId}</li>
-            ))}
-          </ul>
-        </div>
+        <ResponseBlock title="Recommended rules from profile">
+          {checklist.recommended_rule_ids.map((ruleId) => (
+            <li key={ruleId}>{ruleId}</li>
+          ))}
+        </ResponseBlock>
 
-        <div className="response-block">
-          <p className="response-label">Selected rules</p>
-          <ul className="checklist-mini">
-            {checklist.selected_rules.map((rule) => (
-              <li key={rule.id}>{rule.label}</li>
-            ))}
-          </ul>
-        </div>
+        <ResponseBlock title="Selected rules">
+          {checklist.selected_rules.map((rule) => (
+            <li key={rule.id}>{rule.label}</li>
+          ))}
+        </ResponseBlock>
 
-        <div className="response-block">
-          <p className="response-label">Checklist items</p>
-          <ul className="checklist-mini">
-            {checklist.checklist_items.map((item) => (
-              <li key={item.id}>
-                <strong>{item.title}</strong>
-                <span>{item.priority}</span>
-                <span>{item.concrete_action}</span>
-                <span>{item.evidence_request}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ResponseBlock title="Checklist items">
+          {checklist.checklist_items.map((item) => (
+            <li key={item.id}>
+              <strong>{item.title}</strong>
+              <span>{item.priority}</span>
+              <span>{item.concrete_action}</span>
+              <span>{item.evidence_request}</span>
+            </li>
+          ))}
+        </ResponseBlock>
       </article>
     </section>
   );

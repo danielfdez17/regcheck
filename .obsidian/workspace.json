@@ -4,19 +4,28 @@
     "type": "split",
     "children": [
       {
-        "id": "fb75b98e16988286",
+        "id": "774cdbc058b0573b",
         "type": "tabs",
         "children": [
           {
-            "id": "f5d2e6b2932ed809",
+            "id": "c7f67af1910950a6",
             "type": "leaf",
-            "pinned": true,
             "state": {
-              "type": "empty",
-              "state": {},
-              "pinned": true,
-              "icon": "lucide-file",
-              "title": "New tab"
+              "type": "kanban",
+              "state": {
+                "file": "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
+                "kanbanViewState": {
+                  "kanban-plugin": "board",
+                  "list-collapse": [
+                    false,
+                    false,
+                    false,
+                    false
+                  ]
+                }
+              },
+              "icon": "lucide-trello",
+              "title": "RegCheck (20-04-2026 -> 25-05-2026)"
             }
           }
         ]
@@ -154,12 +163,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "Outline of RegCheck (20-04-2026 -> 25-05-2026)"
             }
           }
         ],
@@ -213,8 +223,14 @@
       "obsidian-kanban:Create new board": false
     }
   },
-  "active": "5ba4bd1c6cb3edd8",
+  "active": "c7f67af1910950a6",
   "lastOpenFiles": [
+    "frontend/src/hooks/use-home-page-data.ts",
+    "frontend/src/hooks",
+    "frontend/src/components/gdpr-playground-parts.tsx",
+    "frontend/src/components/home-content.tsx",
+    "frontend/src/components/app-shell.tsx",
+    "frontend/src/components",
     "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
     "docs/obsidian/templates/Kanban.md",
     "docs/obsidian/templates",
@@ -231,11 +247,6 @@
     "2026-04-21.md",
     "regcheck.db-journal",
     "regcheck.code-workspace",
-    "frontend/vite.config.ts",
-    "frontend/tsconfig.json",
-    "frontend/src/vite-env.d.ts",
-    "frontend/src/theme-toggle.tsx",
-    "frontend/src/theme-provider.tsx",
     "docs/obsidian/05-frontend-backend-integration.md",
     "docs/obsidian/04-validation-and-operations.md",
     "docs/obsidian/03-fastapi-db-integration.md",
