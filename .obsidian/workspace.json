@@ -12,22 +12,11 @@
             "type": "leaf",
             "pinned": true,
             "state": {
-              "type": "kanban",
-              "state": {
-                "file": "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
-                "kanbanViewState": {
-                  "kanban-plugin": "board",
-                  "list-collapse": [
-                    false,
-                    false,
-                    false,
-                    false
-                  ]
-                }
-              },
+              "type": "empty",
+              "state": {},
               "pinned": true,
-              "icon": "lucide-trello",
-              "title": "RegCheck (20-04-2026 -> 25-05-2026)"
+              "icon": "lucide-file",
+              "title": "New tab"
             }
           }
         ]
@@ -229,6 +218,7 @@
     "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
     "docs/obsidian/templates/Kanban.md",
     "docs/obsidian/templates",
+    "docs/obsidian/RegCheck.md",
     "docs/obsidian/000 - To-do list features (Tokyo Night appearance).md",
     "next-steps.md",
     "README.md",

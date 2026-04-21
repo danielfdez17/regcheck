@@ -11,8 +11,9 @@ import {
 } from "./lib/regcheck-api";
 
 const FEATURES = [
-  "GDPR rule selector",
-  "Actionable checklist generation",
+  "Company profile intake",
+  "Service and department based recommendations",
+  "Actionable checklist generation with evidence requests",
   "Status tracking (pending, in progress, done)",
   "Export-ready output",
 ];
@@ -26,7 +27,7 @@ const API_ENDPOINTS = [
   {
     method: "POST",
     path: "/api/v1/gdpr/checklists",
-    summary: "Generates a checklist preview from the chosen rule ids.",
+    summary: "Generates a checklist from company profile context and chosen rule ids.",
   },
 ];
 
@@ -57,7 +58,18 @@ async function loadHomePageData(): Promise<HomePageData> {
       };
     }
 
-    const checklist = await createChecklist([firstRule.id]);
+    const checklist = await createChecklist({
+      selectedRuleIds: [firstRule.id],
+      companyProfile: {
+        company_type: "other",
+        department_types: [],
+        service_description: "General data processing activities",
+        requested_frameworks: ["gdpr"],
+        uses_cloud: false,
+        has_physical_buildings: false,
+        supports_remote_work_vpn: false,
+      },
+    });
 
     return {
       connected: true,
@@ -143,8 +155,8 @@ export default function App() {
           </div>
           <h1>Turn regulatory rules into clear actions.</h1>
           <p className="lead">
-            The first GDPR domain mode is available now: select a rule, generate
-            a checklist, and keep status tracking explicit.
+            The first GDPR domain mode now supports company profile intake,
+            service-driven recommendations, and evidence-focused checklists.
           </p>
           <div className="badge-row" aria-label="Available mode">
             <span className="badge">GDPR domain mode</span>
@@ -164,6 +176,7 @@ export default function App() {
             selected_rules:
               initialChecklist.rule === null ? [] : [initialChecklist.rule],
             checklist_items: initialChecklist.checklistItems,
+            recommended_rule_ids: [],
           }}
           initialSelector={selector}
         />

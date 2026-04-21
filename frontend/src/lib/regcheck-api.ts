@@ -15,6 +15,22 @@ export interface RuleOption {
   checklist_item_ids: string[];
 }
 
+export interface CompanyProfileOptions {
+  company_types: string[];
+  department_types: string[];
+  framework_options: string[];
+}
+
+export interface CompanyProfileInput {
+  company_type: string;
+  department_types: string[];
+  service_description: string;
+  requested_frameworks: string[];
+  uses_cloud: boolean;
+  has_physical_buildings: boolean;
+  supports_remote_work_vpn: boolean;
+}
+
 export interface ChecklistItem {
   id: string;
   title: string;
@@ -22,17 +38,26 @@ export interface ChecklistItem {
   priority: ChecklistPriority;
   status: ChecklistStatus;
   rule_id: string;
+  concrete_action: string | null;
+  evidence_request: string | null;
 }
 
 export interface GDPRRuleSelectorResponse {
   domain_mode: DomainMode;
   available_rules: RuleOption[];
+  profile_options: CompanyProfileOptions;
 }
 
 export interface GDPRChecklistResponse {
   domain_mode: DomainMode;
   selected_rules: RuleOption[];
   checklist_items: ChecklistItem[];
+  recommended_rule_ids: string[];
+}
+
+export interface CreateChecklistInput {
+  selectedRuleIds: string[];
+  companyProfile?: CompanyProfileInput;
 }
 
 interface RequestOptions extends RequestInit {
@@ -75,11 +100,14 @@ export async function getRuleSelector(): Promise<GDPRRuleSelectorResponse> {
 }
 
 export async function createChecklist(
-  selectedRuleIds: string[],
+  input: CreateChecklistInput,
 ): Promise<GDPRChecklistResponse> {
   return requestJson<GDPRChecklistResponse>({
     path: "/api/v1/gdpr/checklists",
     method: "POST",
-    body: JSON.stringify({ selected_rule_ids: selectedRuleIds }),
+    body: JSON.stringify({
+      selected_rule_ids: input.selectedRuleIds,
+      company_profile: input.companyProfile,
+    }),
   });
 }

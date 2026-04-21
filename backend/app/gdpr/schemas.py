@@ -28,6 +28,14 @@ class RuleOption(BaseModel):
     checklist_item_ids: list[str] = Field(default_factory=list)
 
 
+class CompanyProfileOptions(BaseModel):
+    """Predefined options for building a company profile input."""
+
+    company_types: list[str] = Field(default_factory=list)
+    department_types: list[str] = Field(default_factory=list)
+    framework_options: list[str] = Field(default_factory=list)
+
+
 class ChecklistItem(BaseModel):
     """Represents one actionable checklist item."""
 
@@ -37,6 +45,8 @@ class ChecklistItem(BaseModel):
     priority: ChecklistPriority
     status: ChecklistStatus = "pending"
     rule_id: str
+    concrete_action: str | None = None
+    evidence_request: str | None = None
 
 
 class GDPRRuleSelectorResponse(BaseModel):
@@ -44,12 +54,26 @@ class GDPRRuleSelectorResponse(BaseModel):
 
     domain_mode: DomainMode
     available_rules: list[RuleOption]
+    profile_options: CompanyProfileOptions
+
+
+class CompanyProfileInput(BaseModel):
+    """Company context used to recommend relevant controls and rules."""
+
+    company_type: str = "other"
+    department_types: list[str] = Field(default_factory=list)
+    service_description: str = ""
+    requested_frameworks: list[str] = Field(default_factory=list)
+    uses_cloud: bool = False
+    has_physical_buildings: bool = False
+    supports_remote_work_vpn: bool = False
 
 
 class GDPRChecklistRequest(BaseModel):
     """Request payload for generating a GDPR checklist preview."""
 
     selected_rule_ids: list[str] = Field(default_factory=list)
+    company_profile: CompanyProfileInput | None = None
 
 
 class GDPRChecklistResponse(BaseModel):
@@ -58,3 +82,4 @@ class GDPRChecklistResponse(BaseModel):
     domain_mode: DomainMode
     selected_rules: list[RuleOption]
     checklist_items: list[ChecklistItem]
+    recommended_rule_ids: list[str] = Field(default_factory=list)
