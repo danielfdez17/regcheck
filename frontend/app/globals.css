@@ -155,8 +155,8 @@ body {
 }
 
 .page {
-  max-width: 1120px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   padding: 1.5rem 1rem 2.5rem;
 }
 
