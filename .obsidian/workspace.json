@@ -27,6 +27,20 @@
               "icon": "lucide-trello",
               "title": "RegCheck (20-04-2026 -> 25-05-2026)"
             }
+          },
+          {
+            "id": "c9ddd392010663b9",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/obsidian/000 - To-do list features (Tokyo Night appearance).md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "000 - To-do list features (Tokyo Night appearance)"
+            }
           }
         ]
       }
@@ -225,6 +239,8 @@
   },
   "active": "c7f67af1910950a6",
   "lastOpenFiles": [
+    "docs/obsidian/000 - To-do list features (Tokyo Night appearance).md",
+    "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
     "vendor/scripts/push_submodule_to_branch.sh",
     "vendor/scripts/git/push_submodule_to_branch.sh",
     "frontend/src/hooks/use-home-page-data.ts",
@@ -233,11 +249,9 @@
     "frontend/src/components/gdpr-playground-parts.tsx",
     "frontend/src/components/app-shell.tsx",
     "frontend/src/components",
-    "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
     "docs/obsidian/templates/Kanban.md",
     "docs/obsidian/templates",
     "docs/obsidian/RegCheck.md",
-    "docs/obsidian/000 - To-do list features (Tokyo Night appearance).md",
     "next-steps.md",
     "README.md",
     "Untitled.canvas",
@@ -245,7 +259,6 @@
     "docs/obsidian/reports/21-04-2026.md",
     "docs/obsidian/reports/000 - Daily Report Template.md",
     "docs/obsidian/reports/000 - Daily Report Template",
-    "docs/obsidian/reports",
     "2026-04-21.md",
     "docs/obsidian/05-frontend-backend-integration.md",
     "docs/obsidian/04-validation-and-operations.md",

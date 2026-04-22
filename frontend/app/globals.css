@@ -240,6 +240,13 @@ h2 {
 
 .hero-overview > div {
   width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero-overview .badge-row {
+  justify-content: center;
 }
 
 .badge-row {
