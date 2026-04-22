@@ -25,12 +25,12 @@ function OverviewSection({
   errorMessage,
 }: Readonly<OverviewSectionProps>) {
   return (
-    <section className="hero hero-grid" id="overview">
+    <section className="hero hero-overview" id="overview">
       <div>
         <p className="eyebrow">RegCheck MVP</p>
         <h1>{title}</h1>
         <p className="lead">{description}</p>
-        {connected !== undefined ? (
+        {connected === undefined ? null : (
           <div className="badge-row" aria-label="Available mode">
             <span className="badge">GDPR domain mode</span>
             <span className="badge badge-soft">Checklist entities</span>
@@ -38,7 +38,7 @@ function OverviewSection({
               {connected ? "Backend connected" : "Backend disconnected"}
             </span>
           </div>
-        ) : null}
+        )}
         {errorMessage ? <p className="status-note">{errorMessage}</p> : null}
       </div>
     </section>

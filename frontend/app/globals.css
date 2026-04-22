@@ -233,6 +233,15 @@ h2 {
   align-items: stretch;
 }
 
+.hero-overview h1,
+.hero-overview .lead {
+  max-width: none;
+}
+
+.hero-overview > div {
+  width: 100%;
+}
+
 .badge-row {
   display: flex;
   flex-wrap: wrap;
