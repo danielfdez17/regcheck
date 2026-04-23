@@ -11,21 +11,14 @@
             "id": "c7f67af1910950a6",
             "type": "leaf",
             "state": {
-              "type": "kanban",
+              "type": "markdown",
               "state": {
-                "file": "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
-                "kanbanViewState": {
-                  "kanban-plugin": "board",
-                  "list-collapse": [
-                    false,
-                    false,
-                    false,
-                    false
-                  ]
-                }
+                "file": "docs/obsidian/Subject_pr1.ES.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-trello",
-              "title": "RegCheck (20-04-2026 -> 25-05-2026)"
+              "icon": "lucide-file",
+              "title": "Subject_pr1.ES"
             }
           },
           {
@@ -99,7 +92,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "d48ee6acb8762a26",
@@ -223,7 +217,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 379.5
+    "width": 379.5,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -239,26 +234,26 @@
   },
   "active": "c7f67af1910950a6",
   "lastOpenFiles": [
-    "docs/obsidian/000 - To-do list features (Tokyo Night appearance).md",
-    "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
-    "vendor/scripts/push_submodule_to_branch.sh",
-    "vendor/scripts/git/push_submodule_to_branch.sh",
+    "practica_ciberseguridad_IA.pdf",
     "frontend/src/hooks/use-home-page-data.ts",
     "frontend/src/hooks",
     "frontend/src/components/home-content.tsx",
     "frontend/src/components/gdpr-playground-parts.tsx",
     "frontend/src/components/app-shell.tsx",
     "frontend/src/components",
+    "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
+    "docs/obsidian/000 - To-do list features (Tokyo Night appearance).md",
+    "details",
+    "docs/obsidian/Subject_pr1.ES.md",
+    "vendor/scripts/push_submodule_to_branch.sh",
+    "vendor/scripts/git/push_submodule_to_branch.sh",
     "docs/obsidian/templates/Kanban.md",
-    "docs/obsidian/templates",
     "docs/obsidian/RegCheck.md",
     "next-steps.md",
     "README.md",
     "Untitled.canvas",
-    "docs/obsidian/Untitled.md",
     "docs/obsidian/reports/21-04-2026.md",
     "docs/obsidian/reports/000 - Daily Report Template.md",
-    "docs/obsidian/reports/000 - Daily Report Template",
     "2026-04-21.md",
     "docs/obsidian/05-frontend-backend-integration.md",
     "docs/obsidian/04-validation-and-operations.md",
