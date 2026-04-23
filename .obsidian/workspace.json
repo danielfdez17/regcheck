@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/obsidian/Subject_pr1.ES.md",
+                "file": "docs/obsidian/Subject_pr1.EN.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Subject_pr1.ES"
+              "title": "Subject_pr1.EN"
             }
           },
           {
@@ -92,8 +92,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "d48ee6acb8762a26",
@@ -234,6 +233,8 @@
   },
   "active": "c7f67af1910950a6",
   "lastOpenFiles": [
+    "docs/obsidian/Subject_pr1.ES.md",
+    "docs/obsidian/Subject_pr1.EN.md",
     "practica_ciberseguridad_IA.pdf",
     "frontend/src/hooks/use-home-page-data.ts",
     "frontend/src/hooks",
@@ -244,7 +245,6 @@
     "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
     "docs/obsidian/000 - To-do list features (Tokyo Night appearance).md",
     "details",
-    "docs/obsidian/Subject_pr1.ES.md",
     "vendor/scripts/push_submodule_to_branch.sh",
     "vendor/scripts/git/push_submodule_to_branch.sh",
     "docs/obsidian/templates/Kanban.md",
