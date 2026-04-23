@@ -47,8 +47,8 @@ export function AppFooter() {
   return (
     <footer className="app-footer">
       <div className="app-footer-inner">
-        <p>RegCheck MVP</p>
-        <p>Operational GDPR rule mapping and checklist generation.</p>
+        <p>RegCheck v1</p>
+        <p>SQLite-backed GDPR assessments with evidence-focused checklists.</p>
       </div>
     </footer>
   );

@@ -1,6 +1,7 @@
 import AppShell, { AppFooter, AppNavbar } from "./components/app-shell";
 import {
   HeroSection,
+  DashboardMetrics,
   LoadingOverview,
   SelectorUnavailable,
 } from "./components/home-content";
@@ -30,7 +31,13 @@ export default function App() {
     );
   }
 
-  const { connected, errorMessage, selector, initialChecklist } = pageData;
+  const {
+    connected,
+    errorMessage,
+    selector,
+    currentAssessment,
+    assessmentHistory,
+  } = pageData;
 
   return (
     <AppShell>
@@ -40,25 +47,24 @@ export default function App() {
         <div className="page">
           <HeroSection connected={connected} errorMessage={errorMessage} />
 
+          {currentAssessment ? (
+            <DashboardMetrics
+              historyCount={assessmentHistory.items.length}
+              summary={currentAssessment.summary}
+            />
+          ) : null}
+
           {selector ? (
             <div id="playground">
               <GdprPlayground
-                initialChecklist={{
-                  domain_mode: selector.domain_mode,
-                  selected_rules:
-                    initialChecklist.rule === null
-                      ? []
-                      : [initialChecklist.rule],
-                  checklist_items: initialChecklist.checklistItems,
-                  recommended_rule_ids: [],
-                }}
+                initialAssessment={currentAssessment}
+                initialHistory={assessmentHistory}
                 initialSelector={selector}
               />
             </div>
           ) : (
             <SelectorUnavailable message="The frontend could not load the backend selector, so no live input controls are available yet." />
           )}
-
         </div>
       </main>
 

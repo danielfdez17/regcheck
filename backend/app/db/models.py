@@ -4,6 +4,11 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+from typing import Any
+
+from sqlalchemy import Column, JSON
+
 from sqlmodel import Field, SQLModel
 
 
@@ -40,3 +45,33 @@ class ChecklistItemModel(SQLModel, table=True):
     description: str
     priority: str
     status: str = "pending"
+
+
+class ComplianceAssessmentModel(SQLModel, table=True):
+    """Persisted compliance assessment snapshot."""
+
+    __tablename__ = "compliance_assessments"
+
+    id: str = Field(primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    domain_mode_id: str = Field(foreign_key="domain_modes.id", index=True)
+    company_profile: dict[str, Any] = Field(
+        default_factory=dict,
+        sa_column=Column(JSON, nullable=False),
+    )
+    selected_rule_ids: list[str] = Field(
+        default_factory=list,
+        sa_column=Column(JSON, nullable=False),
+    )
+    recommended_rule_ids: list[str] = Field(
+        default_factory=list,
+        sa_column=Column(JSON, nullable=False),
+    )
+    checklist_items: list[dict[str, Any]] = Field(
+        default_factory=list,
+        sa_column=Column(JSON, nullable=False),
+    )
+    total_items: int
+    high_priority_items: int
+    medium_priority_items: int
+    low_priority_items: int

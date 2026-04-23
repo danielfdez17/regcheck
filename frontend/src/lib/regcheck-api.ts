@@ -55,6 +55,47 @@ export interface GDPRChecklistResponse {
   recommended_rule_ids: string[];
 }
 
+export interface GDPRChecklistRequest {
+  selected_rule_ids: string[];
+  company_profile: CompanyProfileInput | null;
+}
+
+export interface AssessmentSummary {
+  selected_rule_count: number;
+  total_items: number;
+  high_priority_items: number;
+  medium_priority_items: number;
+  low_priority_items: number;
+  recommended_rule_count: number;
+}
+
+export interface GDPRAssessmentResponse {
+  assessment_id: string;
+  created_at: string;
+  request: GDPRChecklistRequest;
+  domain_mode: DomainMode;
+  selected_rules: RuleOption[];
+  checklist_items: ChecklistItem[];
+  recommended_rule_ids: string[];
+  summary: AssessmentSummary;
+}
+
+export interface AssessmentHistoryItem {
+  assessment_id: string;
+  created_at: string;
+  company_type: string;
+  service_description: string;
+  selected_rule_labels: string[];
+  total_items: number;
+  high_priority_items: number;
+  medium_priority_items: number;
+  low_priority_items: number;
+}
+
+export interface AssessmentHistoryResponse {
+  items: AssessmentHistoryItem[];
+}
+
 export interface CreateChecklistInput {
   selectedRuleIds: string[];
   companyProfile?: CompanyProfileInput;
@@ -109,5 +150,34 @@ export async function createChecklist(
       selected_rule_ids: input.selectedRuleIds,
       company_profile: input.companyProfile,
     }),
+  });
+}
+
+export async function createAssessment(
+  input: CreateChecklistInput,
+): Promise<GDPRAssessmentResponse> {
+  return requestJson<GDPRAssessmentResponse>({
+    path: "/api/v1/gdpr/assessments",
+    method: "POST",
+    body: JSON.stringify({
+      selected_rule_ids: input.selectedRuleIds,
+      company_profile: input.companyProfile,
+    }),
+  });
+}
+
+export async function getLatestAssessment(): Promise<GDPRAssessmentResponse> {
+  return requestJson<GDPRAssessmentResponse>({
+    path: "/api/v1/gdpr/assessments/latest",
+    method: "GET",
+  });
+}
+
+export async function getAssessmentHistory(
+  limit = 5,
+): Promise<AssessmentHistoryResponse> {
+  return requestJson<AssessmentHistoryResponse>({
+    path: `/api/v1/gdpr/assessments?limit=${limit}`,
+    method: "GET",
   });
 }

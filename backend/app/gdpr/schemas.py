@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -83,3 +84,47 @@ class GDPRChecklistResponse(BaseModel):
     selected_rules: list[RuleOption]
     checklist_items: list[ChecklistItem]
     recommended_rule_ids: list[str] = Field(default_factory=list)
+
+
+class AssessmentSummary(BaseModel):
+    """Aggregated metrics for a generated compliance assessment."""
+
+    selected_rule_count: int
+    total_items: int
+    high_priority_items: int
+    medium_priority_items: int
+    low_priority_items: int
+    recommended_rule_count: int
+
+
+class GDPRAssessmentResponse(BaseModel):
+    """Response payload for a persisted GDPR assessment."""
+
+    assessment_id: str
+    created_at: datetime
+    request: GDPRChecklistRequest
+    domain_mode: DomainMode
+    selected_rules: list[RuleOption]
+    checklist_items: list[ChecklistItem]
+    recommended_rule_ids: list[str] = Field(default_factory=list)
+    summary: AssessmentSummary
+
+
+class AssessmentHistoryItem(BaseModel):
+    """Compact summary of a stored GDPR assessment."""
+
+    assessment_id: str
+    created_at: datetime
+    company_type: str
+    service_description: str
+    selected_rule_labels: list[str] = Field(default_factory=list)
+    total_items: int
+    high_priority_items: int
+    medium_priority_items: int
+    low_priority_items: int
+
+
+class AssessmentHistoryResponse(BaseModel):
+    """Response payload with recent assessment history."""
+
+    items: list[AssessmentHistoryItem]

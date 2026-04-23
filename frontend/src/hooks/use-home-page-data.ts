@@ -1,26 +1,39 @@
 import { useEffect, useState } from "react";
 
 import {
-  createChecklist,
+  createAssessment,
+  getAssessmentHistory,
   getRuleSelector,
-  type ChecklistItem,
+  getLatestAssessment,
+  type AssessmentHistoryResponse,
+  type GDPRAssessmentResponse,
   type GDPRRuleSelectorResponse,
-  type RuleOption,
 } from "../lib/regcheck-api";
 
 export interface HomePageData {
   connected: boolean;
   errorMessage: string | null;
   selector: GDPRRuleSelectorResponse | null;
-  initialChecklist: {
-    rule: RuleOption | null;
-    checklistItems: ChecklistItem[];
-  };
+  currentAssessment: GDPRAssessmentResponse | null;
+  assessmentHistory: AssessmentHistoryResponse;
 }
 
 async function loadHomePageData(): Promise<HomePageData> {
   try {
     const selector = await getRuleSelector();
+    const latestAssessment = await getLatestAssessment();
+    const history = await getAssessmentHistory();
+
+    if (latestAssessment !== null) {
+      return {
+        connected: true,
+        errorMessage: null,
+        selector,
+        currentAssessment: latestAssessment,
+        assessmentHistory: history,
+      };
+    }
+
     const firstRule = selector.available_rules[0] ?? null;
 
     if (firstRule === null) {
@@ -28,14 +41,12 @@ async function loadHomePageData(): Promise<HomePageData> {
         connected: true,
         errorMessage: "Backend is reachable but no GDPR rules are configured.",
         selector,
-        initialChecklist: {
-          rule: null,
-          checklistItems: [],
-        },
+        currentAssessment: null,
+        assessmentHistory: history,
       };
     }
 
-    const checklist = await createChecklist({
+    const bootstrapAssessment = await createAssessment({
       selectedRuleIds: [firstRule.id],
       companyProfile: {
         company_type: "other",
@@ -48,14 +59,14 @@ async function loadHomePageData(): Promise<HomePageData> {
       },
     });
 
+    const refreshedHistory = await getAssessmentHistory();
+
     return {
       connected: true,
       errorMessage: null,
       selector,
-      initialChecklist: {
-        rule: firstRule,
-        checklistItems: checklist.checklist_items,
-      },
+      currentAssessment: bootstrapAssessment,
+      assessmentHistory: refreshedHistory,
     };
   } catch (error) {
     const message =
@@ -67,10 +78,8 @@ async function loadHomePageData(): Promise<HomePageData> {
       connected: false,
       errorMessage: message,
       selector: null,
-      initialChecklist: {
-        rule: null,
-        checklistItems: [],
-      },
+      currentAssessment: null,
+      assessmentHistory: { items: [] },
     };
   }
 }

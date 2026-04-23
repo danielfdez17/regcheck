@@ -1,6 +1,13 @@
+import type { AssessmentSummary } from "../lib/regcheck-api";
+
 type HeroSectionProps = {
   connected: boolean;
   errorMessage: string | null;
+};
+
+type DashboardMetricsProps = {
+  summary: AssessmentSummary;
+  historyCount: number;
 };
 
 type LoadingOverviewProps = {
@@ -74,6 +81,36 @@ export function HeroSection({
       errorMessage={errorMessage}
       title="Turn regulatory rules into clear actions."
     />
+  );
+}
+
+export function DashboardMetrics({
+  summary,
+  historyCount,
+}: Readonly<DashboardMetricsProps>) {
+  return (
+    <section className="metric-grid" aria-label="Assessment summary metrics">
+      <article className="metric-card metric-card-strong">
+        <p className="metric-label">Selected rules</p>
+        <strong>{summary.selected_rule_count}</strong>
+        <span>Persisted profile-driven controls</span>
+      </article>
+      <article className="metric-card">
+        <p className="metric-label">Checklist items</p>
+        <strong>{summary.total_items}</strong>
+        <span>Items ready for evidence collection</span>
+      </article>
+      <article className="metric-card">
+        <p className="metric-label">High priority</p>
+        <strong>{summary.high_priority_items}</strong>
+        <span>Controls that should be addressed first</span>
+      </article>
+      <article className="metric-card">
+        <p className="metric-label">Assessment history</p>
+        <strong>{historyCount}</strong>
+        <span>Stored snapshots in SQLite</span>
+      </article>
+    </section>
   );
 }
 
