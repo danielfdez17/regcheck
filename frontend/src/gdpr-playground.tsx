@@ -4,9 +4,10 @@ import { OptionCard, ResponseBlock } from "./components/gdpr-playground-parts";
 import {
   createAssessment,
   type AssessmentHistoryResponse,
-  type CompanyProfileInput,
+  type ChecklistItem,
   type GDPRAssessmentResponse,
   type GDPRRuleSelectorResponse,
+  type RuleOption,
 } from "./lib/regcheck-api";
 import { buildAssessmentReportHtml } from "./lib/report-export";
 
@@ -37,6 +38,57 @@ function formatTimestamp(timestamp: string): string {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(timestamp));
+}
+
+function getChecklistPriority(index: number): ChecklistItem["priority"] {
+  if (index === 0) {
+    return "high";
+  }
+
+  if (index === 1) {
+    return "medium";
+  }
+
+  return "low";
+}
+
+function createChecklistItemPreview(
+  rule: RuleOption,
+  itemId: string,
+  index: number,
+): ChecklistItem {
+  const priority = getChecklistPriority(index);
+
+  return {
+    id: itemId,
+    title: `${rule.label} control ${index + 1}`,
+    description: rule.description,
+    priority,
+    status: "pending",
+    rule_id: rule.id,
+    concrete_action: `Review and document the ${rule.label.toLowerCase()} control.`,
+    evidence_request: `Attach evidence for ${rule.label.toLowerCase()} control ${index + 1}.`,
+  };
+}
+
+function buildPrioritySummary(checklistItems: ChecklistItem[]) {
+  return checklistItems.reduce(
+    (summary, item) => ({
+      total_items: summary.total_items + 1,
+      high_priority_items:
+        summary.high_priority_items + (item.priority === "high" ? 1 : 0),
+      medium_priority_items:
+        summary.medium_priority_items + (item.priority === "medium" ? 1 : 0),
+      low_priority_items:
+        summary.low_priority_items + (item.priority === "low" ? 1 : 0),
+    }),
+    {
+      total_items: 0,
+      high_priority_items: 0,
+      medium_priority_items: 0,
+      low_priority_items: 0,
+    },
+  );
 }
 
 export default function GdprPlayground({
@@ -85,8 +137,8 @@ export default function GdprPlayground({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function buildCompanyProfile(): CompanyProfileInput {
-    return {
+  const liveCompanyProfile = useMemo(
+    () => ({
       company_type: companyType,
       department_types: departmentTypes,
       service_description: serviceDescription,
@@ -94,8 +146,67 @@ export default function GdprPlayground({
       uses_cloud: usesCloud,
       has_physical_buildings: hasPhysicalBuildings,
       supports_remote_work_vpn: supportsRemoteWorkVpn,
+    }),
+    [
+      companyType,
+      departmentTypes,
+      serviceDescription,
+      requestedFrameworks,
+      usesCloud,
+      hasPhysicalBuildings,
+      supportsRemoteWorkVpn,
+    ],
+  );
+
+  const liveAssessment = useMemo<GDPRAssessmentResponse>(() => {
+    const selectedRules = selector.available_rules.filter((rule) =>
+      selectedRuleIds.includes(rule.id),
+    );
+    const selectedRuleIdsSet = new Set(selectedRuleIds);
+    const checklistItems = selectedRules.flatMap((rule) => {
+      const sourceItems = currentAssessment?.checklist_items.filter(
+        (item) => item.rule_id === rule.id,
+      );
+
+      if (sourceItems !== undefined && sourceItems.length > 0) {
+        return sourceItems;
+      }
+
+      return rule.checklist_item_ids.map((itemId, index) =>
+        createChecklistItemPreview(rule, itemId, index),
+      );
+    });
+    const summary = buildPrioritySummary(checklistItems);
+    const recommendedRuleIds =
+      currentAssessment?.recommended_rule_ids ?? selectedRuleIds;
+
+    return {
+      assessment_id: currentAssessment?.assessment_id ?? "draft-preview",
+      created_at: currentAssessment?.created_at ?? new Date().toISOString(),
+      request: {
+        selected_rule_ids: selectedRuleIds,
+        company_profile: liveCompanyProfile,
+      },
+      domain_mode: currentAssessment?.domain_mode ?? selector.domain_mode,
+      selected_rules: selectedRules,
+      checklist_items: checklistItems,
+      recommended_rule_ids: recommendedRuleIds,
+      summary: {
+        selected_rule_count: selectedRuleIdsSet.size,
+        total_items: summary.total_items,
+        high_priority_items: summary.high_priority_items,
+        medium_priority_items: summary.medium_priority_items,
+        low_priority_items: summary.low_priority_items,
+        recommended_rule_count: recommendedRuleIds.length,
+      },
     };
-  }
+  }, [
+    currentAssessment,
+    liveCompanyProfile,
+    selector.available_rules,
+    selector.domain_mode,
+    selectedRuleIds,
+  ]);
 
   async function handleGenerateChecklist() {
     setIsSubmitting(true);
@@ -105,7 +216,7 @@ export default function GdprPlayground({
       setStatusMessage(null);
       const nextAssessment = await createAssessment({
         selectedRuleIds,
-        companyProfile: buildCompanyProfile(),
+        companyProfile: liveCompanyProfile,
       });
       setCurrentAssessment(nextAssessment);
       setHistory((currentHistory) => [
@@ -145,21 +256,16 @@ export default function GdprPlayground({
   }
 
   function handleExportReport() {
-    if (currentAssessment === null) {
-      setErrorMessage("Generate an assessment before exporting the report.");
-      return;
-    }
-
     const reportHtml = buildAssessmentReportHtml({
       selector,
-      assessment: currentAssessment,
+      assessment: liveAssessment,
       history,
     });
     const blob = new Blob([reportHtml], { type: "text/html;charset=utf-8" });
     const downloadUrl = globalThis.URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
     downloadLink.href = downloadUrl;
-    downloadLink.download = `regcheck-report-${currentAssessment.assessment_id}.html`;
+    downloadLink.download = `regcheck-report-${liveAssessment.assessment_id}.html`;
     downloadLink.rel = "noopener noreferrer";
     document.body.append(downloadLink);
     downloadLink.click();
@@ -326,7 +432,7 @@ export default function GdprPlayground({
 
         <button
           className="secondary-button"
-          disabled={currentAssessment === null}
+          disabled={selectedRuleIds.length === 0}
           onClick={handleExportReport}
           type="button"
         >
@@ -344,48 +450,48 @@ export default function GdprPlayground({
 
       <article className="panel panel-highlight">
         <p className="panel-kicker">Assessment output</p>
-        {currentAssessment ? (
+        {liveAssessment ? (
           <>
-            <h2>{currentAssessment.domain_mode.label}</h2>
-            <p>{currentAssessment.domain_mode.description}</p>
+            <h2>{liveAssessment.domain_mode.label}</h2>
+            <p>{liveAssessment.domain_mode.description}</p>
 
             <div className="mini-metric-grid">
               <MetricTile
                 description="Controls selected for this company context"
                 label="Selected rules"
-                value={String(currentAssessment.summary.selected_rule_count)}
+                value={String(liveAssessment.summary.selected_rule_count)}
               />
               <MetricTile
                 description="Checklist items that now need evidence"
                 label="Checklist items"
-                value={String(currentAssessment.summary.total_items)}
+                value={String(liveAssessment.summary.total_items)}
               />
               <MetricTile
                 description="Items to address first"
                 label="High priority"
-                value={String(currentAssessment.summary.high_priority_items)}
+                value={String(liveAssessment.summary.high_priority_items)}
               />
               <MetricTile
                 description="Rules suggested by the profile"
                 label="Recommendations"
-                value={String(currentAssessment.summary.recommended_rule_count)}
+                value={String(liveAssessment.summary.recommended_rule_count)}
               />
             </div>
 
             <ResponseBlock title="Recommended rules from profile">
-              {currentAssessment.recommended_rule_ids.map((ruleId) => (
+              {liveAssessment.recommended_rule_ids.map((ruleId) => (
                 <li key={ruleId}>{ruleId}</li>
               ))}
             </ResponseBlock>
 
             <ResponseBlock title="Selected rules">
-              {currentAssessment.selected_rules.map((rule) => (
+              {liveAssessment.selected_rules.map((rule) => (
                 <li key={rule.id}>{rule.label}</li>
               ))}
             </ResponseBlock>
 
             <ResponseBlock title="Checklist items">
-              {currentAssessment.checklist_items.map((item) => (
+              {liveAssessment.checklist_items.map((item) => (
                 <li key={item.id}>
                   <strong>{item.title}</strong>
                   <span>{item.priority}</span>
