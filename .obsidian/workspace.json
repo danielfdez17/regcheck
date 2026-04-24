@@ -4,27 +4,20 @@
     "type": "split",
     "children": [
       {
-        "id": "774cdbc058b0573b",
+        "id": "9d0e40e1471a084e",
         "type": "tabs",
         "children": [
           {
-            "id": "c9ddd392010663b9",
+            "id": "9863d5e90809958c",
             "type": "leaf",
             "state": {
-              "type": "kanban",
+              "type": "markdown",
               "state": {
                 "file": "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
-                "kanbanViewState": {
-                  "kanban-plugin": "board",
-                  "list-collapse": [
-                    false,
-                    false,
-                    false,
-                    false
-                  ]
-                }
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-trello",
+              "icon": "lucide-file",
               "title": "RegCheck (20-04-2026 -> 25-05-2026)"
             }
           }
@@ -209,8 +202,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 379.5,
-    "collapsed": true
+    "width": 379.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -220,12 +212,19 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false,
-      "obsidian-kanban:Create new board": false
+      "bases:Create new base": false
     }
   },
-  "active": "c9ddd392010663b9",
+  "active": "9863d5e90809958c",
   "lastOpenFiles": [
+    "vendor/scripts/git/delete_remote_branches.sh",
+    "docs/obsidian/06-live-dashboard-and-report-export.md",
+    "docs/obsidian/05-frontend-backend-integration.md",
+    "docs/obsidian/04-validation-and-operations.md",
+    "docs/obsidian/03-fastapi-db-integration.md",
+    "docs/obsidian/02-sqlite-schema-and-seeding.md",
+    "docs/obsidian/01-sqlite-persistence-goal.md",
+    "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
     "regcheck.db-journal",
     "frontend/dist/index.html",
     "frontend/dist/assets/index-jaarg3ap.js",
@@ -237,11 +236,9 @@
     "frontend/dist/assets/index-D0Srv9kt.css",
     "frontend/dist/assets/index-B382xKqt.js",
     "backend/app/gdpr/__pycache__/assessments.cpython-312.pyc",
-    "frontend/app/globals.css",
     "docs/obsidian/000 - To-do list features (Tokyo Night appearance).md",
     "docs/obsidian/Subject_pr1.ES.md",
     "docs/obsidian/Subject_pr1.EN.md",
-    "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
     "docs/obsidian/templates/Kanban.md",
     "docs/obsidian/RegCheck.md",
     "next-steps.md",
@@ -249,11 +246,6 @@
     "Untitled.canvas",
     "docs/obsidian/reports/21-04-2026.md",
     "docs/obsidian/reports/000 - Daily Report Template.md",
-    "2026-04-21.md",
-    "docs/obsidian/05-frontend-backend-integration.md",
-    "docs/obsidian/04-validation-and-operations.md",
-    "docs/obsidian/03-fastapi-db-integration.md",
-    "docs/obsidian/02-sqlite-schema-and-seeding.md",
-    "docs/obsidian/01-sqlite-persistence-goal.md"
+    "2026-04-21.md"
   ]
 }

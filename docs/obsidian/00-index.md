@@ -10,12 +10,13 @@
 - Department type (HHRR, Development, Satelites, Cyber, etc)
 - Service to be audited: what they do. Depending on the service, the app generates a form to apply some rules:
 
-> [!example]  
+> [!example]
+>
 > - Cyber -> SOC
 > - Satellites -> development of photovoltaic panels
-> - Web page auditory 
+> - Web page auditory
 
-- Rules to be applicable (i.e. ***GDPR***, ISO/IEC 27001)
+- Rules to be applicable (i.e. **_GDPR_**, ISO/IEC 27001)
 
 ### Form to be filled depending on what departments/services do
 
@@ -40,6 +41,7 @@
 - [[03-fastapi-db-integration]]
 - [[04-validation-and-operations]]
 - [[05-frontend-backend-integration]]
+- [[06-live-dashboard-and-report-export]]
 
 ## Context links
 
@@ -48,3 +50,5 @@
 - [[03-fastapi-db-integration#request-flow]]
 - [[04-validation-and-operations#runbook]]
 - [[05-frontend-backend-integration#integration-summary]]
+- [[06-live-dashboard-and-report-export#live-preview-behavior]]
+- [[06-live-dashboard-and-report-export#report-export-behavior]]
