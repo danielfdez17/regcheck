@@ -95,6 +95,25 @@ function buildPrioritySummary(checklistItems: ChecklistItem[]) {
   );
 }
 
+function normalizeEvidenceDraft(value: string): string {
+  return value.trim();
+}
+
+function getSavedEvidenceDraft(item: ChecklistItem): {
+  notes: string;
+  referenceUrl: string;
+} {
+  const firstEntry = item.evidence_entries[0];
+  if (firstEntry === undefined) {
+    return { notes: "", referenceUrl: "" };
+  }
+
+  return {
+    notes: firstEntry.notes ?? "",
+    referenceUrl: firstEntry.reference_url ?? "",
+  };
+}
+
 export default function GdprPlayground({
   initialSelector,
   initialAssessment,
@@ -327,6 +346,13 @@ export default function GdprPlayground({
         evidenceEntries,
       });
       setCurrentAssessment(nextAssessment);
+      setItemEvidenceDrafts((currentDrafts) => ({
+        ...currentDrafts,
+        [item.id]: {
+          notes: draft.notes,
+          referenceUrl: draft.referenceUrl,
+        },
+      }));
       setStatusMessage(`Updated checklist item "${item.title}".`);
     } catch (error) {
       const message =
@@ -657,76 +683,92 @@ export default function GdprPlayground({
             </ResponseBlock>
 
             <ResponseBlock title="Checklist items">
-              {liveAssessment.checklist_items.map((item) => (
-                <li key={item.id}>
-                  <strong>{item.title}</strong>
-                  <span>{item.priority}</span>
-                  <label>
-                    Status
-                    {" "}
-                    <select
+              {liveAssessment.checklist_items.map((item) => {
+                const currentDraft = itemEvidenceDrafts[item.id] ?? {
+                  notes: "",
+                  referenceUrl: "",
+                };
+                const savedDraft = getSavedEvidenceDraft(item);
+                const hasUnsavedEvidenceDraft =
+                  normalizeEvidenceDraft(currentDraft.notes) !==
+                    normalizeEvidenceDraft(savedDraft.notes) ||
+                  normalizeEvidenceDraft(currentDraft.referenceUrl) !==
+                    normalizeEvidenceDraft(savedDraft.referenceUrl);
+
+                return (
+                  <li key={item.id}>
+                    <strong>{item.title}</strong>
+                    {hasUnsavedEvidenceDraft && (
+                      <span className="status-note">Unsaved evidence draft</span>
+                    )}
+                    <span>{item.priority}</span>
+                    <label>
+                      Status
+                      {" "}
+                      <select
+                        className="rule-checkbox"
+                        defaultValue={item.status}
+                        onChange={(event) => {
+                          void handleSaveChecklistItem(
+                            item,
+                            event.target.value as ChecklistStatus,
+                          );
+                        }}
+                      >
+                        <option value="pending">pending</option>
+                        <option value="in_progress">in_progress</option>
+                        <option value="done">done</option>
+                      </select>
+                    </label>
+                    <span>{item.concrete_action}</span>
+                    <span>{item.evidence_request}</span>
+                    <textarea
                       className="rule-checkbox"
-                      defaultValue={item.status}
                       onChange={(event) => {
-                        void handleSaveChecklistItem(
-                          item,
-                          event.target.value as ChecklistStatus,
-                        );
+                        setItemEvidenceDrafts((current) => ({
+                          ...current,
+                          [item.id]: {
+                            notes: event.target.value,
+                            referenceUrl: current[item.id]?.referenceUrl ?? "",
+                          },
+                        }));
                       }}
+                      placeholder="Evidence notes or location details"
+                      rows={2}
+                      value={currentDraft.notes}
+                    />
+                    <input
+                      className="rule-checkbox"
+                      onChange={(event) => {
+                        setItemEvidenceDrafts((current) => ({
+                          ...current,
+                          [item.id]: {
+                            notes: current[item.id]?.notes ?? "",
+                            referenceUrl: event.target.value,
+                          },
+                        }));
+                      }}
+                      placeholder="Evidence URL (optional)"
+                      type="url"
+                      value={currentDraft.referenceUrl}
+                    />
+                    <button
+                      className="secondary-button"
+                      onClick={() => {
+                        void handleSaveChecklistItem(item, item.status);
+                      }}
+                      type="button"
                     >
-                      <option value="pending">pending</option>
-                      <option value="in_progress">in_progress</option>
-                      <option value="done">done</option>
-                    </select>
-                  </label>
-                  <span>{item.concrete_action}</span>
-                  <span>{item.evidence_request}</span>
-                  <textarea
-                    className="rule-checkbox"
-                    onChange={(event) => {
-                      setItemEvidenceDrafts((current) => ({
-                        ...current,
-                        [item.id]: {
-                          notes: event.target.value,
-                          referenceUrl: current[item.id]?.referenceUrl ?? "",
-                        },
-                      }));
-                    }}
-                    placeholder="Evidence notes or location details"
-                    rows={2}
-                    value={itemEvidenceDrafts[item.id]?.notes ?? ""}
-                  />
-                  <input
-                    className="rule-checkbox"
-                    onChange={(event) => {
-                      setItemEvidenceDrafts((current) => ({
-                        ...current,
-                        [item.id]: {
-                          notes: current[item.id]?.notes ?? "",
-                          referenceUrl: event.target.value,
-                        },
-                      }));
-                    }}
-                    placeholder="Evidence URL (optional)"
-                    type="url"
-                    value={itemEvidenceDrafts[item.id]?.referenceUrl ?? ""}
-                  />
-                  <button
-                    className="secondary-button"
-                    onClick={() => {
-                      void handleSaveChecklistItem(item, item.status);
-                    }}
-                    type="button"
-                  >
-                    Save evidence metadata
-                  </button>
-                  {item.evidence_entries.length > 0 && (
-                    <span>
-                      Saved evidence entries: {String(item.evidence_entries.length)}
-                    </span>
-                  )}
-                </li>
-              ))}
+                      Save evidence metadata
+                    </button>
+                    {item.evidence_entries.length > 0 && (
+                      <span>
+                        Saved evidence entries: {String(item.evidence_entries.length)}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
             </ResponseBlock>
           </>
         ) : (
