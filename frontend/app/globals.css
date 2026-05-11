@@ -364,10 +364,7 @@ textarea {
   transition: margin-left 180ms ease;
 }
 
-.playground-layout.sidebar-open .playground-main {
-  margin-left: 24rem;
-}
-
+.playground-layout.sidebar-open .playground-main,
 .playground-layout.sidebar-closed .playground-main {
   margin-left: 6rem;
 }
