@@ -354,11 +354,99 @@ textarea {
   line-height: 1.45;
 }
 
-.playground-grid {
+.playground-layout {
   margin-top: 1rem;
+  position: relative;
+}
+
+.playground-main {
+  margin-left: 6rem;
+  transition: margin-left 180ms ease;
+}
+
+.playground-layout.sidebar-open .playground-main {
+  margin-left: 24rem;
+}
+
+.playground-layout.sidebar-closed .playground-main {
+  margin-left: 6rem;
+}
+
+.panel-sidebar {
+  position: fixed;
+  top: 5.8rem;
+  left: 0.7rem;
+  bottom: 1rem;
+  max-height: unset;
+  overflow-y: auto;
+  z-index: 15;
+  transition: width 180ms ease;
+}
+
+.panel-sidebar-collapsed {
+  width: 4.2rem;
+  padding: 0.75rem 0.6rem;
+  overflow: hidden;
+}
+
+.panel-sidebar-expanded {
+  width: min(22.5rem, calc(100vw - 1.4rem));
+  padding: 1.25rem;
+}
+
+.panel-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.sidebar-close-button {
+  width: auto;
+  margin-top: 0;
+  padding-inline: 1rem;
+}
+
+.sidebar-icon-rail {
   display: grid;
-  grid-template-columns: minmax(320px, 0.95fr) minmax(360px, 1.05fr);
-  gap: 1rem;
+  gap: 0.65rem;
+  justify-items: center;
+}
+
+.sidebar-rail-toggle,
+.sidebar-section-icon {
+  width: 2.45rem;
+  height: 2.45rem;
+  border-radius: 0.7rem;
+  border: 1px solid var(--border);
+  background: var(--panel-soft);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease;
+}
+
+.sidebar-rail-toggle {
+  width: 100%;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-section-icon {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.sidebar-rail-toggle:hover,
+.sidebar-section-icon:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--panel-soft) 74%, var(--accent-soft));
 }
 
 .panel {
@@ -607,9 +695,14 @@ textarea.rule-checkbox {
     justify-items: start;
   }
 
-  .playground-grid,
   .metric-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .playground-main,
+  .playground-layout.sidebar-open .playground-main,
+  .playground-layout.sidebar-closed .playground-main {
+    margin-left: 0;
   }
 }
 
@@ -634,5 +727,19 @@ textarea.rule-checkbox {
   .app-footer-inner {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .panel-sidebar {
+    position: static;
+    width: auto;
+    top: auto;
+    left: auto;
+    bottom: auto;
+    max-height: none;
+    margin-bottom: 1rem;
+  }
+
+  .panel-sidebar-collapsed {
+    width: auto;
   }
 }

@@ -219,6 +219,7 @@
   },
   "active": "5ba4bd1c6cb3edd8",
   "lastOpenFiles": [
+    "frontend/src/components/live-backend-input-sidebar.tsx",
     "docs/obsidian/reports/11-05-2026.md",
     "vendor/scripts/aliases.md",
     "docs/obsidian/02-sqlite-schema-and-seeding.md",

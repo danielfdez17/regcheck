@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
-import { OptionCard, ResponseBlock } from "./components/gdpr-playground-parts";
+import { LiveBackendInputSidebar } from "./components/live-backend-input-sidebar";
+import { ResponseBlock } from "./components/gdpr-playground-parts";
 import {
   createAssessment,
   type AssessmentHistoryResponse,
@@ -167,6 +168,7 @@ export default function GdprPlayground({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isInputSidebarOpen, setIsInputSidebarOpen] = useState(false);
 
   const liveCompanyProfile = useMemo(
     () => {
@@ -414,233 +416,64 @@ export default function GdprPlayground({
   }
 
   return (
-    <section className="playground-grid">
-      <article className="panel panel-playground">
-        <p className="panel-kicker">Live backend input</p>
-        <h2>Build the company profile and choose the controls</h2>
-        <p className="panel-copy">
-          Every assessment is stored in SQLite, so the dashboard keeps a real
-          history instead of discarding each result after render.
-        </p>
+    <section
+      className={`playground-layout ${isInputSidebarOpen ? "sidebar-open" : "sidebar-closed"}`}
+    >
+      <LiveBackendInputSidebar
+        cloudProvider={cloudProvider}
+        companyType={companyType}
+        cyberMonitoringNotes={cyberMonitoringNotes}
+        departmentTypes={departmentTypes}
+        developmentLifecycleNotes={developmentLifecycleNotes}
+        errorMessage={errorMessage}
+        hasPhysicalBuildings={hasPhysicalBuildings}
+        isOpen={isInputSidebarOpen}
+        isSubmitting={isSubmitting}
+        onCloudProviderChange={setCloudProvider}
+        onClose={() => {
+          setIsInputSidebarOpen(false);
+        }}
+        onCompanyTypeChange={setCompanyType}
+        onCyberMonitoringNotesChange={setCyberMonitoringNotes}
+        onDevelopmentLifecycleNotesChange={setDevelopmentLifecycleNotes}
+        onExportReport={handleExportReport}
+        onGenerateAssessment={() => {
+          void handleGenerateChecklist();
+        }}
+        onOpen={() => {
+          setIsInputSidebarOpen(true);
+        }}
+        onPhysicalControlNotesChange={setPhysicalControlNotes}
+        onServiceDescriptionChange={setServiceDescription}
+        onToggleDepartment={toggleDepartment}
+        onToggleFramework={toggleFramework}
+        onToggleHasPhysicalBuildings={() => {
+          setHasPhysicalBuildings((currentValue: boolean) => !currentValue);
+        }}
+        onToggleRule={toggleRule}
+        onToggleSupportsRemoteWorkVpn={() => {
+          setSupportsRemoteWorkVpn((currentValue: boolean) => !currentValue);
+        }}
+        onToggleUsesCloud={() => {
+          setUsesCloud((currentValue: boolean) => !currentValue);
+        }}
+        onToggleVpnMfaEnabled={() => {
+          setVpnMfaEnabled((currentValue) => !currentValue);
+        }}
+        physicalControlNotes={physicalControlNotes}
+        requestedFrameworks={requestedFrameworks}
+        selectedRuleIds={selectedRuleIds}
+        selector={selector}
+        serviceDescription={serviceDescription}
+        statusMessage={statusMessage}
+        supportsRemoteWorkVpn={supportsRemoteWorkVpn}
+        usesCloud={usesCloud}
+        vpnMfaEnabled={vpnMfaEnabled}
+      />
 
-        <label aria-label="Company type" className="rule-card">
-          <span>
-            <strong>Company type</strong>
-          </span>
-          <select
-            className="rule-checkbox"
-            onChange={(event) => {
-              setCompanyType(event.target.value);
-            }}
-            value={companyType}
-          >
-            {selector.profile_options.company_types.map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="playground-main">
+        <article className="panel panel-highlight">
 
-        <label aria-label="Service description" className="rule-card">
-          <span>
-            <strong>Service to be audited</strong>
-            <span>Describe what the company does.</span>
-          </span>
-          <textarea
-            className="rule-checkbox"
-            onChange={(event) => {
-              setServiceDescription(event.target.value);
-            }}
-            placeholder="Cyber SOC services, web audits, satellite telemetry..."
-            rows={3}
-            value={serviceDescription}
-          />
-        </label>
-
-        <p className="response-label">Department types</p>
-        <div className="rule-list">
-          {selector.profile_options.department_types.map((departmentType) => (
-            <OptionCard
-              ariaLabel={departmentType}
-              checked={departmentTypes.includes(departmentType)}
-              key={departmentType}
-              label={departmentType}
-              onChange={() => toggleDepartment(departmentType)}
-            />
-          ))}
-        </div>
-
-        <p className="response-label">Applicable frameworks</p>
-        <div className="rule-list">
-          {selector.profile_options.framework_options.map((framework) => (
-            <OptionCard
-              ariaLabel={framework}
-              checked={requestedFrameworks.includes(framework)}
-              key={framework}
-              label={framework}
-              onChange={() => toggleFramework(framework)}
-            />
-          ))}
-        </div>
-
-        <p className="response-label">Operational context</p>
-        <div className="rule-list">
-          <OptionCard
-            ariaLabel="Cloud usage"
-            checked={usesCloud}
-            label="Cloud usage"
-            onChange={() =>
-              setUsesCloud((currentValue: boolean) => !currentValue)
-            }
-          />
-          <OptionCard
-            ariaLabel="Physical buildings with access control"
-            checked={hasPhysicalBuildings}
-            label="Physical buildings with access control"
-            onChange={() =>
-              setHasPhysicalBuildings((currentValue: boolean) => !currentValue)
-            }
-          />
-          <OptionCard
-            ariaLabel="Remote work over VPN"
-            checked={supportsRemoteWorkVpn}
-            label="Remote work over VPN"
-            onChange={() =>
-              setSupportsRemoteWorkVpn((currentValue: boolean) => !currentValue)
-            }
-          />
-        </div>
-
-        {(departmentTypes.includes("development") ||
-          usesCloud ||
-          supportsRemoteWorkVpn ||
-          hasPhysicalBuildings ||
-          departmentTypes.includes("cyber") ||
-          serviceDescription.toLowerCase().includes("soc")) && (
-          <>
-            <p className="response-label">Dynamic follow-up questions</p>
-            {departmentTypes.includes("development") && (
-              <label aria-label="Dev lifecycle notes" className="rule-card">
-                <span>
-                  <strong>Development follow-up</strong>
-                  <span>Describe secure SDLC or DevSecOps practices.</span>
-                </span>
-                <textarea
-                  className="rule-checkbox"
-                  onChange={(event) => {
-                    setDevelopmentLifecycleNotes(event.target.value);
-                  }}
-                  rows={2}
-                  value={developmentLifecycleNotes}
-                />
-              </label>
-            )}
-            {usesCloud && (
-              <label aria-label="Cloud provider" className="rule-card">
-                <span>
-                  <strong>Cloud follow-up</strong>
-                  <span>Primary cloud provider/environment.</span>
-                </span>
-                <input
-                  className="rule-checkbox"
-                  onChange={(event) => {
-                    setCloudProvider(event.target.value);
-                  }}
-                  type="text"
-                  value={cloudProvider}
-                />
-              </label>
-            )}
-            {supportsRemoteWorkVpn && (
-              <OptionCard
-                ariaLabel="VPN uses MFA"
-                checked={vpnMfaEnabled}
-                label="VPN access is protected with MFA"
-                onChange={() => setVpnMfaEnabled((currentValue) => !currentValue)}
-              />
-            )}
-            {hasPhysicalBuildings && (
-              <label aria-label="Physical controls" className="rule-card">
-                <span>
-                  <strong>Physical controls follow-up</strong>
-                  <span>Summarize access controls/camera coverage.</span>
-                </span>
-                <textarea
-                  className="rule-checkbox"
-                  onChange={(event) => {
-                    setPhysicalControlNotes(event.target.value);
-                  }}
-                  rows={2}
-                  value={physicalControlNotes}
-                />
-              </label>
-            )}
-            {(departmentTypes.includes("cyber") ||
-              serviceDescription.toLowerCase().includes("soc")) && (
-              <label aria-label="Cyber monitoring notes" className="rule-card">
-                <span>
-                  <strong>Cyber follow-up</strong>
-                  <span>Describe monitoring and incident response setup.</span>
-                </span>
-                <textarea
-                  className="rule-checkbox"
-                  onChange={(event) => {
-                    setCyberMonitoringNotes(event.target.value);
-                  }}
-                  rows={2}
-                  value={cyberMonitoringNotes}
-                />
-              </label>
-            )}
-          </>
-        )}
-
-        <p className="response-label">Manual rule override (optional)</p>
-
-        <div className="rule-list">
-          {selector.available_rules.map((rule) => (
-            <OptionCard
-              ariaLabel={rule.label}
-              checked={selectedRuleIds.includes(rule.id)}
-              description={rule.description}
-              key={rule.id}
-              label={rule.label}
-              onChange={() => toggleRule(rule.id)}
-            />
-          ))}
-        </div>
-
-        <button
-          className="primary-button"
-          disabled={isSubmitting || selectedRuleIds.length === 0}
-          onClick={() => {
-            void handleGenerateChecklist();
-          }}
-          type="button"
-        >
-          {isSubmitting ? "Saving assessment..." : "Generate assessment"}
-        </button>
-
-        <button
-          className="secondary-button"
-          disabled={selectedRuleIds.length === 0}
-          onClick={handleExportReport}
-          type="button"
-        >
-          Export report
-        </button>
-
-        <p className="status-hint">
-          The export generates a self-contained HTML report with the sections
-          requested in the project brief.
-        </p>
-
-        {errorMessage && <p className="status-note">{errorMessage}</p>}
-        {statusMessage && <p className="status-note">{statusMessage}</p>}
-      </article>
-
-      <article className="panel panel-highlight">
         <p className="panel-kicker">Assessment output</p>
         {liveAssessment ? (
           <>
@@ -790,7 +623,8 @@ export default function GdprPlayground({
             </li>
           ))}
         </ResponseBlock>
-      </article>
+        </article>
+      </div>
     </section>
   );
 }
