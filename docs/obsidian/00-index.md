@@ -32,6 +32,20 @@
 - With concrete actions to solve the issues
 - Ask for every rule check the evidence, then the app is also a repository of evidences
 
+### MVP functional state (11-05-2026)
+
+- Dynamic follow-up questions are shown according to selected context:
+  - Development departments trigger DevSecOps follow-up.
+  - Cloud usage triggers cloud provider follow-up.
+  - Physical buildings trigger physical controls follow-up.
+  - Remote VPN triggers MFA follow-up.
+  - Cyber/SOC context triggers monitoring and incident-response follow-up.
+- Checklist lifecycle supports `pending`, `in_progress`, and `done` updates per item.
+- Evidence repository MVP is metadata-based:
+  - Notes and reference URLs are stored per checklist item inside each assessment snapshot.
+  - Evidence is persisted and returned when loading latest assessment/history context.
+- Export now includes checklist status and saved evidence metadata for each control.
+
 ---
 
 ## Topic

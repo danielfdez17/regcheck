@@ -49,8 +49,18 @@ function renderChecklistRows(assessment: GDPRAssessmentResponse): string {
         <tr>
           <td>${escapeHtml(item.title)}</td>
           <td>${escapeHtml(item.priority)}</td>
+          <td>${escapeHtml(item.status)}</td>
           <td>${escapeHtml(item.concrete_action ?? "")}</td>
           <td>${escapeHtml(item.evidence_request ?? "")}</td>
+          <td>${escapeHtml(
+            item.evidence_entries
+              .map((entry) =>
+                [entry.label, entry.reference_url ?? "", entry.notes ?? ""]
+                  .filter(Boolean)
+                  .join(" - "),
+              )
+              .join(" | "),
+          )}</td>
         </tr>`,
     )
     .join("\n");
@@ -379,8 +389,10 @@ export function buildAssessmentReportHtml({
               <tr>
                 <th>Control</th>
                 <th>Prioridad</th>
+                <th>Estado</th>
                 <th>Acción concreta</th>
                 <th>Evidencia requerida</th>
+                <th>Evidencia guardada</th>
               </tr>
             </thead>
             <tbody>

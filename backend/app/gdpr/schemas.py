@@ -37,6 +37,16 @@ class CompanyProfileOptions(BaseModel):
     framework_options: list[str] = Field(default_factory=list)
 
 
+class EvidenceEntry(BaseModel):
+    """Metadata entry linked to one checklist control evidence."""
+
+    id: str
+    label: str
+    reference_url: str | None = None
+    notes: str | None = None
+    created_at: datetime
+
+
 class ChecklistItem(BaseModel):
     """Represents one actionable checklist item."""
 
@@ -48,6 +58,7 @@ class ChecklistItem(BaseModel):
     rule_id: str
     concrete_action: str | None = None
     evidence_request: str | None = None
+    evidence_entries: list[EvidenceEntry] = Field(default_factory=list)
 
 
 class GDPRRuleSelectorResponse(BaseModel):
@@ -75,6 +86,13 @@ class GDPRChecklistRequest(BaseModel):
 
     selected_rule_ids: list[str] = Field(default_factory=list)
     company_profile: CompanyProfileInput | None = None
+
+
+class ChecklistItemUpdateRequest(BaseModel):
+    """Request payload to update one checklist item in an assessment."""
+
+    status: ChecklistStatus | None = None
+    evidence_entries: list[EvidenceEntry] | None = None
 
 
 class GDPRChecklistResponse(BaseModel):

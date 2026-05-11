@@ -71,6 +71,7 @@ class ComplianceAssessmentModel(SQLModel, table=True):
         default_factory=list,
         sa_column=Column(JSON, nullable=False),
     )
+    # Stored checklist snapshots may include status and evidence metadata per item.
     total_items: int
     high_priority_items: int
     medium_priority_items: int

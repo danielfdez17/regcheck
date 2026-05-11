@@ -218,6 +218,7 @@ def load_checklist_items(session: Session, rule_ids: list[str]) -> list[Checklis
                 rule_id=item_row.rule_id,
                 concrete_action=concrete_action,
                 evidence_request=evidence_request,
+                evidence_entries=[],
             )
         )
 

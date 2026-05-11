@@ -5,9 +5,12 @@ import {
   createAssessment,
   type AssessmentHistoryResponse,
   type ChecklistItem,
+  type ChecklistStatus,
+  type EvidenceEntry,
   type GDPRAssessmentResponse,
   type GDPRRuleSelectorResponse,
   type RuleOption,
+  updateAssessmentChecklistItem,
 } from "./lib/regcheck-api";
 import { buildAssessmentReportHtml } from "./lib/report-export";
 
@@ -68,6 +71,7 @@ function createChecklistItemPreview(
     rule_id: rule.id,
     concrete_action: `Review and document the ${rule.label.toLowerCase()} control.`,
     evidence_request: `Attach evidence for ${rule.label.toLowerCase()} control ${index + 1}.`,
+    evidence_entries: [],
   };
 }
 
@@ -133,20 +137,51 @@ export default function GdprPlayground({
     currentAssessment?.selected_rules.map((rule) => rule.id) ??
       [selector.available_rules[0]?.id ?? ""].filter(Boolean),
   );
+  const [developmentLifecycleNotes, setDevelopmentLifecycleNotes] = useState("");
+  const [cloudProvider, setCloudProvider] = useState("");
+  const [vpnMfaEnabled, setVpnMfaEnabled] = useState(false);
+  const [physicalControlNotes, setPhysicalControlNotes] = useState("");
+  const [cyberMonitoringNotes, setCyberMonitoringNotes] = useState("");
+  const [itemEvidenceDrafts, setItemEvidenceDrafts] = useState<
+    Record<string, { notes: string; referenceUrl: string }>
+  >({});
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const liveCompanyProfile = useMemo(
-    () => ({
-      company_type: companyType,
-      department_types: departmentTypes,
-      service_description: serviceDescription,
-      requested_frameworks: requestedFrameworks,
-      uses_cloud: usesCloud,
-      has_physical_buildings: hasPhysicalBuildings,
-      supports_remote_work_vpn: supportsRemoteWorkVpn,
-    }),
+    () => {
+      const vpnMfaLabel = vpnMfaEnabled ? "yes" : "no";
+
+      return {
+        company_type: companyType,
+        department_types: departmentTypes,
+        service_description: [
+          serviceDescription.trim(),
+          departmentTypes.includes("development") && developmentLifecycleNotes.trim()
+            ? `Dev lifecycle notes: ${developmentLifecycleNotes.trim()}`
+            : "",
+          usesCloud && cloudProvider.trim()
+            ? `Cloud provider: ${cloudProvider.trim()}`
+            : "",
+          supportsRemoteWorkVpn ? `VPN MFA enabled: ${vpnMfaLabel}` : "",
+          hasPhysicalBuildings && physicalControlNotes.trim()
+            ? `Physical controls: ${physicalControlNotes.trim()}`
+            : "",
+          (departmentTypes.includes("cyber") ||
+            serviceDescription.toLowerCase().includes("soc")) &&
+          cyberMonitoringNotes.trim()
+            ? `Cyber monitoring: ${cyberMonitoringNotes.trim()}`
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" | "),
+        requested_frameworks: requestedFrameworks,
+        uses_cloud: usesCloud,
+        has_physical_buildings: hasPhysicalBuildings,
+        supports_remote_work_vpn: supportsRemoteWorkVpn,
+      };
+    },
     [
       companyType,
       departmentTypes,
@@ -155,6 +190,11 @@ export default function GdprPlayground({
       usesCloud,
       hasPhysicalBuildings,
       supportsRemoteWorkVpn,
+      developmentLifecycleNotes,
+      cloudProvider,
+      vpnMfaEnabled,
+      physicalControlNotes,
+      cyberMonitoringNotes,
     ],
   );
 
@@ -252,6 +292,48 @@ export default function GdprPlayground({
       setErrorMessage(message);
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleSaveChecklistItem(
+    item: ChecklistItem,
+    nextStatus: ChecklistStatus,
+  ) {
+    if (liveAssessment.assessment_id === "draft-preview") {
+      setErrorMessage("Generate and save an assessment before editing checklist items.");
+      return;
+    }
+
+    const draft = itemEvidenceDrafts[item.id] ?? { notes: "", referenceUrl: "" };
+    const evidenceEntries: EvidenceEntry[] =
+      draft.notes.trim() || draft.referenceUrl.trim()
+        ? [
+            {
+              id: `${item.id}-evidence`,
+              label: "Operator evidence note",
+              notes: draft.notes.trim() || null,
+              reference_url: draft.referenceUrl.trim() || null,
+              created_at: new Date().toISOString(),
+            },
+          ]
+        : item.evidence_entries;
+
+    try {
+      setErrorMessage(null);
+      const nextAssessment = await updateAssessmentChecklistItem({
+        assessmentId: liveAssessment.assessment_id,
+        checklistItemId: item.id,
+        status: nextStatus,
+        evidenceEntries,
+      });
+      setCurrentAssessment(nextAssessment);
+      setStatusMessage(`Updated checklist item "${item.title}".`);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unexpected error while updating checklist item.";
+      setErrorMessage(message);
     }
   }
 
@@ -404,6 +486,90 @@ export default function GdprPlayground({
           />
         </div>
 
+        {(departmentTypes.includes("development") ||
+          usesCloud ||
+          supportsRemoteWorkVpn ||
+          hasPhysicalBuildings ||
+          departmentTypes.includes("cyber") ||
+          serviceDescription.toLowerCase().includes("soc")) && (
+          <>
+            <p className="response-label">Dynamic follow-up questions</p>
+            {departmentTypes.includes("development") && (
+              <label aria-label="Dev lifecycle notes" className="rule-card">
+                <span>
+                  <strong>Development follow-up</strong>
+                  <span>Describe secure SDLC or DevSecOps practices.</span>
+                </span>
+                <textarea
+                  className="rule-checkbox"
+                  onChange={(event) => {
+                    setDevelopmentLifecycleNotes(event.target.value);
+                  }}
+                  rows={2}
+                  value={developmentLifecycleNotes}
+                />
+              </label>
+            )}
+            {usesCloud && (
+              <label aria-label="Cloud provider" className="rule-card">
+                <span>
+                  <strong>Cloud follow-up</strong>
+                  <span>Primary cloud provider/environment.</span>
+                </span>
+                <input
+                  className="rule-checkbox"
+                  onChange={(event) => {
+                    setCloudProvider(event.target.value);
+                  }}
+                  type="text"
+                  value={cloudProvider}
+                />
+              </label>
+            )}
+            {supportsRemoteWorkVpn && (
+              <OptionCard
+                ariaLabel="VPN uses MFA"
+                checked={vpnMfaEnabled}
+                label="VPN access is protected with MFA"
+                onChange={() => setVpnMfaEnabled((currentValue) => !currentValue)}
+              />
+            )}
+            {hasPhysicalBuildings && (
+              <label aria-label="Physical controls" className="rule-card">
+                <span>
+                  <strong>Physical controls follow-up</strong>
+                  <span>Summarize access controls/camera coverage.</span>
+                </span>
+                <textarea
+                  className="rule-checkbox"
+                  onChange={(event) => {
+                    setPhysicalControlNotes(event.target.value);
+                  }}
+                  rows={2}
+                  value={physicalControlNotes}
+                />
+              </label>
+            )}
+            {(departmentTypes.includes("cyber") ||
+              serviceDescription.toLowerCase().includes("soc")) && (
+              <label aria-label="Cyber monitoring notes" className="rule-card">
+                <span>
+                  <strong>Cyber follow-up</strong>
+                  <span>Describe monitoring and incident response setup.</span>
+                </span>
+                <textarea
+                  className="rule-checkbox"
+                  onChange={(event) => {
+                    setCyberMonitoringNotes(event.target.value);
+                  }}
+                  rows={2}
+                  value={cyberMonitoringNotes}
+                />
+              </label>
+            )}
+          </>
+        )}
+
         <p className="response-label">Manual rule override (optional)</p>
 
         <div className="rule-list">
@@ -495,8 +661,70 @@ export default function GdprPlayground({
                 <li key={item.id}>
                   <strong>{item.title}</strong>
                   <span>{item.priority}</span>
+                  <label>
+                    Status
+                    {" "}
+                    <select
+                      className="rule-checkbox"
+                      defaultValue={item.status}
+                      onChange={(event) => {
+                        void handleSaveChecklistItem(
+                          item,
+                          event.target.value as ChecklistStatus,
+                        );
+                      }}
+                    >
+                      <option value="pending">pending</option>
+                      <option value="in_progress">in_progress</option>
+                      <option value="done">done</option>
+                    </select>
+                  </label>
                   <span>{item.concrete_action}</span>
                   <span>{item.evidence_request}</span>
+                  <textarea
+                    className="rule-checkbox"
+                    onChange={(event) => {
+                      setItemEvidenceDrafts((current) => ({
+                        ...current,
+                        [item.id]: {
+                          notes: event.target.value,
+                          referenceUrl: current[item.id]?.referenceUrl ?? "",
+                        },
+                      }));
+                    }}
+                    placeholder="Evidence notes or location details"
+                    rows={2}
+                    value={itemEvidenceDrafts[item.id]?.notes ?? ""}
+                  />
+                  <input
+                    className="rule-checkbox"
+                    onChange={(event) => {
+                      setItemEvidenceDrafts((current) => ({
+                        ...current,
+                        [item.id]: {
+                          notes: current[item.id]?.notes ?? "",
+                          referenceUrl: event.target.value,
+                        },
+                      }));
+                    }}
+                    placeholder="Evidence URL (optional)"
+                    type="url"
+                    value={itemEvidenceDrafts[item.id]?.referenceUrl ?? ""}
+                  />
+                  <button
+                    className="secondary-button"
+                    onClick={() => {
+                      void handleSaveChecklistItem(item, item.status);
+                    }}
+                    type="button"
+                  >
+                    Save evidence metadata
+                  </button>
+                  {item.evidence_entries.length > 0 && (
+                    <span>
+                      Saved evidence entries: {String(item.evidence_entries.length)}
+                    </span>
+                  )}
                 </li>
               ))}
             </ResponseBlock>

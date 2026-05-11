@@ -15,6 +15,7 @@ from app.gdpr.schemas import (
     AssessmentHistoryItem,
     AssessmentHistoryResponse,
     AssessmentSummary,
+    ChecklistItemUpdateRequest,
     ChecklistItem,
     GDPRAssessmentResponse,
     GDPRChecklistRequest,
@@ -37,7 +38,7 @@ def create_assessment(
         company_profile=request.company_profile.model_dump() if request.company_profile else {},
         selected_rule_ids=[rule.id for rule in checklist.selected_rules],
         recommended_rule_ids=checklist.recommended_rule_ids,
-        checklist_items=[item.model_dump() for item in checklist.checklist_items],
+        checklist_items=[item.model_dump(mode="json") for item in checklist.checklist_items],
         total_items=summary.total_items,
         high_priority_items=summary.high_priority_items,
         medium_priority_items=summary.medium_priority_items,
@@ -127,6 +128,66 @@ def list_assessments(session: Session, limit: int = 5) -> AssessmentHistoryRespo
     ]
 
     return AssessmentHistoryResponse(items=items)
+
+
+def update_assessment_checklist_item(
+    session: Session,
+    assessment_id: str,
+    checklist_item_id: str,
+    payload: ChecklistItemUpdateRequest,
+) -> GDPRAssessmentResponse | None:
+    """Update one checklist item status/evidence metadata in an assessment."""
+
+    row = session.get(ComplianceAssessmentModel, assessment_id)
+    if row is None:
+        return None
+
+    checklist_items = [ChecklistItem.model_validate(item) for item in row.checklist_items]
+    updated = False
+
+    for index, item in enumerate(checklist_items):
+        if item.id != checklist_item_id:
+            continue
+
+        next_item = item.model_copy(deep=True)
+        if payload.status is not None:
+            next_item.status = payload.status
+        if payload.evidence_entries is not None:
+            next_item.evidence_entries = payload.evidence_entries
+        checklist_items[index] = next_item
+        updated = True
+        break
+
+    if not updated:
+        return None
+
+    summary = build_assessment_summary(checklist_items, row.recommended_rule_ids)
+    row.checklist_items = [item.model_dump(mode="json") for item in checklist_items]
+    row.total_items = summary.total_items
+    row.high_priority_items = summary.high_priority_items
+    row.medium_priority_items = summary.medium_priority_items
+    row.low_priority_items = summary.low_priority_items
+    session.add(row)
+    session.commit()
+    session.refresh(row)
+
+    domain_mode = load_domain_mode(session)
+    selected_rules = load_selected_rules(session, row.selected_rule_ids)
+    request = GDPRChecklistRequest(
+        selected_rule_ids=row.selected_rule_ids,
+        company_profile=row.company_profile or None,
+    )
+
+    return GDPRAssessmentResponse(
+        assessment_id=row.id,
+        created_at=row.created_at,
+        request=request,
+        domain_mode=domain_mode,
+        selected_rules=selected_rules,
+        checklist_items=checklist_items,
+        recommended_rule_ids=row.recommended_rule_ids,
+        summary=summary,
+    )
 
 
 def build_assessment_summary(

@@ -40,6 +40,15 @@ export interface ChecklistItem {
   rule_id: string;
   concrete_action: string | null;
   evidence_request: string | null;
+  evidence_entries: EvidenceEntry[];
+}
+
+export interface EvidenceEntry {
+  id: string;
+  label: string;
+  reference_url: string | null;
+  notes: string | null;
+  created_at: string;
 }
 
 export interface GDPRRuleSelectorResponse {
@@ -99,6 +108,13 @@ export interface AssessmentHistoryResponse {
 export interface CreateChecklistInput {
   selectedRuleIds: string[];
   companyProfile?: CompanyProfileInput;
+}
+
+export interface UpdateChecklistItemInput {
+  assessmentId: string;
+  checklistItemId: string;
+  status?: ChecklistStatus;
+  evidenceEntries?: EvidenceEntry[];
 }
 
 interface RequestOptions extends RequestInit {
@@ -179,5 +195,18 @@ export async function getAssessmentHistory(
   return requestJson<AssessmentHistoryResponse>({
     path: `/api/v1/gdpr/assessments?limit=${limit}`,
     method: "GET",
+  });
+}
+
+export async function updateAssessmentChecklistItem(
+  input: UpdateChecklistItemInput,
+): Promise<GDPRAssessmentResponse> {
+  return requestJson<GDPRAssessmentResponse>({
+    path: `/api/v1/gdpr/assessments/${input.assessmentId}/checklist-items/${input.checklistItemId}`,
+    method: "PATCH",
+    body: JSON.stringify({
+      status: input.status,
+      evidence_entries: input.evidenceEntries,
+    }),
   });
 }
