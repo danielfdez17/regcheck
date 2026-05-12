@@ -161,6 +161,9 @@ push-new-branch: ## Pushes a new branch using a script
 merge-to-dev: ## Merges the current branch into dev using a script
 	@bash ./vendor/scripts/git/merge_to_dev.sh
 
+merge-dev-to-main: ## Merges the develop branch into the main branch using a script
+	@bash ./vendor/scripts/git/merge_dev_to_main.sh
+
 .PHONY: help install dev-frontend dev-backend dev-docker up stop down build typecheck \
         re clean \
-        lint audit ci sonar update-submodules
+        lint audit ci sonar update-submodules push-new-branch merge-to-dev merge-dev-to-main
