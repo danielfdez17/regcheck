@@ -11,7 +11,6 @@ import { useHomePageData } from "./hooks/use-home-page-data";
 const NAV_ITEMS = [
   { label: "Overview", href: "#overview" },
   { label: "Playground", href: "#playground" },
-  { label: "API", href: "#api" },
 ];
 
 export default function App() {
