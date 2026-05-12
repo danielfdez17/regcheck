@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+running_audit_msg="Running pre-push hook: make audit"
+print_info "$running_audit_msg" || echo "$running_audit_msg"
+
+make audit --no-print-directory
+
+core_audit_passed_msg="Code audit passed, pushing to remote"
+print_ok "$core_audit_passed_msg" || echo "$core_audit_passed_msg"
