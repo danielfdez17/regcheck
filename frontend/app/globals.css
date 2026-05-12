@@ -381,6 +381,9 @@ textarea {
 }
 
 .panel-sidebar-collapsed {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
   width: 4.2rem;
   padding: 0.75rem 0.6rem;
   overflow: hidden;
@@ -408,6 +411,7 @@ textarea {
   display: grid;
   gap: 0.65rem;
   justify-items: center;
+  align-content: center;
 }
 
 .sidebar-rail-toggle,
