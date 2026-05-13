@@ -678,6 +678,71 @@ textarea.rule-checkbox {
   line-height: 1.45;
 }
 
+.priority-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.priority-badge-high {
+  color: #ff0000 !important;
+  border: 1px solid #ff0000;
+}
+
+.priority-badge-medium {
+  color: #ff9900 !important;
+  border: 1px solid #ff9900;
+}
+
+.priority-badge-low {
+  color: #03b048 !important;
+  border: 1px solid #03b048;
+}
+
+.saved-evidence-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.saved-evidence-items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.saved-evidence-items li {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, var(--panel-strong) 88%, transparent);
+}
+
+.saved-evidence-main {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.saved-evidence-main a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.13em;
+}
+
+.saved-evidence-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

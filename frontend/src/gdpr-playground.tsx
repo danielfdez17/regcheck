@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
 
 import { LiveBackendInputSidebar } from "./components/live-backend-input-sidebar";
-import { ResponseBlock } from "./components/gdpr-playground-parts";
+import {
+  PriorityBadge,
+  ResponseBlock,
+} from "./components/gdpr-playground-parts";
 import {
   createAssessment,
   type AssessmentHistoryResponse,
@@ -100,18 +103,13 @@ function normalizeEvidenceDraft(value: string): string {
   return value.trim();
 }
 
-function getSavedEvidenceDraft(item: ChecklistItem): {
+function buildEvidenceEntryDraft(entry: EvidenceEntry): {
   notes: string;
   referenceUrl: string;
 } {
-  const firstEntry = item.evidence_entries[0];
-  if (firstEntry === undefined) {
-    return { notes: "", referenceUrl: "" };
-  }
-
   return {
-    notes: firstEntry.notes ?? "",
-    referenceUrl: firstEntry.reference_url ?? "",
+    notes: entry.notes ?? "",
+    referenceUrl: entry.reference_url ?? "",
   };
 }
 
@@ -164,6 +162,9 @@ export default function GdprPlayground({
   const [cyberMonitoringNotes, setCyberMonitoringNotes] = useState("");
   const [itemEvidenceDrafts, setItemEvidenceDrafts] = useState<
     Record<string, { notes: string; referenceUrl: string }>
+  >({});
+  const [itemEvidenceEditIds, setItemEvidenceEditIds] = useState<
+    Record<string, string | null>
   >({});
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -325,36 +326,15 @@ export default function GdprPlayground({
       return;
     }
 
-    const draft = itemEvidenceDrafts[item.id] ?? { notes: "", referenceUrl: "" };
-    const evidenceEntries: EvidenceEntry[] =
-      draft.notes.trim() || draft.referenceUrl.trim()
-        ? [
-            {
-              id: `${item.id}-evidence`,
-              label: "Operator evidence note",
-              notes: draft.notes.trim() || null,
-              reference_url: draft.referenceUrl.trim() || null,
-              created_at: new Date().toISOString(),
-            },
-          ]
-        : item.evidence_entries;
-
     try {
       setErrorMessage(null);
       const nextAssessment = await updateAssessmentChecklistItem({
         assessmentId: liveAssessment.assessment_id,
         checklistItemId: item.id,
         status: nextStatus,
-        evidenceEntries,
+        evidenceEntries: item.evidence_entries,
       });
       setCurrentAssessment(nextAssessment);
-      setItemEvidenceDrafts((currentDrafts) => ({
-        ...currentDrafts,
-        [item.id]: {
-          notes: draft.notes,
-          referenceUrl: draft.referenceUrl,
-        },
-      }));
       setStatusMessage(`Updated checklist item "${item.title}".`);
     } catch (error) {
       const message =
@@ -363,6 +343,116 @@ export default function GdprPlayground({
           : "Unexpected error while updating checklist item.";
       setErrorMessage(message);
     }
+  }
+
+  function updateEvidenceDraft(
+    itemId: string,
+    nextDraft: { notes: string; referenceUrl: string },
+  ) {
+    setItemEvidenceDrafts((currentDrafts) => ({
+      ...currentDrafts,
+      [itemId]: nextDraft,
+    }));
+  }
+
+  async function handleSaveEvidenceEntry(item: ChecklistItem) {
+    if (liveAssessment.assessment_id === "draft-preview") {
+      setErrorMessage("Generate and save an assessment before editing checklist items.");
+      return;
+    }
+
+    const draft = itemEvidenceDrafts[item.id] ?? { notes: "", referenceUrl: "" };
+    const notes = normalizeEvidenceDraft(draft.notes);
+    const referenceUrl = normalizeEvidenceDraft(draft.referenceUrl);
+    if (!notes && !referenceUrl) {
+      setErrorMessage("Add notes or an evidence URL before saving.");
+      return;
+    }
+
+    const currentEditId = itemEvidenceEditIds[item.id];
+    const nextEntry: EvidenceEntry = {
+      id: currentEditId ?? `${item.id}-evidence-${Date.now()}`,
+      label: "Operator evidence note",
+      notes: notes || null,
+      reference_url: referenceUrl || null,
+      created_at: new Date().toISOString(),
+    };
+
+    const nextEvidenceEntries =
+      currentEditId === undefined || currentEditId === null
+        ? [...item.evidence_entries, nextEntry]
+        : item.evidence_entries.map((entry) =>
+            entry.id === currentEditId ? nextEntry : entry,
+          );
+
+    try {
+      setErrorMessage(null);
+      const nextAssessment = await updateAssessmentChecklistItem({
+        assessmentId: liveAssessment.assessment_id,
+        checklistItemId: item.id,
+        status: item.status,
+        evidenceEntries: nextEvidenceEntries,
+      });
+      setCurrentAssessment(nextAssessment);
+      updateEvidenceDraft(item.id, { notes: "", referenceUrl: "" });
+      setItemEvidenceEditIds((current) => ({ ...current, [item.id]: null }));
+      setStatusMessage(
+        currentEditId ? "Evidence entry updated." : "Evidence entry saved.",
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unexpected error while saving evidence metadata.";
+      setErrorMessage(message);
+    }
+  }
+
+  async function handleDeleteEvidenceEntry(item: ChecklistItem, entryId: string) {
+    if (liveAssessment.assessment_id === "draft-preview") {
+      setErrorMessage("Generate and save an assessment before editing checklist items.");
+      return;
+    }
+
+    const nextEvidenceEntries = item.evidence_entries.filter(
+      (entry) => entry.id !== entryId,
+    );
+
+    try {
+      setErrorMessage(null);
+      const nextAssessment = await updateAssessmentChecklistItem({
+        assessmentId: liveAssessment.assessment_id,
+        checklistItemId: item.id,
+        status: item.status,
+        evidenceEntries: nextEvidenceEntries,
+      });
+      setCurrentAssessment(nextAssessment);
+      setItemEvidenceEditIds((current) => ({ ...current, [item.id]: null }));
+      updateEvidenceDraft(item.id, { notes: "", referenceUrl: "" });
+      setStatusMessage("Evidence entry deleted.");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unexpected error while deleting evidence metadata.";
+      setErrorMessage(message);
+    }
+  }
+
+  function startEditingEvidenceEntry(itemId: string, entry: EvidenceEntry) {
+    setItemEvidenceEditIds((current) => ({
+      ...current,
+      [itemId]: entry.id,
+    }));
+    updateEvidenceDraft(itemId, buildEvidenceEntryDraft(entry));
+  }
+
+  function cancelEditingEvidenceEntry(itemId: string) {
+    setItemEvidenceEditIds((current) => ({
+      ...current,
+      [itemId]: null,
+    }));
+    updateEvidenceDraft(itemId, { notes: "", referenceUrl: "" });
   }
 
   function handleExportReport() {
@@ -521,12 +611,12 @@ export default function GdprPlayground({
                   notes: "",
                   referenceUrl: "",
                 };
-                const savedDraft = getSavedEvidenceDraft(item);
                 const hasUnsavedEvidenceDraft =
-                  normalizeEvidenceDraft(currentDraft.notes) !==
-                    normalizeEvidenceDraft(savedDraft.notes) ||
-                  normalizeEvidenceDraft(currentDraft.referenceUrl) !==
-                    normalizeEvidenceDraft(savedDraft.referenceUrl);
+                  normalizeEvidenceDraft(currentDraft.notes).length > 0 ||
+                  normalizeEvidenceDraft(currentDraft.referenceUrl).length > 0;
+                const isEditingExistingEvidence =
+                  itemEvidenceEditIds[item.id] !== undefined &&
+                  itemEvidenceEditIds[item.id] !== null;
 
                 return (
                   <li key={item.id}>
@@ -534,7 +624,7 @@ export default function GdprPlayground({
                     {hasUnsavedEvidenceDraft && (
                       <span className="status-note">Unsaved evidence draft</span>
                     )}
-                    <span>{item.priority}</span>
+                    <PriorityBadge priority={item.priority} />
                     <label>
                       Status
                       {" "}
@@ -558,13 +648,10 @@ export default function GdprPlayground({
                     <textarea
                       className="rule-checkbox"
                       onChange={(event) => {
-                        setItemEvidenceDrafts((current) => ({
-                          ...current,
-                          [item.id]: {
-                            notes: event.target.value,
-                            referenceUrl: current[item.id]?.referenceUrl ?? "",
-                          },
-                        }));
+                        updateEvidenceDraft(item.id, {
+                          notes: event.target.value,
+                          referenceUrl: currentDraft.referenceUrl,
+                        });
                       }}
                       placeholder="Evidence notes or location details"
                       rows={2}
@@ -573,13 +660,10 @@ export default function GdprPlayground({
                     <input
                       className="rule-checkbox"
                       onChange={(event) => {
-                        setItemEvidenceDrafts((current) => ({
-                          ...current,
-                          [item.id]: {
-                            notes: current[item.id]?.notes ?? "",
-                            referenceUrl: event.target.value,
-                          },
-                        }));
+                        updateEvidenceDraft(item.id, {
+                          notes: currentDraft.notes,
+                          referenceUrl: event.target.value,
+                        });
                       }}
                       placeholder="Evidence URL (optional)"
                       type="url"
@@ -588,16 +672,70 @@ export default function GdprPlayground({
                     <button
                       className="secondary-button"
                       onClick={() => {
-                        void handleSaveChecklistItem(item, item.status);
+                        void handleSaveEvidenceEntry(item);
                       }}
                       type="button"
                     >
-                      Save evidence metadata
+                      {isEditingExistingEvidence ? "Update evidence metadata" : "Save evidence metadata"}
                     </button>
+                    {isEditingExistingEvidence && (
+                      <button
+                        className="secondary-button"
+                        onClick={() => {
+                          cancelEditingEvidenceEntry(item.id);
+                        }}
+                        type="button"
+                      >
+                        Cancel edit
+                      </button>
+                    )}
                     {item.evidence_entries.length > 0 && (
-                      <span>
-                        Saved evidence entries: {String(item.evidence_entries.length)}
-                      </span>
+                      <div className="saved-evidence-list">
+                        <span>
+                          Saved evidence entries: {String(item.evidence_entries.length)}
+                        </span>
+                        <ul className="saved-evidence-items">
+                          {item.evidence_entries.map((entry) => (
+                            <li key={entry.id}>
+                              <div className="saved-evidence-main">
+                                <span>{entry.label}</span>
+                                {entry.reference_url ? (
+                                  <a
+                                    href={entry.reference_url}
+                                    rel="noopener noreferrer"
+                                    target="_blank"
+                                  >
+                                    {entry.reference_url}
+                                  </a>
+                                ) : (
+                                  <span>No URL saved</span>
+                                )}
+                                {entry.notes ? <span>{entry.notes}</span> : null}
+                              </div>
+                              <div className="saved-evidence-actions">
+                                <button
+                                  className="secondary-button"
+                                  onClick={() => {
+                                    startEditingEvidenceEntry(item.id, entry);
+                                  }}
+                                  type="button"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  className="secondary-button"
+                                  onClick={() => {
+                                    void handleDeleteEvidenceEntry(item, entry.id);
+                                  }}
+                                  type="button"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
                   </li>
                 );
