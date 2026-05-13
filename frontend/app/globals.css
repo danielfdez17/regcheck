@@ -669,6 +669,23 @@ textarea.rule-checkbox {
   background: var(--panel);
 }
 
+.checklist-item-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.checklist-item-header strong {
+  flex: 1;
+  min-width: 0;
+}
+
+.checklist-item-header .priority-badge {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 .checklist-mini strong {
   display: block;
 }
@@ -704,6 +721,86 @@ textarea.rule-checkbox {
   border: 1px solid #03b048;
 }
 
+.status-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.status-badge-pending {
+  color: #0000ff !important;
+  border: 1px solid #0000ff;
+}
+
+.status-badge-in-progress {
+  color: #ff9900 !important;
+  border: 1px solid #ff9900;
+}
+
+.status-badge-done {
+  color: #00ff00 !important;
+  border: 1px solid #00ff00;
+}
+
+.checklist-status-control {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.checklist-status-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.checklist-status-dropdown {
+  position: relative;
+}
+
+.checklist-status-trigger {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.checklist-status-menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+  min-width: 11rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--panel-strong);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.checklist-status-option {
+  display: flex;
+  width: 100%;
+  padding: 0.15rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+.checklist-status-option:hover {
+  background: var(--panel-soft);
+}
+
 .saved-evidence-list {
   display: grid;
   gap: 0.55rem;
@@ -731,16 +828,33 @@ textarea.rule-checkbox {
   gap: 0.2rem;
 }
 
-.saved-evidence-main a {
+.saved-evidence-url-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.saved-evidence-url-row a {
+  flex: 1;
+  min-width: 0;
   color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 0.13em;
+  overflow-wrap: anywhere;
+}
+
+.saved-evidence-notes {
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 .saved-evidence-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 0.45rem;
+  flex-shrink: 0;
 }
 
 .sr-only {

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 
 import { LiveBackendInputSidebar } from "./components/live-backend-input-sidebar";
 import {
+  ChecklistStatusSelect,
   PriorityBadge,
   ResponseBlock,
 } from "./components/gdpr-playground-parts";
@@ -619,30 +620,20 @@ export default function GdprPlayground({
                   itemEvidenceEditIds[item.id] !== null;
 
                 return (
-                  <li key={item.id}>
-                    <strong>{item.title}</strong>
+                  <li className="checklist-item" key={item.id}>
+                    <div className="checklist-item-header">
+                      <strong>{item.title}</strong>
+                      <PriorityBadge priority={item.priority} />
+                    </div>
                     {hasUnsavedEvidenceDraft && (
                       <span className="status-note">Unsaved evidence draft</span>
                     )}
-                    <PriorityBadge priority={item.priority} />
-                    <label>
-                      Status
-                      {" "}
-                      <select
-                        className="rule-checkbox"
-                        defaultValue={item.status}
-                        onChange={(event) => {
-                          void handleSaveChecklistItem(
-                            item,
-                            event.target.value as ChecklistStatus,
-                          );
-                        }}
-                      >
-                        <option value="pending">pending</option>
-                        <option value="in_progress">in_progress</option>
-                        <option value="done">done</option>
-                      </select>
-                    </label>
+                    <ChecklistStatusSelect
+                      onChange={(nextStatus) => {
+                        void handleSaveChecklistItem(item, nextStatus);
+                      }}
+                      value={item.status}
+                    />
                     <span>{item.concrete_action}</span>
                     <span>{item.evidence_request}</span>
                     <textarea
@@ -697,9 +688,8 @@ export default function GdprPlayground({
                         <ul className="saved-evidence-items">
                           {item.evidence_entries.map((entry) => (
                             <li key={entry.id}>
-                              <div className="saved-evidence-main">
-                                <span>{entry.label}</span>
-                                {entry.reference_url ? (
+                              {entry.reference_url ? (
+                                <div className="saved-evidence-url-row">
                                   <a
                                     href={entry.reference_url}
                                     rel="noopener noreferrer"
@@ -707,31 +697,59 @@ export default function GdprPlayground({
                                   >
                                     {entry.reference_url}
                                   </a>
-                                ) : (
-                                  <span>No URL saved</span>
-                                )}
-                                {entry.notes ? <span>{entry.notes}</span> : null}
-                              </div>
-                              <div className="saved-evidence-actions">
-                                <button
-                                  className="secondary-button"
-                                  onClick={() => {
-                                    startEditingEvidenceEntry(item.id, entry);
-                                  }}
-                                  type="button"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  className="secondary-button"
-                                  onClick={() => {
-                                    void handleDeleteEvidenceEntry(item, entry.id);
-                                  }}
-                                  type="button"
-                                >
-                                  Delete
-                                </button>
-                              </div>
+                                  <div className="saved-evidence-actions">
+                                    <button
+                                      className="secondary-button"
+                                      onClick={() => {
+                                        startEditingEvidenceEntry(item.id, entry);
+                                      }}
+                                      type="button"
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      className="secondary-button"
+                                      onClick={() => {
+                                        void handleDeleteEvidenceEntry(item, entry.id);
+                                      }}
+                                      type="button"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  <div className="saved-evidence-main">
+                                    <span>{entry.label}</span>
+                                    <span>No URL saved</span>
+                                    {entry.notes ? <span>{entry.notes}</span> : null}
+                                  </div>
+                                  <div className="saved-evidence-actions">
+                                    <button
+                                      className="secondary-button"
+                                      onClick={() => {
+                                        startEditingEvidenceEntry(item.id, entry);
+                                      }}
+                                      type="button"
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      className="secondary-button"
+                                      onClick={() => {
+                                        void handleDeleteEvidenceEntry(item, entry.id);
+                                      }}
+                                      type="button"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                              {entry.reference_url && entry.notes ? (
+                                <span className="saved-evidence-notes">{entry.notes}</span>
+                              ) : null}
                             </li>
                           ))}
                         </ul>
