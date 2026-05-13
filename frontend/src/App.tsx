@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import AppShell, { AppFooter, AppNavbar } from "./components/app-shell";
 import {
   HeroSection,
@@ -5,7 +7,7 @@ import {
   LoadingOverview,
   SelectorUnavailable,
 } from "./components/home-content";
-import GdprPlayground from "./gdpr-playground";
+import GdprPlayground, { type LiveDashboardState } from "./gdpr-playground";
 import { useHomePageData } from "./hooks/use-home-page-data";
 
 const NAV_ITEMS = [
@@ -15,6 +17,9 @@ const NAV_ITEMS = [
 
 export default function App() {
   const pageData = useHomePageData();
+  const [liveDashboard, setLiveDashboard] = useState<LiveDashboardState | null>(
+    null,
+  );
 
   if (pageData === null) {
     return (
@@ -38,6 +43,15 @@ export default function App() {
     assessmentHistory,
   } = pageData;
 
+  const dashboardMetrics =
+    liveDashboard ??
+    (currentAssessment
+      ? {
+          summary: currentAssessment.summary,
+          historyCount: assessmentHistory.items.length,
+        }
+      : null);
+
   return (
     <AppShell>
       <AppNavbar navItems={NAV_ITEMS} />
@@ -46,10 +60,10 @@ export default function App() {
         <div className="page">
           <HeroSection connected={connected} errorMessage={errorMessage} />
 
-          {currentAssessment ? (
+          {dashboardMetrics ? (
             <DashboardMetrics
-              historyCount={assessmentHistory.items.length}
-              summary={currentAssessment.summary}
+              historyCount={dashboardMetrics.historyCount}
+              summary={dashboardMetrics.summary}
             />
           ) : null}
 
@@ -59,6 +73,7 @@ export default function App() {
                 initialAssessment={currentAssessment}
                 initialHistory={assessmentHistory}
                 initialSelector={selector}
+                onLiveDashboardChange={setLiveDashboard}
               />
             </div>
           ) : (

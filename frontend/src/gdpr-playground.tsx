@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { LiveBackendInputSidebar } from "./components/live-backend-input-sidebar";
 import {
@@ -9,6 +9,7 @@ import {
 import {
   createAssessment,
   type AssessmentHistoryResponse,
+  type AssessmentSummary,
   type ChecklistItem,
   type ChecklistStatus,
   type EvidenceEntry,
@@ -23,6 +24,12 @@ type GdprPlaygroundProps = {
   initialSelector: GDPRRuleSelectorResponse;
   initialAssessment: GDPRAssessmentResponse | null;
   initialHistory: AssessmentHistoryResponse;
+  onLiveDashboardChange?: (dashboard: LiveDashboardState) => void;
+};
+
+export type LiveDashboardState = {
+  summary: AssessmentSummary;
+  historyCount: number;
 };
 
 type MetricProps = {
@@ -118,6 +125,7 @@ export default function GdprPlayground({
   initialSelector,
   initialAssessment,
   initialHistory,
+  onLiveDashboardChange,
 }: Readonly<GdprPlaygroundProps>) {
   const [selector] = useState(initialSelector);
   const [currentAssessment, setCurrentAssessment] =
@@ -270,6 +278,18 @@ export default function GdprPlayground({
     selector.domain_mode,
     selectedRuleIds,
   ]);
+
+  const liveDashboard = useMemo<LiveDashboardState>(
+    () => ({
+      summary: liveAssessment.summary,
+      historyCount: history.length,
+    }),
+    [history.length, liveAssessment.summary],
+  );
+
+  useEffect(() => {
+    onLiveDashboardChange?.(liveDashboard);
+  }, [liveDashboard, onLiveDashboardChange]);
 
   async function handleGenerateChecklist() {
     setIsSubmitting(true);
