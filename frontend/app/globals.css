@@ -109,6 +109,123 @@ textarea {
   gap: 1rem;
 }
 
+.app-navbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.app-user-menu {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+
+.app-user-name {
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.app-user-enterprise {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.logout-button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  color: var(--text);
+  background: var(--panel-soft);
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease;
+}
+
+.logout-button:hover {
+  transform: translateY(-1px);
+  background: var(--panel);
+}
+
+.auth-page {
+  display: flex;
+  justify-content: center;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.auth-panel {
+  width: min(100%, 32rem);
+  padding: 1.5rem;
+}
+
+.auth-panel h1 {
+  margin: 0.35rem 0 0;
+  font-size: clamp(1.6rem, 3vw, 2rem);
+}
+
+.auth-lead {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.auth-mode-toggle {
+  margin-top: 1.25rem;
+  display: inline-flex;
+  gap: 0.35rem;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel-soft);
+}
+
+.auth-mode-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+.auth-mode-button[data-active="true"] {
+  color: var(--accent-strong-text);
+  background: var(--accent);
+}
+
+.auth-form {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.auth-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.auth-field span {
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.auth-field input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--panel-strong) 92%, transparent);
+  color: var(--text);
+  padding: 0.85rem 0.95rem;
+  outline: none;
+}
+
+.auth-error {
+  margin: 0;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;

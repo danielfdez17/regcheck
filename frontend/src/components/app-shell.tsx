@@ -13,9 +13,17 @@ type AppShellProps = {
 
 type AppNavbarProps = {
   navItems: NavItem[];
+  userName?: string;
+  enterprise?: string;
+  onLogout?: () => void;
 };
 
-export function AppNavbar({ navItems }: Readonly<AppNavbarProps>) {
+export function AppNavbar({
+  navItems,
+  userName = "",
+  enterprise = "",
+  onLogout,
+}: Readonly<AppNavbarProps>) {
   return (
     <header className="app-navbar">
       <div className="app-navbar-inner">
@@ -37,7 +45,22 @@ export function AppNavbar({ navItems }: Readonly<AppNavbarProps>) {
           ))}
         </nav>
 
-        <ThemeToggle />
+        <div className="app-navbar-actions">
+          {userName !== "" ? (
+            <div className="app-user-menu">
+              <span className="app-user-name">{userName}</span>
+              {enterprise !== "" ? (
+                <span className="app-user-enterprise">{enterprise}</span>
+              ) : null}
+            </div>
+          ) : null}
+          {onLogout !== undefined ? (
+            <button className="logout-button" onClick={onLogout} type="button">
+              Log out
+            </button>
+          ) : null}
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

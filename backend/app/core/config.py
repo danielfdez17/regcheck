@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./regcheck.db"
     db_echo: bool = False
     frontend_origin: str = "http://localhost:3001"
+    jwt_secret_key: str = "change-me-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 480
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="REGCHECK_")
 

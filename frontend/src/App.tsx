@@ -1,6 +1,8 @@
 import { useState } from "react";
 
+import { useAuth } from "./auth/use-auth";
 import AppShell, { AppFooter, AppNavbar } from "./components/app-shell";
+import AuthPage from "./components/auth-page";
 import {
   HeroSection,
   DashboardMetrics,
@@ -15,7 +17,8 @@ const NAV_ITEMS = [
   { label: "Playground", href: "#playground" },
 ];
 
-export default function App() {
+function AuthenticatedApp() {
+  const { logout, user } = useAuth();
   const pageData = useHomePageData();
   const [liveDashboard, setLiveDashboard] = useState<LiveDashboardState | null>(
     null,
@@ -24,7 +27,16 @@ export default function App() {
   if (pageData === null) {
     return (
       <AppShell>
-        <AppNavbar navItems={NAV_ITEMS} />
+        <AppNavbar
+          enterprise={user?.enterprise ?? ""}
+          navItems={NAV_ITEMS}
+          onLogout={() => {
+            void logout();
+          }}
+          userName={
+            user === null ? "" : `${user.first_name} ${user.last_name}`
+          }
+        />
         <main className="app-main">
           <div className="page">
             <LoadingOverview message="Loading the GDPR rule selector and generating the first checklist." />
@@ -54,7 +66,14 @@ export default function App() {
 
   return (
     <AppShell>
-      <AppNavbar navItems={NAV_ITEMS} />
+      <AppNavbar
+        enterprise={user?.enterprise ?? ""}
+        navItems={NAV_ITEMS}
+        onLogout={() => {
+          void logout();
+        }}
+        userName={user === null ? "" : `${user.first_name} ${user.last_name}`}
+      />
 
       <main className="app-main">
         <div className="page">
@@ -85,4 +104,26 @@ export default function App() {
       <AppFooter />
     </AppShell>
   );
+}
+
+export default function App() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <AppShell>
+        <main className="app-main">
+          <div className="page">
+            <LoadingOverview message="Restoring your authenticated session." />
+          </div>
+        </main>
+      </AppShell>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthPage />;
+  }
+
+  return <AuthenticatedApp />;
 }

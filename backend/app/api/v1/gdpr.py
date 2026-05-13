@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 
+from app.auth.dependencies import CurrentUser, get_current_user
 from app.db.session import get_session
 from app.gdpr.assessments import (
     create_assessment,
@@ -28,6 +29,7 @@ router = APIRouter(prefix="/gdpr", tags=["gdpr"])
 @router.get("/rule-selector")
 async def read_rule_selector(
     session: Annotated[Session, Depends(get_session)],
+    _: Annotated[CurrentUser, Depends(get_current_user)],
 ) -> GDPRRuleSelectorResponse:
     """Return the GDPR rule selector payload."""
 
@@ -38,6 +40,7 @@ async def read_rule_selector(
 async def create_checklist_preview(
     request: GDPRChecklistRequest,
     session: Annotated[Session, Depends(get_session)],
+    _: Annotated[CurrentUser, Depends(get_current_user)],
 ) -> GDPRChecklistResponse:
     """Return a GDPR checklist preview for the selected rules."""
 
@@ -48,19 +51,21 @@ async def create_checklist_preview(
 async def create_assessment_snapshot(
     request: GDPRChecklistRequest,
     session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
 ) -> GDPRAssessmentResponse:
     """Generate and persist a GDPR assessment snapshot."""
 
-    return create_assessment(session, request)
+    return create_assessment(session, request, current_user.tenant_id)
 
 
 @router.get("/assessments/latest")
 async def read_latest_assessment(
     session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
 ) -> GDPRAssessmentResponse:
     """Return the latest persisted GDPR assessment."""
 
-    latest_assessment = get_latest_assessment(session)
+    latest_assessment = get_latest_assessment(session, current_user.tenant_id)
     if latest_assessment is None:
         return create_assessment(
             session,
@@ -68,6 +73,7 @@ async def read_latest_assessment(
                 selected_rule_ids=[],
                 company_profile=None,
             ),
+            current_user.tenant_id,
         )
 
     return latest_assessment
@@ -76,11 +82,12 @@ async def read_latest_assessment(
 @router.get("/assessments")
 async def read_assessment_history(
     session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
     limit: int = 5,
 ) -> AssessmentHistoryResponse:
     """Return recent persisted GDPR assessments."""
 
-    return list_assessments(session, limit=limit)
+    return list_assessments(session, current_user.tenant_id, limit=limit)
 
 
 @router.patch("/assessments/{assessment_id}/checklist-items/{checklist_item_id}")
@@ -89,6 +96,7 @@ async def patch_assessment_checklist_item(
     checklist_item_id: str,
     payload: ChecklistItemUpdateRequest,
     session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
 ) -> GDPRAssessmentResponse:
     """Update checklist status/evidence metadata for one assessment item."""
 
@@ -97,6 +105,7 @@ async def patch_assessment_checklist_item(
         assessment_id=assessment_id,
         checklist_item_id=checklist_item_id,
         payload=payload,
+        tenant_id=current_user.tenant_id,
     )
     if assessment is None:
         raise HTTPException(

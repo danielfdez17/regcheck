@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { AuthProvider } from "./auth/auth-provider";
 import { ThemeProvider } from "./theme-provider";
 import "../app/globals.css";
 
@@ -11,6 +12,8 @@ if (rootElement === null) {
 
 createRoot(rootElement).render(
   <ThemeProvider>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </ThemeProvider>,
 );

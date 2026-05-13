@@ -1,6 +1,34 @@
 export type ChecklistStatus = "pending" | "in_progress" | "done";
 export type ChecklistPriority = "high" | "medium" | "low";
 
+export interface AuthUser {
+  id: string;
+  tenant_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  enterprise: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: AuthUser;
+}
+
+export interface SignupInput {
+  firstName: string;
+  lastName: string;
+  enterprise: string;
+  email: string;
+  password: string;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
 export interface DomainMode {
   id: string;
   label: string;
@@ -122,6 +150,10 @@ interface RequestOptions extends RequestInit {
 }
 
 const DEFAULT_API_BASE_URL = "http://localhost:8000";
+export const AUTH_TOKEN_STORAGE_KEY = "regcheck-auth-token";
+
+let authToken: string | null = null;
+let onUnauthorized: (() => void) | null = null;
 
 function getApiBaseUrl(): string {
   return (import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL).replace(
@@ -130,23 +162,105 @@ function getApiBaseUrl(): string {
   );
 }
 
+export function setAuthToken(token: string | null): void {
+  authToken = token;
+  if (token === null) {
+    sessionStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
+    return;
+  }
+  sessionStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token);
+}
+
+export function getStoredAuthToken(): string | null {
+  return sessionStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+}
+
+export function setUnauthorizedHandler(handler: (() => void) | null): void {
+  onUnauthorized = handler;
+}
+
 async function requestJson<T>({ path, ...init }: RequestOptions): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(init.headers as Record<string, string> | undefined),
+  };
+  if (authToken !== null) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init.headers ?? {}),
-    },
+    headers,
     cache: "no-store",
   });
 
+  if (response.status === 401 && onUnauthorized !== null) {
+    onUnauthorized();
+  }
+
   if (!response.ok) {
-    throw new Error(
-      `Backend request failed: ${response.status} ${response.statusText}`,
-    );
+    let detail = `${response.status} ${response.statusText}`;
+    try {
+      const payload = (await response.json()) as { detail?: string | { message?: string } };
+      if (typeof payload.detail === "string") {
+        detail = payload.detail;
+      } else if (
+        payload.detail !== undefined &&
+        typeof payload.detail === "object" &&
+        typeof payload.detail.message === "string"
+      ) {
+        detail = payload.detail.message;
+      }
+    } catch {
+      // Keep the default status-based message.
+    }
+    throw new Error(detail);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   return (await response.json()) as T;
+}
+
+export async function signup(input: SignupInput): Promise<AuthResponse> {
+  return requestJson<AuthResponse>({
+    path: "/api/v1/auth/signup",
+    method: "POST",
+    body: JSON.stringify({
+      first_name: input.firstName,
+      last_name: input.lastName,
+      enterprise: input.enterprise,
+      email: input.email,
+      password: input.password,
+    }),
+  });
+}
+
+export async function login(input: LoginInput): Promise<AuthResponse> {
+  return requestJson<AuthResponse>({
+    path: "/api/v1/auth/login",
+    method: "POST",
+    body: JSON.stringify({
+      email: input.email,
+      password: input.password,
+    }),
+  });
+}
+
+export async function logout(): Promise<void> {
+  await requestJson<void>({
+    path: "/api/v1/auth/logout",
+    method: "POST",
+  });
+}
+
+export async function getCurrentUser(): Promise<AuthUser> {
+  return requestJson<AuthUser>({
+    path: "/api/v1/auth/me",
+    method: "GET",
+  });
 }
 
 export async function getRuleSelector(): Promise<GDPRRuleSelectorResponse> {

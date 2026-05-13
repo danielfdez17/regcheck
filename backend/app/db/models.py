@@ -12,6 +12,30 @@ from sqlalchemy import Column, JSON
 from sqlmodel import Field, SQLModel
 
 
+class TenantModel(SQLModel, table=True):
+    """Persisted tenant organization."""
+
+    __tablename__ = "tenants"
+
+    id: str = Field(primary_key=True)
+    name: str
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+
+class UserModel(SQLModel, table=True):
+    """Persisted user account linked to one tenant."""
+
+    __tablename__ = "users"
+
+    id: str = Field(primary_key=True)
+    tenant_id: str = Field(foreign_key="tenants.id", index=True)
+    first_name: str
+    last_name: str
+    email: str = Field(unique=True, index=True)
+    password_hash: str
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+
 class DomainModeModel(SQLModel, table=True):
     """Persisted domain mode configuration."""
 
@@ -54,6 +78,7 @@ class ComplianceAssessmentModel(SQLModel, table=True):
 
     id: str = Field(primary_key=True)
     created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    tenant_id: str = Field(foreign_key="tenants.id", index=True)
     domain_mode_id: str = Field(foreign_key="domain_modes.id", index=True)
     company_profile: dict[str, Any] = Field(
         default_factory=dict,
