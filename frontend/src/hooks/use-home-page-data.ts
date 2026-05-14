@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import i18n from "../i18n";
 import {
   createAssessment,
   getAssessmentHistory,
@@ -39,7 +40,7 @@ async function loadHomePageData(): Promise<HomePageData> {
     if (firstRule === null) {
       return {
         connected: true,
-        errorMessage: "Backend is reachable but no GDPR rules are configured.",
+        errorMessage: i18n.t("backend.noRules", { ns: "errors" }),
         selector,
         currentAssessment: null,
         assessmentHistory: history,
@@ -72,7 +73,7 @@ async function loadHomePageData(): Promise<HomePageData> {
     const message =
       error instanceof Error
         ? error.message
-        : "Unexpected error while connecting to backend.";
+        : i18n.t("backend.unexpectedConnection", { ns: "errors" });
 
     return {
       connected: false,

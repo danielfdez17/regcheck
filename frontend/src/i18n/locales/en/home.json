@@ -1,0 +1,45 @@
+{
+  "eyebrow": "RegCheck MVP",
+  "hero": {
+    "title": "Turn regulatory rules into clear actions.",
+    "description": "The first GDPR domain mode now supports company profile intake, service-driven recommendations, and evidence-focused checklists."
+  },
+  "badges": {
+    "ariaAvailableMode": "Available mode",
+    "domainMode": "GDPR domain mode",
+    "checklistEntities": "Checklist entities",
+    "backendConnected": "Backend connected",
+    "backendDisconnected": "Backend disconnected"
+  },
+  "loading": {
+    "backendStatus": "Backend status",
+    "connecting": "Connecting...",
+    "fetching": "The frontend is fetching the initial selector state.",
+    "selector": "Loading the GDPR rule selector and generating the first checklist.",
+    "session": "Restoring your authenticated session."
+  },
+  "metrics": {
+    "ariaLabel": "Assessment summary metrics",
+    "selectedRules": {
+      "label": "Selected rules",
+      "description": "Persisted profile-driven controls"
+    },
+    "checklistItems": {
+      "label": "Checklist items",
+      "description": "Items ready for evidence collection"
+    },
+    "highPriority": {
+      "label": "High priority",
+      "description": "Controls that should be addressed first"
+    },
+    "history": {
+      "label": "Assessment history",
+      "description": "Stored snapshots in SQLite"
+    }
+  },
+  "selectorUnavailable": {
+    "kicker": "Default rule selector",
+    "title": "Rule unavailable",
+    "message": "The frontend could not load the backend selector, so no live input controls are available yet."
+  }
+}

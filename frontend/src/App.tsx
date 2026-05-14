@@ -11,25 +11,27 @@ import {
 } from "./components/home-content";
 import GdprPlayground, { type LiveDashboardState } from "./gdpr-playground";
 import { useHomePageData } from "./hooks/use-home-page-data";
-
-const NAV_ITEMS = [
-  { label: "Overview", href: "#overview" },
-  { label: "Playground", href: "#playground" },
-];
+import { useAppTranslation } from "./i18n/hooks/use-app-translation";
 
 function AuthenticatedApp() {
   const { logout, user } = useAuth();
+  const { t } = useAppTranslation("home");
   const pageData = useHomePageData();
   const [liveDashboard, setLiveDashboard] = useState<LiveDashboardState | null>(
     null,
   );
+
+  const navItems = [
+    { label: t("nav.overview", { ns: "common" }), href: "#overview" },
+    { label: t("nav.playground", { ns: "common" }), href: "#playground" },
+  ];
 
   if (pageData === null) {
     return (
       <AppShell>
         <AppNavbar
           enterprise={user?.enterprise ?? ""}
-          navItems={NAV_ITEMS}
+          navItems={navItems}
           onLogout={() => {
             void logout();
           }}
@@ -39,7 +41,7 @@ function AuthenticatedApp() {
         />
         <main className="app-main">
           <div className="page">
-            <LoadingOverview message="Loading the GDPR rule selector and generating the first checklist." />
+            <LoadingOverview message={t("loading.selector")} />
           </div>
         </main>
         <AppFooter />
@@ -68,7 +70,7 @@ function AuthenticatedApp() {
     <AppShell>
       <AppNavbar
         enterprise={user?.enterprise ?? ""}
-        navItems={NAV_ITEMS}
+        navItems={navItems}
         onLogout={() => {
           void logout();
         }}
@@ -96,7 +98,7 @@ function AuthenticatedApp() {
               />
             </div>
           ) : (
-            <SelectorUnavailable message="The frontend could not load the backend selector, so no live input controls are available yet." />
+            <SelectorUnavailable message={t("selectorUnavailable.message")} />
           )}
         </div>
       </main>
@@ -108,13 +110,14 @@ function AuthenticatedApp() {
 
 export default function App() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { t } = useAppTranslation("home");
 
   if (isLoading) {
     return (
       <AppShell>
         <main className="app-main">
           <div className="page">
-            <LoadingOverview message="Restoring your authenticated session." />
+            <LoadingOverview message={t("loading.session")} />
           </div>
         </main>
       </AppShell>

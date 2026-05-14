@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { useAppTranslation } from "../i18n/hooks/use-app-translation";
 import ThemeToggle from "../theme-toggle";
 
 type NavItem = {
@@ -24,6 +25,8 @@ export function AppNavbar({
   enterprise = "",
   onLogout,
 }: Readonly<AppNavbarProps>) {
+  const { t } = useAppTranslation("common");
+
   return (
     <header className="app-navbar">
       <div className="app-navbar-inner">
@@ -32,12 +35,12 @@ export function AppNavbar({
             RC
           </span>
           <span className="brand-copy">
-            <strong>RegCheck</strong>
-            <span>GDPR Compliance Workspace</span>
+            <strong>{t("brand.name")}</strong>
+            <span>{t("brand.tagline")}</span>
           </span>
         </a>
 
-        <nav aria-label="Primary" className="app-nav-links">
+        <nav aria-label={t("nav.ariaPrimary")} className="app-nav-links">
           {navItems.map((item) => (
             <a href={item.href} key={item.href}>
               {item.label}
@@ -49,7 +52,7 @@ export function AppNavbar({
           <ThemeToggle />
           {onLogout === undefined ? null : (
             <button className="logout-button" onClick={onLogout} type="button">
-              Log out
+              {t("actions.logout")}
             </button>
           )}
           {userName === "" ? null : (
@@ -67,11 +70,13 @@ export function AppNavbar({
 }
 
 export function AppFooter() {
+  const { t } = useAppTranslation("common");
+
   return (
     <footer className="app-footer">
       <div className="app-footer-inner">
-        <p>RegCheck v1</p>
-        <p>SQLite-backed GDPR assessments with evidence-focused checklists.</p>
+        <p>{t("footer.version")}</p>
+        <p>{t("footer.description")}</p>
       </div>
     </footer>
   );

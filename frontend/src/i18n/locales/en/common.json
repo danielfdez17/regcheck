@@ -1,0 +1,29 @@
+{
+  "brand": {
+    "name": "RegCheck",
+    "tagline": "GDPR Compliance Workspace"
+  },
+  "nav": {
+    "overview": "Overview",
+    "playground": "Playground",
+    "ariaPrimary": "Primary"
+  },
+  "footer": {
+    "version": "RegCheck v1",
+    "description": "SQLite-backed GDPR assessments with evidence-focused checklists."
+  },
+  "theme": {
+    "legend": "Theme mode",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "actions": {
+    "logout": "Log out",
+    "close": "Close",
+    "open": "Open",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancelEdit": "Cancel edit"
+  }
+}

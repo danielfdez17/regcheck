@@ -1,0 +1,130 @@
+{
+  "sidebar": {
+    "kicker": "Live backend input",
+    "title": "Build the company profile and choose the controls",
+    "description": "Every assessment is stored in SQLite, so the dashboard keeps a real history instead of discarding each result after render.",
+    "openAria": "Open Live Backend Input sidebar",
+    "sections": {
+      "companyType": "Company type",
+      "serviceDescription": "Service description",
+      "departmentTypes": "Department types",
+      "rulesApplicable": "Rules to be applicable"
+    },
+    "companyType": {
+      "label": "Company type",
+      "ariaLabel": "Company type"
+    },
+    "serviceDescription": {
+      "label": "Service description",
+      "serviceLabel": "Service to be audited",
+      "serviceHint": "Describe what the company does.",
+      "placeholder": "Cyber SOC services, web audits, satellite telemetry...",
+      "ariaLabel": "Service description"
+    },
+    "departmentTypes": {
+      "label": "Department types"
+    },
+    "rulesApplicable": {
+      "label": "Rules to be applicable"
+    },
+    "frameworks": {
+      "label": "Applicable frameworks"
+    },
+    "operationalContext": {
+      "label": "Operational context",
+      "cloudUsage": "Cloud usage",
+      "cloudUsageAria": "Cloud usage",
+      "physicalBuildings": "Physical buildings with access control",
+      "physicalBuildingsAria": "Physical buildings with access control",
+      "remoteWorkVpn": "Remote work over VPN",
+      "remoteWorkVpnAria": "Remote work over VPN"
+    },
+    "dynamicFollowUps": {
+      "label": "Dynamic follow-up questions",
+      "development": {
+        "title": "Development follow-up",
+        "hint": "Describe secure SDLC or DevSecOps practices.",
+        "ariaLabel": "Dev lifecycle notes"
+      },
+      "cloud": {
+        "title": "Cloud follow-up",
+        "hint": "Primary cloud provider/environment.",
+        "ariaLabel": "Cloud provider"
+      },
+      "vpnMfa": {
+        "label": "VPN access is protected with MFA",
+        "ariaLabel": "VPN uses MFA"
+      },
+      "physical": {
+        "title": "Physical controls follow-up",
+        "hint": "Summarize access controls/camera coverage.",
+        "ariaLabel": "Physical controls"
+      },
+      "cyber": {
+        "title": "Cyber follow-up",
+        "hint": "Describe monitoring and incident response setup.",
+        "ariaLabel": "Cyber monitoring notes"
+      }
+    },
+    "generateAssessment": "Generate assessment",
+    "savingAssessment": "Saving assessment...",
+    "exportReport": "Export report",
+    "exportHint": "The export generates a self-contained HTML report with the sections requested in the project brief."
+  },
+  "output": {
+    "kicker": "Assessment output",
+    "metrics": {
+      "selectedRules": {
+        "label": "Selected rules",
+        "description": "Controls selected for this company context"
+      },
+      "checklistItems": {
+        "label": "Checklist items",
+        "description": "Checklist items that now need evidence"
+      },
+      "highPriority": {
+        "label": "High priority",
+        "description": "Items to address first"
+      },
+      "recommendations": {
+        "label": "Recommendations",
+        "description": "Rules suggested by the profile"
+      }
+    },
+    "recommendedRules": "Recommended rules from profile",
+    "selectedRules": "Selected rules",
+    "checklistItems": "Checklist items",
+    "history": "Assessment history",
+    "noServiceDescription": "No service description",
+    "historySummary": "{{total}} items · {{high}} high priority"
+  },
+  "checklist": {
+    "status": "Status",
+    "statusOptionsAria": "Checklist status options",
+    "statusLabels": {
+      "pending": "PENDING",
+      "in_progress": "IN PROGRESS",
+      "done": "DONE"
+    },
+    "unsavedDraft": "Unsaved evidence draft",
+    "evidenceNotesPlaceholder": "Evidence notes or location details",
+    "evidenceUrlPlaceholder": "Evidence URL (optional)",
+    "saveEvidence": "Save evidence metadata",
+    "updateEvidence": "Update evidence metadata",
+    "savedEntries": "Saved evidence entries: {{count}}",
+    "noUrlSaved": "No URL saved",
+    "operatorEvidenceNote": "Operator evidence note",
+    "preview": {
+      "title": "{{ruleLabel}} control {{index}}",
+      "concreteAction": "Review and document the {{ruleLabel}} control.",
+      "evidenceRequest": "Attach evidence for {{ruleLabel}} control {{index}}."
+    }
+  },
+  "profileNotes": {
+    "devLifecycle": "Dev lifecycle notes: {{notes}}",
+    "cloudProvider": "Cloud provider: {{provider}}",
+    "vpnMfaEnabled": "VPN MFA enabled: {{value}}",
+    "physicalControls": "Physical controls: {{notes}}",
+    "cyberMonitoring": "Cyber monitoring: {{notes}}"
+  }
+}

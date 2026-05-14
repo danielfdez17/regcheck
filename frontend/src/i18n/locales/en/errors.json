@@ -1,0 +1,23 @@
+{
+  "backend": {
+    "noRules": "Backend is reachable but no GDPR rules are configured.",
+    "unexpectedConnection": "Unexpected error while connecting to backend."
+  },
+  "assessment": {
+    "unexpectedGenerate": "Unexpected error while generating the assessment.",
+    "saveBeforeEdit": "Generate and save an assessment before editing checklist items.",
+    "unexpectedUpdate": "Unexpected error while updating checklist item.",
+    "addEvidenceBeforeSave": "Add notes or an evidence URL before saving.",
+    "unexpectedEvidenceSave": "Unexpected error while saving evidence metadata.",
+    "unexpectedEvidenceDelete": "Unexpected error while deleting evidence metadata.",
+    "savedAt": "Assessment saved at {{generatedAt}} ({{count}} items).",
+    "updatedItem": "Updated checklist item \"{{title}}\".",
+    "evidenceUpdated": "Evidence entry updated.",
+    "evidenceSaved": "Evidence entry saved.",
+    "evidenceDeleted": "Evidence entry deleted.",
+    "notLoaded": "No assessment has been loaded yet."
+  },
+  "report": {
+    "exported": "Report exported as HTML. Open it in the browser and print to PDF if needed."
+  }
+}

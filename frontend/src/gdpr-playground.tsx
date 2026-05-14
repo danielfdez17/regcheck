@@ -6,6 +6,9 @@ import {
   PriorityBadge,
   ResponseBlock,
 } from "./components/gdpr-playground-parts";
+import { formatDateTime } from "./i18n/format";
+import { useAppTranslation } from "./i18n/hooks/use-app-translation";
+import i18n from "./i18n";
 import {
   createAssessment,
   type AssessmentHistoryResponse,
@@ -49,10 +52,7 @@ function MetricTile({ label, value, description }: Readonly<MetricProps>) {
 }
 
 function formatTimestamp(timestamp: string): string {
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(timestamp));
+  return formatDateTime(timestamp);
 }
 
 function getChecklistPriority(index: number): ChecklistItem["priority"] {
@@ -73,16 +73,28 @@ function createChecklistItemPreview(
   index: number,
 ): ChecklistItem {
   const priority = getChecklistPriority(index);
+  const ruleLabelLower = rule.label.toLowerCase();
 
   return {
     id: itemId,
-    title: `${rule.label} control ${index + 1}`,
+    title: i18n.t("checklist.preview.title", {
+      ns: "playground",
+      ruleLabel: rule.label,
+      index: index + 1,
+    }),
     description: rule.description,
     priority,
     status: "pending",
     rule_id: rule.id,
-    concrete_action: `Review and document the ${rule.label.toLowerCase()} control.`,
-    evidence_request: `Attach evidence for ${rule.label.toLowerCase()} control ${index + 1}.`,
+    concrete_action: i18n.t("checklist.preview.concreteAction", {
+      ns: "playground",
+      ruleLabel: ruleLabelLower,
+    }),
+    evidence_request: i18n.t("checklist.preview.evidenceRequest", {
+      ns: "playground",
+      ruleLabel: ruleLabelLower,
+      index: index + 1,
+    }),
     evidence_entries: [],
   };
 }
@@ -127,6 +139,9 @@ export default function GdprPlayground({
   initialHistory,
   onLiveDashboardChange,
 }: Readonly<GdprPlaygroundProps>) {
+  const { t } = useAppTranslation("playground");
+  const { t: tErrors } = useAppTranslation("errors");
+  const { t: tCommon } = useAppTranslation("common");
   const [selector] = useState(initialSelector);
   const [currentAssessment, setCurrentAssessment] =
     useState<GDPRAssessmentResponse | null>(initialAssessment);
@@ -190,19 +205,36 @@ export default function GdprPlayground({
         service_description: [
           serviceDescription.trim(),
           departmentTypes.includes("development") && developmentLifecycleNotes.trim()
-            ? `Dev lifecycle notes: ${developmentLifecycleNotes.trim()}`
+            ? i18n.t("profileNotes.devLifecycle", {
+                ns: "playground",
+                notes: developmentLifecycleNotes.trim(),
+              })
             : "",
           usesCloud && cloudProvider.trim()
-            ? `Cloud provider: ${cloudProvider.trim()}`
+            ? i18n.t("profileNotes.cloudProvider", {
+                ns: "playground",
+                provider: cloudProvider.trim(),
+              })
             : "",
-          supportsRemoteWorkVpn ? `VPN MFA enabled: ${vpnMfaLabel}` : "",
+          supportsRemoteWorkVpn
+            ? i18n.t("profileNotes.vpnMfaEnabled", {
+                ns: "playground",
+                value: vpnMfaLabel,
+              })
+            : "",
           hasPhysicalBuildings && physicalControlNotes.trim()
-            ? `Physical controls: ${physicalControlNotes.trim()}`
+            ? i18n.t("profileNotes.physicalControls", {
+                ns: "playground",
+                notes: physicalControlNotes.trim(),
+              })
             : "",
           (departmentTypes.includes("cyber") ||
             serviceDescription.toLowerCase().includes("soc")) &&
           cyberMonitoringNotes.trim()
-            ? `Cyber monitoring: ${cyberMonitoringNotes.trim()}`
+            ? i18n.t("profileNotes.cyberMonitoring", {
+                ns: "playground",
+                notes: cyberMonitoringNotes.trim(),
+              })
             : "",
         ]
           .filter(Boolean)
@@ -325,13 +357,16 @@ export default function GdprPlayground({
       ]);
       const generatedAt = formatTimestamp(nextAssessment.created_at);
       setStatusMessage(
-        `Assessment saved at ${generatedAt} (${nextAssessment.checklist_items.length} items).`,
+        tErrors("assessment.savedAt", {
+          generatedAt,
+          count: nextAssessment.checklist_items.length,
+        }),
       );
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : "Unexpected error while generating the assessment.";
+          : tErrors("assessment.unexpectedGenerate");
       setErrorMessage(message);
     } finally {
       setIsSubmitting(false);
@@ -343,7 +378,7 @@ export default function GdprPlayground({
     nextStatus: ChecklistStatus,
   ) {
     if (liveAssessment.assessment_id === "draft-preview") {
-      setErrorMessage("Generate and save an assessment before editing checklist items.");
+      setErrorMessage(tErrors("assessment.saveBeforeEdit"));
       return;
     }
 
@@ -356,12 +391,12 @@ export default function GdprPlayground({
         evidenceEntries: item.evidence_entries,
       });
       setCurrentAssessment(nextAssessment);
-      setStatusMessage(`Updated checklist item "${item.title}".`);
+      setStatusMessage(tErrors("assessment.updatedItem", { title: item.title }));
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : "Unexpected error while updating checklist item.";
+          : tErrors("assessment.unexpectedUpdate");
       setErrorMessage(message);
     }
   }
@@ -378,7 +413,7 @@ export default function GdprPlayground({
 
   async function handleSaveEvidenceEntry(item: ChecklistItem) {
     if (liveAssessment.assessment_id === "draft-preview") {
-      setErrorMessage("Generate and save an assessment before editing checklist items.");
+      setErrorMessage(tErrors("assessment.saveBeforeEdit"));
       return;
     }
 
@@ -386,14 +421,14 @@ export default function GdprPlayground({
     const notes = normalizeEvidenceDraft(draft.notes);
     const referenceUrl = normalizeEvidenceDraft(draft.referenceUrl);
     if (!notes && !referenceUrl) {
-      setErrorMessage("Add notes or an evidence URL before saving.");
+      setErrorMessage(tErrors("assessment.addEvidenceBeforeSave"));
       return;
     }
 
     const currentEditId = itemEvidenceEditIds[item.id];
     const nextEntry: EvidenceEntry = {
       id: currentEditId ?? `${item.id}-evidence-${Date.now()}`,
-      label: "Operator evidence note",
+      label: t("checklist.operatorEvidenceNote"),
       notes: notes || null,
       reference_url: referenceUrl || null,
       created_at: new Date().toISOString(),
@@ -418,20 +453,22 @@ export default function GdprPlayground({
       updateEvidenceDraft(item.id, { notes: "", referenceUrl: "" });
       setItemEvidenceEditIds((current) => ({ ...current, [item.id]: null }));
       setStatusMessage(
-        currentEditId ? "Evidence entry updated." : "Evidence entry saved.",
+        currentEditId
+          ? tErrors("assessment.evidenceUpdated")
+          : tErrors("assessment.evidenceSaved"),
       );
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : "Unexpected error while saving evidence metadata.";
+          : tErrors("assessment.unexpectedEvidenceSave");
       setErrorMessage(message);
     }
   }
 
   async function handleDeleteEvidenceEntry(item: ChecklistItem, entryId: string) {
     if (liveAssessment.assessment_id === "draft-preview") {
-      setErrorMessage("Generate and save an assessment before editing checklist items.");
+      setErrorMessage(tErrors("assessment.saveBeforeEdit"));
       return;
     }
 
@@ -450,12 +487,12 @@ export default function GdprPlayground({
       setCurrentAssessment(nextAssessment);
       setItemEvidenceEditIds((current) => ({ ...current, [item.id]: null }));
       updateEvidenceDraft(item.id, { notes: "", referenceUrl: "" });
-      setStatusMessage("Evidence entry deleted.");
+      setStatusMessage(tErrors("assessment.evidenceDeleted"));
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : "Unexpected error while deleting evidence metadata.";
+          : tErrors("assessment.unexpectedEvidenceDelete");
       setErrorMessage(message);
     }
   }
@@ -492,9 +529,7 @@ export default function GdprPlayground({
     downloadLink.click();
     downloadLink.remove();
     globalThis.URL.revokeObjectURL(downloadUrl);
-    setStatusMessage(
-      "Report exported as HTML. Open it in the browser and print to PDF if needed.",
-    );
+    setStatusMessage(tErrors("report.exported"));
     setErrorMessage(null);
   }
 
@@ -585,7 +620,7 @@ export default function GdprPlayground({
       <div className="playground-main">
         <article className="panel panel-highlight">
 
-        <p className="panel-kicker">Assessment output</p>
+        <p className="panel-kicker">{t("output.kicker")}</p>
         {liveAssessment ? (
           <>
             <h2>{liveAssessment.domain_mode.label}</h2>
@@ -593,40 +628,40 @@ export default function GdprPlayground({
 
             <div className="mini-metric-grid">
               <MetricTile
-                description="Controls selected for this company context"
-                label="Selected rules"
+                description={t("output.metrics.selectedRules.description")}
+                label={t("output.metrics.selectedRules.label")}
                 value={String(liveAssessment.summary.selected_rule_count)}
               />
               <MetricTile
-                description="Checklist items that now need evidence"
-                label="Checklist items"
+                description={t("output.metrics.checklistItems.description")}
+                label={t("output.metrics.checklistItems.label")}
                 value={String(liveAssessment.summary.total_items)}
               />
               <MetricTile
-                description="Items to address first"
-                label="High priority"
+                description={t("output.metrics.highPriority.description")}
+                label={t("output.metrics.highPriority.label")}
                 value={String(liveAssessment.summary.high_priority_items)}
               />
               <MetricTile
-                description="Rules suggested by the profile"
-                label="Recommendations"
+                description={t("output.metrics.recommendations.description")}
+                label={t("output.metrics.recommendations.label")}
                 value={String(liveAssessment.summary.recommended_rule_count)}
               />
             </div>
 
-            <ResponseBlock title="Recommended rules from profile">
+            <ResponseBlock title={t("output.recommendedRules")}>
               {liveAssessment.recommended_rule_ids.map((ruleId) => (
                 <li key={ruleId}>{ruleId}</li>
               ))}
             </ResponseBlock>
 
-            <ResponseBlock title="Selected rules">
+            <ResponseBlock title={t("output.selectedRules")}>
               {liveAssessment.selected_rules.map((rule) => (
                 <li key={rule.id}>{rule.label}</li>
               ))}
             </ResponseBlock>
 
-            <ResponseBlock title="Checklist items">
+            <ResponseBlock title={t("output.checklistItems")}>
               {liveAssessment.checklist_items.map((item) => {
                 const currentDraft = itemEvidenceDrafts[item.id] ?? {
                   notes: "",
@@ -646,7 +681,7 @@ export default function GdprPlayground({
                       <PriorityBadge priority={item.priority} />
                     </div>
                     {hasUnsavedEvidenceDraft && (
-                      <span className="status-note">Unsaved evidence draft</span>
+                      <span className="status-note">{t("checklist.unsavedDraft")}</span>
                     )}
                     <ChecklistStatusSelect
                       onChange={(nextStatus) => {
@@ -664,7 +699,7 @@ export default function GdprPlayground({
                           referenceUrl: currentDraft.referenceUrl,
                         });
                       }}
-                      placeholder="Evidence notes or location details"
+                      placeholder={t("checklist.evidenceNotesPlaceholder")}
                       rows={2}
                       value={currentDraft.notes}
                     />
@@ -676,7 +711,7 @@ export default function GdprPlayground({
                           referenceUrl: event.target.value,
                         });
                       }}
-                      placeholder="Evidence URL (optional)"
+                      placeholder={t("checklist.evidenceUrlPlaceholder")}
                       type="url"
                       value={currentDraft.referenceUrl}
                     />
@@ -687,7 +722,9 @@ export default function GdprPlayground({
                       }}
                       type="button"
                     >
-                      {isEditingExistingEvidence ? "Update evidence metadata" : "Save evidence metadata"}
+                      {isEditingExistingEvidence
+                        ? t("checklist.updateEvidence")
+                        : t("checklist.saveEvidence")}
                     </button>
                     {isEditingExistingEvidence && (
                       <button
@@ -697,13 +734,15 @@ export default function GdprPlayground({
                         }}
                         type="button"
                       >
-                        Cancel edit
+                        {tCommon("actions.cancelEdit")}
                       </button>
                     )}
                     {item.evidence_entries.length > 0 && (
                       <div className="saved-evidence-list">
                         <span>
-                          Saved evidence entries: {String(item.evidence_entries.length)}
+                          {t("checklist.savedEntries", {
+                            count: item.evidence_entries.length,
+                          })}
                         </span>
                         <ul className="saved-evidence-items">
                           {item.evidence_entries.map((entry) => (
@@ -725,7 +764,7 @@ export default function GdprPlayground({
                                       }}
                                       type="button"
                                     >
-                                      Edit
+                                      {tCommon("actions.edit")}
                                     </button>
                                     <button
                                       className="secondary-button"
@@ -734,7 +773,7 @@ export default function GdprPlayground({
                                       }}
                                       type="button"
                                     >
-                                      Delete
+                                      {tCommon("actions.delete")}
                                     </button>
                                   </div>
                                 </div>
@@ -742,7 +781,7 @@ export default function GdprPlayground({
                                 <>
                                   <div className="saved-evidence-main">
                                     <span>{entry.label}</span>
-                                    <span>No URL saved</span>
+                                    <span>{t("checklist.noUrlSaved")}</span>
                                     {entry.notes ? <span>{entry.notes}</span> : null}
                                   </div>
                                   <div className="saved-evidence-actions">
@@ -753,7 +792,7 @@ export default function GdprPlayground({
                                       }}
                                       type="button"
                                     >
-                                      Edit
+                                      {tCommon("actions.edit")}
                                     </button>
                                     <button
                                       className="secondary-button"
@@ -762,7 +801,7 @@ export default function GdprPlayground({
                                       }}
                                       type="button"
                                     >
-                                      Delete
+                                      {tCommon("actions.delete")}
                                     </button>
                                   </div>
                                 </>
@@ -781,20 +820,22 @@ export default function GdprPlayground({
             </ResponseBlock>
           </>
         ) : (
-          <p className="status-note">No assessment has been loaded yet.</p>
+          <p className="status-note">{tErrors("assessment.notLoaded")}</p>
         )}
 
-        <ResponseBlock title="Assessment history">
+        <ResponseBlock title={t("output.history")}>
           {history.map((item) => (
             <li key={item.assessment_id}>
               <strong>{item.company_type}</strong>
               <span>{formatTimestamp(item.created_at)}</span>
               <span>
-                {item.service_description || "No service description"}
+                {item.service_description || t("output.noServiceDescription")}
               </span>
               <span>
-                {item.total_items} items · {item.high_priority_items} high
-                priority
+                {t("output.historySummary", {
+                  total: item.total_items,
+                  high: item.high_priority_items,
+                })}
               </span>
             </li>
           ))}

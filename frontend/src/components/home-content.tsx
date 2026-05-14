@@ -1,4 +1,5 @@
 import type { AssessmentSummary } from "../lib/regcheck-api";
+import { useAppTranslation } from "../i18n/hooks/use-app-translation";
 
 type HeroSectionProps = {
   connected: boolean;
@@ -31,18 +32,20 @@ function OverviewSection({
   connected,
   errorMessage,
 }: Readonly<OverviewSectionProps>) {
+  const { t } = useAppTranslation("home");
+
   return (
     <section className="hero hero-overview" id="overview">
       <div>
-        <p className="eyebrow">RegCheck MVP</p>
+        <p className="eyebrow">{t("eyebrow")}</p>
         <h1>{title}</h1>
         <p className="lead">{description}</p>
         {connected === undefined ? null : (
-          <div className="badge-row" aria-label="Available mode">
-            <span className="badge">GDPR domain mode</span>
-            <span className="badge badge-soft">Checklist entities</span>
+          <div className="badge-row" aria-label={t("badges.ariaAvailableMode")}>
+            <span className="badge">{t("badges.domainMode")}</span>
+            <span className="badge badge-soft">{t("badges.checklistEntities")}</span>
             <span className="badge badge-soft">
-              {connected ? "Backend connected" : "Backend disconnected"}
+              {connected ? t("badges.backendConnected") : t("badges.backendDisconnected")}
             </span>
           </div>
         )}
@@ -53,17 +56,16 @@ function OverviewSection({
 }
 
 export function LoadingOverview({ message }: Readonly<LoadingOverviewProps>) {
+  const { t } = useAppTranslation("home");
+
   return (
     <>
-      <OverviewSection
-        description={message}
-        title="Turn regulatory rules into clear actions."
-      />
+      <OverviewSection description={message} title={t("hero.title")} />
       <section className="grid">
         <article className="panel panel-highlight">
-          <p className="panel-kicker">Backend status</p>
-          <h2>Connecting...</h2>
-          <p>The frontend is fetching the initial selector state.</p>
+          <p className="panel-kicker">{t("loading.backendStatus")}</p>
+          <h2>{t("loading.connecting")}</h2>
+          <p>{t("loading.fetching")}</p>
         </article>
       </section>
     </>
@@ -74,12 +76,14 @@ export function HeroSection({
   connected,
   errorMessage,
 }: Readonly<HeroSectionProps>) {
+  const { t } = useAppTranslation("home");
+
   return (
     <OverviewSection
       connected={connected}
-      description="The first GDPR domain mode now supports company profile intake, service-driven recommendations, and evidence-focused checklists."
+      description={t("hero.description")}
       errorMessage={errorMessage}
-      title="Turn regulatory rules into clear actions."
+      title={t("hero.title")}
     />
   );
 }
@@ -88,27 +92,29 @@ export function DashboardMetrics({
   summary,
   historyCount,
 }: Readonly<DashboardMetricsProps>) {
+  const { t } = useAppTranslation("home");
+
   return (
-    <section className="metric-grid" aria-label="Assessment summary metrics">
+    <section className="metric-grid" aria-label={t("metrics.ariaLabel")}>
       <article className="metric-card metric-card-strong">
-        <p className="metric-label">Selected rules</p>
+        <p className="metric-label">{t("metrics.selectedRules.label")}</p>
         <strong>{summary.selected_rule_count}</strong>
-        <span>Persisted profile-driven controls</span>
+        <span>{t("metrics.selectedRules.description")}</span>
       </article>
       <article className="metric-card">
-        <p className="metric-label">Checklist items</p>
+        <p className="metric-label">{t("metrics.checklistItems.label")}</p>
         <strong>{summary.total_items}</strong>
-        <span>Items ready for evidence collection</span>
+        <span>{t("metrics.checklistItems.description")}</span>
       </article>
       <article className="metric-card">
-        <p className="metric-label">High priority</p>
+        <p className="metric-label">{t("metrics.highPriority.label")}</p>
         <strong>{summary.high_priority_items}</strong>
-        <span>Controls that should be addressed first</span>
+        <span>{t("metrics.highPriority.description")}</span>
       </article>
       <article className="metric-card">
-        <p className="metric-label">Assessment history</p>
+        <p className="metric-label">{t("metrics.history.label")}</p>
         <strong>{historyCount}</strong>
-        <span>Stored snapshots in SQLite</span>
+        <span>{t("metrics.history.description")}</span>
       </article>
     </section>
   );
@@ -117,11 +123,13 @@ export function DashboardMetrics({
 export function SelectorUnavailable({
   message,
 }: Readonly<SelectorUnavailableProps>) {
+  const { t } = useAppTranslation("home");
+
   return (
     <section className="grid">
       <article className="panel panel-highlight">
-        <p className="panel-kicker">Default rule selector</p>
-        <h2>Rule unavailable</h2>
+        <p className="panel-kicker">{t("selectorUnavailable.kicker")}</p>
+        <h2>{t("selectorUnavailable.title")}</h2>
         <p>{message}</p>
       </article>
     </section>

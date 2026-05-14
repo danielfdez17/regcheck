@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
+import { useAppTranslation } from "../i18n/hooks/use-app-translation";
 import type { ChecklistPriority, ChecklistStatus } from "../lib/regcheck-api";
 
 type OptionCardProps = {
@@ -29,12 +30,6 @@ type ChecklistStatusSelectProps = {
 };
 
 const CHECKLIST_STATUSES: ChecklistStatus[] = ["pending", "in_progress", "done"];
-
-const STATUS_LABELS: Record<ChecklistStatus, string> = {
-  pending: "PENDING",
-  in_progress: "IN PROGRESS",
-  done: "DONE",
-};
 
 function getStatusBadgeClass(status: ChecklistStatus): string {
   if (status === "pending") {
@@ -86,8 +81,12 @@ export function PriorityBadge({ priority }: Readonly<PriorityBadgeProps>) {
 }
 
 export function StatusBadge({ status }: Readonly<StatusBadgeProps>) {
+  const { t } = useAppTranslation("playground");
+
   return (
-    <span className={getStatusBadgeClass(status)}>{STATUS_LABELS[status]}</span>
+    <span className={getStatusBadgeClass(status)}>
+      {t(`checklist.statusLabels.${status}`)}
+    </span>
   );
 }
 
@@ -95,6 +94,7 @@ export function ChecklistStatusSelect({
   value,
   onChange,
 }: Readonly<ChecklistStatusSelectProps>) {
+  const { t } = useAppTranslation("playground");
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -120,7 +120,7 @@ export function ChecklistStatusSelect({
 
   return (
     <div className="checklist-status-control" ref={containerRef}>
-      <span className="checklist-status-label">Status</span>
+      <span className="checklist-status-label">{t("checklist.status")}</span>
       <div className="checklist-status-dropdown">
         <button
           aria-expanded={isOpen}
@@ -134,7 +134,10 @@ export function ChecklistStatusSelect({
           <StatusBadge status={value} />
         </button>
         {isOpen ? (
-          <ul aria-label="Checklist status options" className="checklist-status-menu">
+          <ul
+            aria-label={t("checklist.statusOptionsAria")}
+            className="checklist-status-menu"
+          >
             {CHECKLIST_STATUSES.map((status) => (
               <li key={status}>
                 <button

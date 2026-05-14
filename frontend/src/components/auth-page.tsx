@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 
 import { useAuth } from "../auth/use-auth";
+import { useAppTranslation } from "../i18n/hooks/use-app-translation";
 import AppShell, { AppFooter } from "./app-shell";
 
 type AuthMode = "login" | "signup";
@@ -23,6 +24,7 @@ const EMPTY_FORM: AuthFormState = {
 
 export default function AuthPage() {
   const { login, signup } = useAuth();
+  const { t } = useAppTranslation("auth");
   const [mode, setMode] = useState<AuthMode>("login");
   const [form, setForm] = useState<AuthFormState>(EMPTY_FORM);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -55,7 +57,7 @@ export default function AuthPage() {
       });
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Authentication failed.";
+        error instanceof Error ? error.message : t("errors.authFailed");
       setErrorMessage(message);
     } finally {
       setIsSubmitting(false);
@@ -73,15 +75,17 @@ export default function AuthPage() {
       <main className="app-main">
         <div className="page auth-page">
           <section className="panel auth-panel">
-            <p className="panel-kicker">Secure access</p>
-            <h1>{mode === "login" ? "Sign in to RegCheck" : "Create your workspace"}</h1>
+            <p className="panel-kicker">{t("kicker")}</p>
+            <h1>{mode === "login" ? t("login.title") : t("signup.title")}</h1>
             <p className="auth-lead">
-              {mode === "login"
-                ? "Use your enterprise email and password to access your tenant workspace."
-                : "Register your enterprise to start tenant-scoped GDPR assessments."}
+              {mode === "login" ? t("login.lead") : t("signup.lead")}
             </p>
 
-            <div className="auth-mode-toggle" role="tablist" aria-label="Authentication mode">
+            <div
+              className="auth-mode-toggle"
+              role="tablist"
+              aria-label={t("mode.ariaLabel")}
+            >
               <button
                 type="button"
                 className="auth-mode-button"
@@ -90,7 +94,7 @@ export default function AuthPage() {
                   switchMode("login");
                 }}
               >
-                Login
+                {t("mode.login")}
               </button>
               <button
                 type="button"
@@ -100,7 +104,7 @@ export default function AuthPage() {
                   switchMode("signup");
                 }}
               >
-                Sign up
+                {t("mode.signup")}
               </button>
             </div>
 
@@ -108,7 +112,7 @@ export default function AuthPage() {
               {mode === "signup" ? (
                 <>
                   <label className="auth-field">
-                    <span>First name</span>
+                    <span>{t("fields.firstName")}</span>
                     <input
                       autoComplete="given-name"
                       required
@@ -119,7 +123,7 @@ export default function AuthPage() {
                     />
                   </label>
                   <label className="auth-field">
-                    <span>Last name</span>
+                    <span>{t("fields.lastName")}</span>
                     <input
                       autoComplete="family-name"
                       required
@@ -130,7 +134,7 @@ export default function AuthPage() {
                     />
                   </label>
                   <label className="auth-field">
-                    <span>Enterprise</span>
+                    <span>{t("fields.enterprise")}</span>
                     <input
                       autoComplete="organization"
                       required
@@ -144,7 +148,7 @@ export default function AuthPage() {
               ) : null}
 
               <label className="auth-field">
-                <span>Email</span>
+                <span>{t("fields.email")}</span>
                 <input
                   autoComplete="email"
                   required
@@ -157,7 +161,7 @@ export default function AuthPage() {
               </label>
 
               <label className="auth-field">
-                <span>Password</span>
+                <span>{t("fields.password")}</span>
                 <input
                   autoComplete={mode === "login" ? "current-password" : "new-password"}
                   minLength={8}
@@ -178,10 +182,10 @@ export default function AuthPage() {
 
               <button className="primary-button" disabled={isSubmitting} type="submit">
                 {isSubmitting
-                  ? "Please wait..."
+                  ? t("submit.waiting")
                   : mode === "login"
-                    ? "Sign in"
-                    : "Create account"}
+                    ? t("submit.signIn")
+                    : t("submit.createAccount")}
               </button>
             </form>
           </section>

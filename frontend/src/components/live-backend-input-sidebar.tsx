@@ -1,3 +1,4 @@
+import { useAppTranslation } from "../i18n/hooks/use-app-translation";
 import { OptionCard } from "./gdpr-playground-parts";
 import type { GDPRRuleSelectorResponse } from "../lib/regcheck-api";
 
@@ -76,11 +77,26 @@ export function LiveBackendInputSidebar({
   errorMessage,
   statusMessage,
 }: Readonly<LiveBackendInputSidebarProps>) {
+  const { t } = useAppTranslation("playground");
+  const { t: tCommon } = useAppTranslation("common");
+
   const sidebarSections = [
-    { id: "company-type", label: "Company type", icon: "CT" },
-    { id: "service-description", label: "Service description", icon: "SD" },
-    { id: "department-types", label: "Department types", icon: "DT" },
-    { id: "rules-applicable", label: "Rules to be applicable", icon: "RR" },
+    { id: "company-type", label: t("sidebar.sections.companyType"), icon: "CT" },
+    {
+      id: "service-description",
+      label: t("sidebar.sections.serviceDescription"),
+      icon: "SD",
+    },
+    {
+      id: "department-types",
+      label: t("sidebar.sections.departmentTypes"),
+      icon: "DT",
+    },
+    {
+      id: "rules-applicable",
+      label: t("sidebar.sections.rulesApplicable"),
+      icon: "RR",
+    },
   ] as const;
 
   const hasDynamicFollowUps =
@@ -98,25 +114,27 @@ export function LiveBackendInputSidebar({
       {isOpen ? (
         <>
           <div className="panel-sidebar-header">
-            <p className="panel-kicker">Live backend input</p>
+            <p className="panel-kicker">{t("sidebar.kicker")}</p>
             <button
               className="secondary-button sidebar-close-button"
               onClick={onClose}
               type="button"
             >
-              Close
+              {tCommon("actions.close")}
             </button>
           </div>
-          <h2>Build the company profile and choose the controls</h2>
-          <p className="panel-copy">
-            Every assessment is stored in SQLite, so the dashboard keeps a real
-            history instead of discarding each result after render.
-          </p>
+          <h2>{t("sidebar.title")}</h2>
+          <p className="panel-copy">{t("sidebar.description")}</p>
 
-          <p className="response-label" id="company-type">Company type</p>
-          <label aria-label="Company type" className="rule-card">
+          <p className="response-label" id="company-type">
+            {t("sidebar.companyType.label")}
+          </p>
+          <label
+            aria-label={t("sidebar.companyType.ariaLabel")}
+            className="rule-card"
+          >
             <span>
-              <strong>Company type</strong>
+              <strong>{t("sidebar.companyType.label")}</strong>
             </span>
             <select
               className="rule-checkbox"
@@ -133,24 +151,31 @@ export function LiveBackendInputSidebar({
             </select>
           </label>
 
-          <p className="response-label" id="service-description">Service description</p>
-          <label aria-label="Service description" className="rule-card">
+          <p className="response-label" id="service-description">
+            {t("sidebar.serviceDescription.label")}
+          </p>
+          <label
+            aria-label={t("sidebar.serviceDescription.ariaLabel")}
+            className="rule-card"
+          >
             <span>
-              <strong>Service to be audited</strong>
-              <span>Describe what the company does.</span>
+              <strong>{t("sidebar.serviceDescription.serviceLabel")}</strong>
+              <span>{t("sidebar.serviceDescription.serviceHint")}</span>
             </span>
             <textarea
               className="rule-checkbox"
               onChange={(event) => {
                 onServiceDescriptionChange(event.target.value);
               }}
-              placeholder="Cyber SOC services, web audits, satellite telemetry..."
+              placeholder={t("sidebar.serviceDescription.placeholder")}
               rows={3}
               value={serviceDescription}
             />
           </label>
 
-          <p className="response-label" id="department-types">Department types</p>
+          <p className="response-label" id="department-types">
+            {t("sidebar.departmentTypes.label")}
+          </p>
           <div className="rule-list">
             {selector.profile_options.department_types.map((departmentType) => (
               <OptionCard
@@ -163,7 +188,9 @@ export function LiveBackendInputSidebar({
             ))}
           </div>
 
-          <p className="response-label" id="rules-applicable">Rules to be applicable</p>
+          <p className="response-label" id="rules-applicable">
+            {t("sidebar.rulesApplicable.label")}
+          </p>
           <div className="rule-list">
             {selector.available_rules.map((rule) => (
               <OptionCard
@@ -177,7 +204,7 @@ export function LiveBackendInputSidebar({
             ))}
           </div>
 
-          <p className="response-label">Applicable frameworks</p>
+          <p className="response-label">{t("sidebar.frameworks.label")}</p>
           <div className="rule-list">
             {selector.profile_options.framework_options.map((framework) => (
               <OptionCard
@@ -190,36 +217,39 @@ export function LiveBackendInputSidebar({
             ))}
           </div>
 
-          <p className="response-label">Operational context</p>
+          <p className="response-label">{t("sidebar.operationalContext.label")}</p>
           <div className="rule-list">
             <OptionCard
-              ariaLabel="Cloud usage"
+              ariaLabel={t("sidebar.operationalContext.cloudUsageAria")}
               checked={usesCloud}
-              label="Cloud usage"
+              label={t("sidebar.operationalContext.cloudUsage")}
               onChange={onToggleUsesCloud}
             />
             <OptionCard
-              ariaLabel="Physical buildings with access control"
+              ariaLabel={t("sidebar.operationalContext.physicalBuildingsAria")}
               checked={hasPhysicalBuildings}
-              label="Physical buildings with access control"
+              label={t("sidebar.operationalContext.physicalBuildings")}
               onChange={onToggleHasPhysicalBuildings}
             />
             <OptionCard
-              ariaLabel="Remote work over VPN"
+              ariaLabel={t("sidebar.operationalContext.remoteWorkVpnAria")}
               checked={supportsRemoteWorkVpn}
-              label="Remote work over VPN"
+              label={t("sidebar.operationalContext.remoteWorkVpn")}
               onChange={onToggleSupportsRemoteWorkVpn}
             />
           </div>
 
           {hasDynamicFollowUps && (
             <>
-              <p className="response-label">Dynamic follow-up questions</p>
+              <p className="response-label">{t("sidebar.dynamicFollowUps.label")}</p>
               {departmentTypes.includes("development") && (
-                <label aria-label="Dev lifecycle notes" className="rule-card">
+                <label
+                  aria-label={t("sidebar.dynamicFollowUps.development.ariaLabel")}
+                  className="rule-card"
+                >
                   <span>
-                    <strong>Development follow-up</strong>
-                    <span>Describe secure SDLC or DevSecOps practices.</span>
+                    <strong>{t("sidebar.dynamicFollowUps.development.title")}</strong>
+                    <span>{t("sidebar.dynamicFollowUps.development.hint")}</span>
                   </span>
                   <textarea
                     className="rule-checkbox"
@@ -232,10 +262,13 @@ export function LiveBackendInputSidebar({
                 </label>
               )}
               {usesCloud && (
-                <label aria-label="Cloud provider" className="rule-card">
+                <label
+                  aria-label={t("sidebar.dynamicFollowUps.cloud.ariaLabel")}
+                  className="rule-card"
+                >
                   <span>
-                    <strong>Cloud follow-up</strong>
-                    <span>Primary cloud provider/environment.</span>
+                    <strong>{t("sidebar.dynamicFollowUps.cloud.title")}</strong>
+                    <span>{t("sidebar.dynamicFollowUps.cloud.hint")}</span>
                   </span>
                   <input
                     className="rule-checkbox"
@@ -249,17 +282,20 @@ export function LiveBackendInputSidebar({
               )}
               {supportsRemoteWorkVpn && (
                 <OptionCard
-                  ariaLabel="VPN uses MFA"
+                  ariaLabel={t("sidebar.dynamicFollowUps.vpnMfa.ariaLabel")}
                   checked={vpnMfaEnabled}
-                  label="VPN access is protected with MFA"
+                  label={t("sidebar.dynamicFollowUps.vpnMfa.label")}
                   onChange={onToggleVpnMfaEnabled}
                 />
               )}
               {hasPhysicalBuildings && (
-                <label aria-label="Physical controls" className="rule-card">
+                <label
+                  aria-label={t("sidebar.dynamicFollowUps.physical.ariaLabel")}
+                  className="rule-card"
+                >
                   <span>
-                    <strong>Physical controls follow-up</strong>
-                    <span>Summarize access controls/camera coverage.</span>
+                    <strong>{t("sidebar.dynamicFollowUps.physical.title")}</strong>
+                    <span>{t("sidebar.dynamicFollowUps.physical.hint")}</span>
                   </span>
                   <textarea
                     className="rule-checkbox"
@@ -273,10 +309,13 @@ export function LiveBackendInputSidebar({
               )}
               {(departmentTypes.includes("cyber") ||
                 serviceDescription.toLowerCase().includes("soc")) && (
-                <label aria-label="Cyber monitoring notes" className="rule-card">
+                <label
+                  aria-label={t("sidebar.dynamicFollowUps.cyber.ariaLabel")}
+                  className="rule-card"
+                >
                   <span>
-                    <strong>Cyber follow-up</strong>
-                    <span>Describe monitoring and incident response setup.</span>
+                    <strong>{t("sidebar.dynamicFollowUps.cyber.title")}</strong>
+                    <span>{t("sidebar.dynamicFollowUps.cyber.hint")}</span>
                   </span>
                   <textarea
                     className="rule-checkbox"
@@ -297,7 +336,9 @@ export function LiveBackendInputSidebar({
             onClick={onGenerateAssessment}
             type="button"
           >
-            {isSubmitting ? "Saving assessment..." : "Generate assessment"}
+            {isSubmitting
+              ? t("sidebar.savingAssessment")
+              : t("sidebar.generateAssessment")}
           </button>
 
           <button
@@ -306,13 +347,10 @@ export function LiveBackendInputSidebar({
             onClick={onExportReport}
             type="button"
           >
-            Export report
+            {t("sidebar.exportReport")}
           </button>
 
-          <p className="status-hint">
-            The export generates a self-contained HTML report with the sections
-            requested in the project brief.
-          </p>
+          <p className="status-hint">{t("sidebar.exportHint")}</p>
 
           {errorMessage && <p className="status-note">{errorMessage}</p>}
           {statusMessage && <p className="status-note">{statusMessage}</p>}
@@ -320,12 +358,12 @@ export function LiveBackendInputSidebar({
       ) : (
         <div className="sidebar-icon-rail">
           <button
-            aria-label="Open Live Backend Input sidebar"
+            aria-label={t("sidebar.openAria")}
             className="sidebar-rail-toggle"
             onClick={onOpen}
             type="button"
           >
-            Open
+            {tCommon("actions.open")}
           </button>
           {sidebarSections.map((section) => (
             <button
