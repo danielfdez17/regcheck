@@ -1,0 +1,23 @@
+{
+  "backend": {
+    "noRules": "Backend está accesible pero no hay reglas GDPR configuradas.",
+    "unexpectedConnection": "Error inesperado al conectar con el backend."
+  },
+  "assessment": {
+    "unexpectedGenerate": "Error inesperado al generar la evaluación.",
+    "saveBeforeEdit": "Genera y guarda una evaluación antes de editar los elementos de la lista de verificación.",
+    "unexpectedUpdate": "Error inesperado al actualizar el elemento de la lista de verificación.",
+    "addEvidenceBeforeSave": "Añade notas o una URL de evidencia antes de guardar.",
+    "unexpectedEvidenceSave": "Error inesperado al guardar los metadatos de la evidencia.",
+    "unexpectedEvidenceDelete": "Error inesperado al eliminar los metadatos de la evidencia.",
+    "savedAt": "Evaluación guardada el {{generatedAt}} ({{count}} elementos).",
+    "updatedItem": "Elemento de la lista de verificación actualizado \"{{title}}\".",
+    "evidenceUpdated": "Entrada de evidencia actualizada.",
+    "evidenceSaved": "Entrada de evidencia guardada.",
+    "evidenceDeleted": "Entrada de evidencia eliminada.",
+    "notLoaded": "No hay ninguna evaluación cargada aún."
+  },
+  "report": {
+    "exported": "Reporte exportado como HTML. Abrelo en el navegador y imprime a PDF si es necesario."
+  }
+}

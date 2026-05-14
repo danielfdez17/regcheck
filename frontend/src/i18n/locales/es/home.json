@@ -1,0 +1,45 @@
+{
+  "eyebrow": "RegCheck MVP",
+  "hero": {
+    "title": "Convierte las reglas regulatorias en acciones claras.",
+    "description": "El primer modo de dominio GDPR ahora soporta la introducción de perfiles de empresa, recomendaciones basadas en servicios y listas de verificación enfocadas en evidencias."
+  },
+  "badges": {
+    "ariaAvailableMode": "Modo disponible",
+    "domainMode": "Modo de dominio GDPR",
+    "checklistEntities": "Entidades de la lista de verificación",
+    "backendConnected": "Backend conectado",
+    "backendDisconnected": "Backend desconectado"
+  },
+  "loading": {
+    "backendStatus": "Estado del backend",
+    "connecting": "Conectando...",
+    "fetching": "El frontend está buscando el estado inicial del selector.",
+    "selector": "Cargando el selector de reglas GDPR y generando la primera lista de verificación.",
+    "session": "Restableciendo tu sesión autenticada."
+  },
+  "metrics": {
+    "ariaLabel": "Métricas de resumen de evaluación",
+    "selectedRules": {
+      "label": "Reglas seleccionadas",
+      "description": "Controles persistentes basados en perfiles"
+    },
+    "checklistItems": {
+      "label": "Elementos de la lista de verificación",
+      "description": "Elementos listos para la recopilación de evidencias"
+    },
+    "highPriority": {
+      "label": "Alta prioridad",
+      "description": "Controles que deberían abordarse primero"
+    },
+    "history": {
+      "label": "Historial de evaluaciones",
+      "description": "Capturas persistentes en SQLite"
+    }
+  },
+  "selectorUnavailable": {
+    "kicker": "Selector de reglas por defecto",
+    "title": "Regla no disponible",
+    "message": "El frontend no pudo cargar el selector del backend, por lo que no hay controles de entrada en vivo disponibles aún."
+  }
+}

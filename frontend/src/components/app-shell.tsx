@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import LocaleSwitcher from "../i18n/components/locale-switcher";
 import { useAppTranslation } from "../i18n/hooks/use-app-translation";
 import ThemeToggle from "../theme-toggle";
 
@@ -49,6 +50,7 @@ export function AppNavbar({
         </nav>
 
         <div className="app-navbar-actions">
+          <LocaleSwitcher />
           <ThemeToggle />
           {onLogout === undefined ? null : (
             <button className="logout-button" onClick={onLogout} type="button">

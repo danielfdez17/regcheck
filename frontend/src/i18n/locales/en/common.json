@@ -18,6 +18,11 @@
     "dark": "Dark",
     "system": "System"
   },
+  "locale": {
+    "legend": "Language",
+    "en": "English",
+    "es": "Spanish"
+  },
   "actions": {
     "logout": "Log out",
     "close": "Close",

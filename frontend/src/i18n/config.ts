@@ -1,4 +1,4 @@
-export const SUPPORTED_LOCALES = ["en"] as const;
+export const SUPPORTED_LOCALES = ["en", "es"] as const;
 
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
@@ -18,6 +18,7 @@ export type Namespace = (typeof NAMESPACES)[number];
 
 const INTL_LOCALE_MAP: Record<Locale, string> = {
   en: "en-GB",
+  es: "es-ES",
 };
 
 export function toIntlLocale(locale: string): string {

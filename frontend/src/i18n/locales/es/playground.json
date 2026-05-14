@@ -1,0 +1,130 @@
+{
+  "sidebar": {
+    "kicker": "Entrada en vivo del backend",
+    "title": "Crea el perfil de la empresa y elige los controles",
+    "description": "Cada evaluación se almacena en SQLite, por lo que el tablero mantiene un historial real en lugar de descartar cada resultado después de renderizar.",
+    "openAria": "Abrir la barra lateral de entrada en vivo del backend",
+    "sections": {
+      "companyType": "Tipo de empresa",
+      "serviceDescription": "Descripción del servicio",
+      "departmentTypes": "Tipos de departamento",
+      "rulesApplicable": "Reglas aplicables"
+    },
+    "companyType": {
+      "label": "Tipo de empresa",
+      "ariaLabel": "Tipo de empresa"
+    },
+    "serviceDescription": {
+      "label": "Descripción del servicio",
+      "serviceLabel": "Servicio a auditar",
+      "serviceHint": "Describe lo que hace la empresa.",
+      "placeholder": "Servicios de SOC cibernético, auditorías web, telemetría de satélite...",
+      "ariaLabel": "Descripción del servicio"
+    },
+    "departmentTypes": {
+      "label": "Tipos de departamento"
+    },
+    "rulesApplicable": {
+      "label": "Reglas aplicables"
+    },
+    "frameworks": {
+      "label": "Frameworks aplicables"
+    },
+    "operationalContext": {
+      "label": "Contexto operativo",
+      "cloudUsage": "Uso de cloud",
+      "cloudUsageAria": "Uso de cloud",
+      "physicalBuildings": "Edificios físicos con control de acceso",
+      "physicalBuildingsAria": "Edificios físicos con control de acceso",
+      "remoteWorkVpn": "Trabajo remoto sobre VPN",
+      "remoteWorkVpnAria": "Trabajo remoto sobre VPN"
+    },
+    "dynamicFollowUps": {
+      "label": "Preguntas de seguimiento dinámico",
+      "development": {
+        "title": "Seguimiento de desarrollo",
+        "hint": "Describe prácticas seguras de SDLC o DevSecOps.",
+        "ariaLabel": "Notas de ciclo de vida de desarrollo"
+      },
+      "cloud": {
+        "title": "Seguimiento de cloud",
+        "hint": "Proveedor de cloud principal/entorno.",
+        "ariaLabel": "Proveedor de cloud"
+      },
+      "vpnMfa": {
+        "label": "Acceso VPN protegido con MFA",
+        "ariaLabel": "VPN usa MFA"
+      },
+      "physical": {
+        "title": "Seguimiento de controles físicos",
+        "hint": "Resume los controles de acceso/cobertura de cámaras.",
+        "ariaLabel": "Controles físicos"
+      },
+      "cyber": {
+        "title": "Seguimiento de cibernética",
+        "hint": "Describe la configuración de monitorización y respuesta a incidentes.",
+        "ariaLabel": "Notas de monitorización cibernética"
+      }
+    },
+    "generateAssessment": "Generar evaluación",
+    "savingAssessment": "Guardando evaluación...",
+    "exportReport": "Exportar informe",
+    "exportHint": "La exportación genera un informe HTML autónomo con las secciones solicitadas en el proyecto."
+  },
+  "output": {
+    "kicker": "Salida de evaluación",
+    "metrics": {
+      "selectedRules": {
+        "label": "Reglas seleccionadas",
+        "description": "Controles seleccionados para este contexto de empresa"
+      },
+      "checklistItems": {
+        "label": "Elementos de la lista de verificación",
+        "description": "Elementos de la lista de verificación que ahora necesitan evidencias"
+      },
+      "highPriority": {
+        "label": "Alta prioridad",
+        "description": "Elementos que deberían abordarse primero"
+      },
+      "recommendations": {
+        "label": "Recomendaciones",
+        "description": "Reglas sugeridas por el perfil"
+      }
+    },
+    "recommendedRules": "Reglas recomendadas por el perfil",
+    "selectedRules": "Reglas seleccionadas",
+    "checklistItems": "Elementos de la lista de verificación",
+    "history": "Historial de evaluaciones",
+    "noServiceDescription": "No hay descripción del servicio",
+    "historySummary": "{{total}} elementos · {{high}} alta prioridad"
+  },
+  "checklist": {
+    "status": "Estado",
+    "statusOptionsAria": "Opciones de estado de la lista de verificación",
+    "statusLabels": {
+      "pending": "PENDIENTE",
+      "in_progress": "EN PROCESO",
+      "done": "TERMINADO"
+    },
+    "unsavedDraft": "Borrador de evidencia sin guardar",
+    "evidenceNotesPlaceholder": "Notas de evidencia o detalles de ubicación",
+    "evidenceUrlPlaceholder": "URL de evidencia (opcional)",
+    "saveEvidence": "Guardar metadatos de evidencia",
+    "updateEvidence": "Actualizar metadatos de evidencia",
+    "savedEntries": "Entradas de evidencia guardadas: {{count}}",
+    "noUrlSaved": "No hay URL guardada",
+    "operatorEvidenceNote": "Notas de evidencia del operador",
+    "preview": {
+      "title": "{{ruleLabel}} control {{index}}",
+      "concreteAction": "Revisa y documenta el control {{ruleLabel}}.",
+      "evidenceRequest": "Añade evidencia para el control {{ruleLabel}} {{index}}."
+    }
+  },
+  "profileNotes": {
+    "devLifecycle": "Notas de ciclo de vida de desarrollo: {{notes}}",
+    "cloudProvider": "Proveedor de cloud: {{provider}}",
+    "vpnMfaEnabled": "VPN MFA activado: {{value}}",
+    "physicalControls": "Controles físicos: {{notes}}",
+    "cyberMonitoring": "Monitorización cibernética: {{notes}}"
+  }
+}

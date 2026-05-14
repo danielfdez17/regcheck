@@ -287,7 +287,8 @@ textarea {
   transform: translateY(-1px);
 }
 
-.theme-toggle {
+.theme-toggle,
+.locale-toggle {
   margin: 0;
   padding: 0.25rem;
   display: inline-flex;
@@ -297,7 +298,8 @@ textarea {
   background: var(--panel-soft);
 }
 
-.theme-toggle-option {
+.theme-toggle-option,
+.locale-toggle-option {
   border: 0;
   border-radius: 999px;
   padding: 0.45rem 0.8rem;
@@ -310,12 +312,14 @@ textarea {
     transform 160ms ease;
 }
 
-.theme-toggle-option:hover {
+.theme-toggle-option:hover,
+.locale-toggle-option:hover {
   color: var(--text);
   transform: translateY(-1px);
 }
 
-.theme-toggle-option[data-active="true"] {
+.theme-toggle-option[data-active="true"],
+.locale-toggle-option[data-active="true"] {
   color: var(--accent-strong-text);
   background: var(--accent);
 }

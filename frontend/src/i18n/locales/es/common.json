@@ -1,0 +1,34 @@
+{
+  "brand": {
+    "name": "RegCheck",
+    "tagline": "Espacio de trabajo de cumplimiento GDPR"
+  },
+  "nav": {
+    "overview": "Resumen",
+    "playground": "Playground",
+    "ariaPrimary": "Primario"
+  },
+  "footer": {
+    "version": "RegCheck v1",
+    "description": "Evaluaciones GDPR con ámbito de tenant y listas de verificación enfocadas en evidencias."
+  },
+  "theme": {
+    "legend": "Modo de tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema"
+  },
+  "locale": {
+    "legend": "Idioma",
+    "en": "Inglés",
+    "es": "Español"
+  },
+  "actions": {
+    "logout": "Cerrar sesión",
+    "close": "Close",
+    "open": "Open",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "cancelEdit": "Cancelar edición"
+  }
+}
