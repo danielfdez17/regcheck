@@ -652,7 +652,7 @@ export default function GdprPlayground({
 
             <ResponseBlock title={t("output.recommendedRules")}>
               {liveAssessment.recommended_rule_ids.map((ruleId) => (
-                <li key={ruleId}>{ruleId}</li>
+                <li key={ruleId}>{selector.available_rules.find((rule) => rule.id === ruleId)?.label}</li>
               ))}
             </ResponseBlock>
 
