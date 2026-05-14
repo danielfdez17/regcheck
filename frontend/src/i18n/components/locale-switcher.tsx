@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 
+import NavbarDropdown from "../../components/navbar-dropdown";
 import {
   DEFAULT_LOCALE,
   SUPPORTED_LOCALES,
@@ -28,23 +29,18 @@ export default function LocaleSwitcher() {
   const activeLocale = resolveActiveLocale(i18n.resolvedLanguage ?? i18n.language);
 
   return (
-    <fieldset className="locale-toggle">
-      <legend className="sr-only">{t("locale.legend")}</legend>
-      {SUPPORTED_LOCALES.map((locale) => (
-        <button
-          key={locale}
-          type="button"
-          className="locale-toggle-option"
-          data-active={activeLocale === locale}
-          aria-label={t(`locale.${locale}`)}
-          aria-pressed={activeLocale === locale}
-          onClick={() => {
-            void i18n.changeLanguage(locale);
-          }}
-        >
-          {locale.toUpperCase()}
-        </button>
-      ))}
-    </fieldset>
+    <NavbarDropdown
+      menuLabel={t("locale.legend")}
+      onChange={(locale) => {
+        void i18n.changeLanguage(locale);
+      }}
+      options={SUPPORTED_LOCALES.map((locale) => ({
+        value: locale,
+        label: t(`locale.${locale}`),
+        ariaLabel: t(`locale.${locale}`),
+      }))}
+      triggerLabel={activeLocale.toUpperCase()}
+      value={activeLocale}
+    />
   );
 }
