@@ -27,6 +27,8 @@ type GdprPlaygroundProps = {
   initialSelector: GDPRRuleSelectorResponse;
   initialAssessment: GDPRAssessmentResponse | null;
   initialHistory: AssessmentHistoryResponse;
+  isInputSidebarOpen: boolean;
+  onInputSidebarOpenChange: (isOpen: boolean) => void;
   onLiveDashboardChange?: (dashboard: LiveDashboardState) => void;
 };
 
@@ -137,6 +139,8 @@ export default function GdprPlayground({
   initialSelector,
   initialAssessment,
   initialHistory,
+  isInputSidebarOpen,
+  onInputSidebarOpenChange,
   onLiveDashboardChange,
 }: Readonly<GdprPlaygroundProps>) {
   const { t } = useAppTranslation("playground");
@@ -193,7 +197,6 @@ export default function GdprPlayground({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isInputSidebarOpen, setIsInputSidebarOpen] = useState(false);
 
   const liveCompanyProfile = useMemo(
     () => {
@@ -562,9 +565,7 @@ export default function GdprPlayground({
   }
 
   return (
-    <section
-      className={`playground-layout ${isInputSidebarOpen ? "sidebar-open" : "sidebar-closed"}`}
-    >
+    <section className="playground-layout">
       <LiveBackendInputSidebar
         cloudProvider={cloudProvider}
         companyType={companyType}
@@ -577,7 +578,7 @@ export default function GdprPlayground({
         isSubmitting={isSubmitting}
         onCloudProviderChange={setCloudProvider}
         onClose={() => {
-          setIsInputSidebarOpen(false);
+          onInputSidebarOpenChange(false);
         }}
         onCompanyTypeChange={setCompanyType}
         onCyberMonitoringNotesChange={setCyberMonitoringNotes}
@@ -587,7 +588,7 @@ export default function GdprPlayground({
           void handleGenerateChecklist();
         }}
         onOpen={() => {
-          setIsInputSidebarOpen(true);
+          onInputSidebarOpenChange(true);
         }}
         onPhysicalControlNotesChange={setPhysicalControlNotes}
         onServiceDescriptionChange={setServiceDescription}

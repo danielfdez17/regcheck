@@ -20,6 +20,7 @@ function AuthenticatedApp() {
   const [liveDashboard, setLiveDashboard] = useState<LiveDashboardState | null>(
     null,
   );
+  const [isInputSidebarOpen, setIsInputSidebarOpen] = useState(false);
 
   const navItems = [
     { label: t("nav.overview", { ns: "common" }), href: "#overview" },
@@ -79,26 +80,43 @@ function AuthenticatedApp() {
 
       <main className="app-main">
         <div className="page">
-          <HeroSection connected={connected} errorMessage={errorMessage} />
-
-          {dashboardMetrics ? (
-            <DashboardMetrics
-              historyCount={dashboardMetrics.historyCount}
-              summary={dashboardMetrics.summary}
-            />
-          ) : null}
-
           {selector ? (
-            <div id="playground">
-              <GdprPlayground
-                initialAssessment={currentAssessment}
-                initialHistory={assessmentHistory}
-                initialSelector={selector}
-                onLiveDashboardChange={setLiveDashboard}
-              />
+            <div
+              className={`page-body ${isInputSidebarOpen ? "sidebar-open" : "sidebar-closed"}`}
+            >
+              <HeroSection connected={connected} errorMessage={errorMessage} />
+
+              {dashboardMetrics ? (
+                <DashboardMetrics
+                  historyCount={dashboardMetrics.historyCount}
+                  summary={dashboardMetrics.summary}
+                />
+              ) : null}
+
+              <div id="playground">
+                <GdprPlayground
+                  initialAssessment={currentAssessment}
+                  initialHistory={assessmentHistory}
+                  initialSelector={selector}
+                  isInputSidebarOpen={isInputSidebarOpen}
+                  onInputSidebarOpenChange={setIsInputSidebarOpen}
+                  onLiveDashboardChange={setLiveDashboard}
+                />
+              </div>
             </div>
           ) : (
-            <SelectorUnavailable message={t("selectorUnavailable.message")} />
+            <>
+              <HeroSection connected={connected} errorMessage={errorMessage} />
+
+              {dashboardMetrics ? (
+                <DashboardMetrics
+                  historyCount={dashboardMetrics.historyCount}
+                  summary={dashboardMetrics.summary}
+                />
+              ) : null}
+
+              <SelectorUnavailable message={t("selectorUnavailable.message")} />
+            </>
           )}
         </div>
       </main>
