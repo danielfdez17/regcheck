@@ -46,20 +46,20 @@ export function AppNavbar({
         </nav>
 
         <div className="app-navbar-actions">
-          {userName !== "" ? (
-            <div className="app-user-menu">
-              <span className="app-user-name">{userName}</span>
-              {enterprise !== "" ? (
-                <span className="app-user-enterprise">{enterprise}</span>
-              ) : null}
-            </div>
-          ) : null}
-          {onLogout !== undefined ? (
+          <ThemeToggle />
+          {onLogout === undefined ? null : (
             <button className="logout-button" onClick={onLogout} type="button">
               Log out
             </button>
-          ) : null}
-          <ThemeToggle />
+          )}
+          {userName === "" ? null : (
+            <div className="app-user-menu">
+              <span className="app-user-name">{userName}</span>
+              {enterprise === "" ? null : (
+                <span className="app-user-enterprise">{enterprise}</span>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </header>

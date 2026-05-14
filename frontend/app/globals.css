@@ -103,23 +103,26 @@ textarea {
   max-width: 1180px;
   margin: 0 auto;
   padding: 0.9rem 1rem;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  display: flex;
   align-items: center;
   gap: 1rem;
 }
 
 .app-navbar-actions {
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }
 
 .app-user-menu {
   display: inline-flex;
   flex-direction: column;
   align-items: flex-end;
+  text-align: right;
   line-height: 1.2;
+  padding-left: 0.25rem;
 }
 
 .app-user-name {
@@ -988,8 +991,11 @@ textarea.rule-checkbox {
 
 @media (max-width: 1024px) {
   .app-navbar-inner {
-    grid-template-columns: 1fr;
-    justify-items: start;
+    flex-wrap: wrap;
+  }
+
+  .app-navbar-actions {
+    margin-left: auto;
   }
 
   .metric-grid {
