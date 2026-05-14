@@ -30,9 +30,9 @@ VENV := .venv
 VENV_BIN := $(VENV)/bin
 
 .DEFAULT_GOAL := help
+.PHONY: help
 help: ## Show available targets
 	@$(call print_banner,Show available targets)
-# 	@echo -e "$(CYAN)List of available targets$(RESET)"
 	@echo ""
 	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' Makefile | \
 		awk 'BEGIN {FS = ":.*## "}; {printf "  $(CYAN)%-18s$(RESET) %s\n", $$1, $$2}'
@@ -40,6 +40,7 @@ help: ## Show available targets
 
 # ── Development ──────────────────────────────────────────────────────────
 
+.PHONY: install
 install: ## Install frontend (Vite) and backend (FastAPI) dependencies locally
 	@$(call print_banner,Install frontend (Vite) and backend (FastAPI) dependencies locally)
 	@echo -e "$(INFO) Installing frontend and backend dependencies…$(RESET)"
@@ -49,16 +50,19 @@ install: ## Install frontend (Vite) and backend (FastAPI) dependencies locally
 	@$(VENV_BIN)/python -m pip install -r backend/requirements.txt
 	@echo -e "$(SUCCESS) Dependencies installed$(RESET)"
 
+.PHONY: dev-frontend
 dev-frontend: ## Start Vite frontend only (http://localhost:3001)
 	@$(call print_banner,Start Vite frontend only (http://localhost:3001))
 	@echo -e "$(INFO) Starting Vite frontend on http://localhost:3001$(RESET)"
 	@pnpm --dir frontend exec node scripts/dev-frontend.mjs
 
+.PHONY: dev-backend
 dev-backend: ## Start FastAPI backend only (http://localhost:8000)
 	@$(call print_banner,Start FastAPI backend only (http://localhost:8000))
 	@echo -e "$(INFO) Starting FastAPI backend on http://localhost:8000$(RESET)"
 	@$(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}
 
+.PHONY: dev-docker
 dev-docker: ## Start full stack via Docker (Vite :3001 + FastAPI :8000)
 	@$(call print_banner,Start full stack via Docker (Vite :3001 + FastAPI :8000))
 	@echo -e "$(INFO) Starting full stack (frontend + backend) via Docker…$(RESET)"
@@ -67,13 +71,16 @@ dev-docker: ## Start full stack via Docker (Vite :3001 + FastAPI :8000)
 	@echo -e "  Frontend:   http://localhost:$${FRONTEND_PORT:-3001}"
 	@echo -e "  Backend:    http://localhost:$${BACKEND_PORT:-8000}"
 
+.PHONY: up
 up: dev-docker ## Alias for dev-docker
 
+.PHONY: stop
 stop: ## Stop Docker stack
 	@$(call print_banner,Stop Docker stack)
 	@$(DC) stop
 	@echo -e "$(SUCCESS) Stack stopped$(RESET)"
 
+.PHONY: down
 down: ## Stop and remove Docker containers + networks
 	@$(call print_banner,Stop and remove Docker containers + networks)
 	@$(DC) down
@@ -81,30 +88,30 @@ down: ## Stop and remove Docker containers + networks
 
 # ── Build ────────────────────────────────────────────────────────────────
 
+.PHONY: build
 build: ## Build frontend for production and validate backend modules
 	@$(call print_banner,Build frontend for production and validate backend modules)
-# 	@echo -e "$(INFO) Building frontend and validating backend…$(RESET)"
 	@pnpm --dir frontend run build
 	@$(VENV_BIN)/python -m compileall backend
 	@echo -e "$(SUCCESS) Build complete$(RESET)"
 
+.PHONY: typecheck
 typecheck: ## Run TypeScript type-checking for Vite frontend
 	@$(call print_banner,Run TypeScript type-checking for Vite frontend)
-# 	@echo -e "$(INFO) Type-checking…$(RESET)"
 	@pnpm --dir frontend run typecheck
 	@echo -e "$(SUCCESS) No type errors$(RESET)"
 
 # ── Analysis & Quality ──────────────────────────────────────────────────
 
+.PHONY: lint
 lint: ## Run ESLint on frontend with zero-tolerance for warnings
 	@$(call print_banner,Run ESLint on frontend with zero-tolerance for warnings)
-# 	@echo -e "$(INFO) Linting frontend source files…$(RESET)"
 	@pnpm --dir frontend run lint
 	@echo -e "$(SUCCESS) No lint errors$(RESET)"
 
+.PHONY: pylint
 pylint: ## Run Pylint on FastAPI backend code
 	@$(call print_banner,Run Pylint on FastAPI backend code)
-# 	@echo -e "$(INFO) Running Pylint on all Python files…$(RESET)"
 	@PY_FILES=$$(find backend -type f -name '*.py' -not -path './.git/*' -not -path './.venv/*' -not -path './venv/*' -not -path './frontend/node_modules/*'); \
 	if [ -z "$$PY_FILES" ]; then \
 		echo -e "$(WARN) No Python files found$(RESET)"; \
@@ -113,26 +120,18 @@ pylint: ## Run Pylint on FastAPI backend code
 		echo -e "$(SUCCESS) Pylint analysis complete$(RESET)"; \
 	fi
 
-# sonar: ## Run SonarQube Scan (requires SonarQube container up)
-# 	@echo -e "$(INFO)Step: SonarQube Scan…$(RESET)"
-# 	@if command -v sonar-scanner >/dev/null 2>&1; then \
-# 		sonar-scanner; \
-# 	else \
-# 		echo -e "$(WARN) sonar-scanner is not installed, skipping$(RESET)"; \
-# 	fi
-
+.PHONY: audit
 audit: ## Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQube up)
 	@$(call print_banner,Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQube up))
 	@$(MAKE) -s typecheck
 	@$(MAKE) -s lint
 	@$(MAKE) -s pylint
-# 	@$(MAKE) -s sonar
 
 # ── Database ─────────────────────────────────────────────────────────────
 
-
 # ── Reset ────────────────────────────────────────────────────────────────
 
+.PHONY: re
 re: ## Full restart: wipe everything and start fresh
 	@$(call print_banner,Full Restart: wipe everything and start fresh)
 	@echo -e "$(CYAN)══ Full restart ══$(RESET)"
@@ -140,6 +139,7 @@ re: ## Full restart: wipe everything and start fresh
 	@$(DC) up -d --build
 	@echo -e "$(GREEN)══ Restart complete ══$(RESET)"
 
+.PHONY: clean
 clean: ## Remove frontend and backend build artifacts
 	@$(call print_banner,Remove frontend and backend build artifacts)
 	@rm -rf frontend/dist frontend/.next frontend/node_modules backend/__pycache__ backend/.pytest_cache
@@ -149,21 +149,26 @@ clean: ## Remove frontend and backend build artifacts
 
 
 # ── Utilities ────────────────────────────────────────────────────────────
+
+.PHONY: update-submodules
 update-submodules: ## Update git submodules
 	@$(call print_banner,Update git submodules)
 	@echo -e "$(INFO) Updating git submodules…$(RESET)"
 	@git submodule update --init --recursive --remote
 	@echo -e "$(SUCCESS) Submodules updated$(RESET)"
 
+.PHONY: push-new-branch
 push-new-branch: ## Pushes a new branch using a script
 	@bash ./vendor/scripts/git/push_to_origin.sh
 
+.PHONY: merge-to-dev
 merge-to-dev: ## Merges the current branch into dev using a script
 	@bash ./vendor/scripts/git/merge_to_dev.sh
 
+.PHONY: merge-dev-to-main
 merge-dev-to-main: ## Merges the develop branch into the main branch using a script
 	@bash ./vendor/scripts/git/merge_dev_to_main.sh
 
-.PHONY: help install dev-frontend dev-backend dev-docker up stop down build typecheck \
-        re clean \
-        lint audit ci sonar update-submodules push-new-branch merge-to-dev merge-dev-to-main
+.PHONY: delete-local-branches
+delete-local-branches: ## Deletes local branches except main and develop
+	@bash ./vendor/scripts/git/delete_all_local_branches.sh
