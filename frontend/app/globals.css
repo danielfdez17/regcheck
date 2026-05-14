@@ -100,8 +100,7 @@ textarea {
 }
 
 .app-navbar-inner {
-  max-width: 1180px;
-  margin: 0 auto;
+  width: 100%;
   padding: 0.9rem 1rem;
   display: flex;
   align-items: center;
@@ -366,8 +365,6 @@ textarea {
 
 .page {
   width: 100%;
-  max-width: 1180px;
-  margin: 0 auto;
   padding: 1.5rem 1rem 2.5rem;
 }
 
@@ -377,8 +374,7 @@ textarea {
 }
 
 .app-footer-inner {
-  max-width: 1180px;
-  margin: 0 auto;
+  width: 100%;
   padding: 1rem;
   display: flex;
   justify-content: space-between;
@@ -405,8 +401,7 @@ textarea {
 }
 
 .hero-overview > div {
-  max-width: 78rem;
-  margin: 0 auto;
+  width: 100%;
   text-align: center;
 }
 
@@ -515,18 +510,25 @@ textarea {
 }
 
 .playground-layout {
+  --playground-sidebar-inset: 0.7rem;
+  --playground-sidebar-gap: 0.65rem;
+  --playground-sidebar-collapsed-width: 4.2rem;
+  --playground-sidebar-expanded-width: min(22.5rem, calc(100vw - 1.4rem));
+  --playground-sidebar-width: var(--playground-sidebar-collapsed-width);
   margin-top: 1rem;
   position: relative;
 }
 
-.playground-main {
-  margin-left: 6rem;
-  transition: margin-left 180ms ease;
+.playground-layout.sidebar-open {
+  --playground-sidebar-width: var(--playground-sidebar-expanded-width);
 }
 
-.playground-layout.sidebar-open .playground-main,
-.playground-layout.sidebar-closed .playground-main {
-  margin-left: 6rem;
+.playground-main {
+  margin-left: calc(
+    var(--playground-sidebar-inset) + var(--playground-sidebar-width) +
+      var(--playground-sidebar-gap)
+  );
+  transition: margin-left 180ms ease;
 }
 
 .panel-sidebar {
@@ -544,13 +546,13 @@ textarea {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  width: 4.2rem;
+  width: var(--playground-sidebar-collapsed-width);
   padding: 0.75rem 0.6rem;
   overflow: hidden;
 }
 
 .panel-sidebar-expanded {
-  width: min(22.5rem, calc(100vw - 1.4rem));
+  width: var(--playground-sidebar-expanded-width);
   padding: 1.25rem;
 }
 
@@ -1042,9 +1044,7 @@ textarea.rule-checkbox {
     grid-template-columns: 1fr 1fr;
   }
 
-  .playground-main,
-  .playground-layout.sidebar-open .playground-main,
-  .playground-layout.sidebar-closed .playground-main {
+  .playground-main {
     margin-left: 0;
   }
 }
