@@ -4,7 +4,7 @@ WORKDIR /app/frontend
 
 RUN corepack enable
 
-COPY frontend/package.json frontend/pnpm-lock.yaml ./
+COPY frontend/package.json frontend/pnpm-lock.yaml frontend/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY frontend /app/frontend
