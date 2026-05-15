@@ -200,6 +200,7 @@ def build_assessment_summary(
     """Aggregate checklist metrics for dashboard display."""
 
     priorities = Counter(item.priority for item in checklist_items)
+    done_items = sum(1 for item in checklist_items if item.status == "done")
     high_priority_done_items = sum(
         1
         for item in checklist_items
@@ -208,6 +209,7 @@ def build_assessment_summary(
     return AssessmentSummary(
         selected_rule_count=len({item.rule_id for item in checklist_items}),
         total_items=len(checklist_items),
+        done_items=done_items,
         high_priority_items=priorities.get("high", 0),
         high_priority_done_items=high_priority_done_items,
         medium_priority_items=priorities.get("medium", 0),

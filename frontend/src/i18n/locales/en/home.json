@@ -26,7 +26,7 @@
     },
     "checklistItems": {
       "label": "Checklist items",
-      "description": "Items ready for evidence collection"
+      "description": "{{done}} of {{total}} marked DONE · items ready for evidence collection"
     },
     "highPriority": {
       "label": "High priority",

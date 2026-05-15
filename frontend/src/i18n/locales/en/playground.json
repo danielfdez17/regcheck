@@ -80,7 +80,7 @@
       },
       "checklistItems": {
         "label": "Checklist items",
-        "description": "Checklist items that now need evidence"
+        "description": "{{done}} of {{total}} marked DONE · items that now need evidence"
       },
       "highPriority": {
         "label": "High priority",

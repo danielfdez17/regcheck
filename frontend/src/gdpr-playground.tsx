@@ -21,7 +21,10 @@ import {
   type RuleOption,
   updateAssessmentChecklistItem,
 } from "./lib/regcheck-api";
-import { formatHighPriorityMetricValue } from "./lib/assessment-metrics";
+import {
+  formatChecklistItemsMetricValue,
+  formatHighPriorityMetricValue,
+} from "./lib/assessment-metrics";
 import { buildAssessmentReportHtml } from "./lib/report-export";
 
 type GdprPlaygroundProps = {
@@ -106,6 +109,7 @@ function buildPrioritySummary(checklistItems: ChecklistItem[]) {
   return checklistItems.reduce(
     (summary, item) => ({
       total_items: summary.total_items + 1,
+      done_items: summary.done_items + (item.status === "done" ? 1 : 0),
       high_priority_items:
         summary.high_priority_items + (item.priority === "high" ? 1 : 0),
       high_priority_done_items:
@@ -118,6 +122,7 @@ function buildPrioritySummary(checklistItems: ChecklistItem[]) {
     }),
     {
       total_items: 0,
+      done_items: 0,
       high_priority_items: 0,
       high_priority_done_items: 0,
       medium_priority_items: 0,
@@ -305,6 +310,7 @@ export default function GdprPlayground({
       summary: {
         selected_rule_count: selectedRuleIdsSet.size,
         total_items: summary.total_items,
+        done_items: summary.done_items,
         high_priority_items: summary.high_priority_items,
         high_priority_done_items: summary.high_priority_done_items,
         medium_priority_items: summary.medium_priority_items,
@@ -640,9 +646,12 @@ export default function GdprPlayground({
                 value={String(liveAssessment.summary.selected_rule_count)}
               />
               <MetricTile
-                description={t("output.metrics.checklistItems.description")}
+                description={t("output.metrics.checklistItems.description", {
+                  done: liveAssessment.summary.done_items,
+                  total: liveAssessment.summary.total_items,
+                })}
                 label={t("output.metrics.checklistItems.label")}
-                value={String(liveAssessment.summary.total_items)}
+                value={formatChecklistItemsMetricValue(liveAssessment.summary)}
               />
               <MetricTile
                 description={t("output.metrics.highPriority.description", {

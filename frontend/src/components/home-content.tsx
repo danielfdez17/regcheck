@@ -1,5 +1,8 @@
 import type { AssessmentSummary } from "../lib/regcheck-api";
-import { formatHighPriorityMetricValue } from "../lib/assessment-metrics";
+import {
+  formatChecklistItemsMetricValue,
+  formatHighPriorityMetricValue,
+} from "../lib/assessment-metrics";
 import { useAppTranslation } from "../i18n/hooks/use-app-translation";
 
 type HeroSectionProps = {
@@ -104,8 +107,13 @@ export function DashboardMetrics({
       </article>
       <article className="metric-card">
         <p className="metric-label">{t("metrics.checklistItems.label")}</p>
-        <strong>{summary.total_items}</strong>
-        <span>{t("metrics.checklistItems.description")}</span>
+        <strong>{formatChecklistItemsMetricValue(summary)}</strong>
+        <span>
+          {t("metrics.checklistItems.description", {
+            done: summary.done_items,
+            total: summary.total_items,
+          })}
+        </span>
       </article>
       <article className="metric-card">
         <p className="metric-label">{t("metrics.highPriority.label")}</p>
