@@ -2,6 +2,7 @@ import {
   ChecklistStatusSelect,
   PriorityBadge,
 } from "./gdpr-playground-parts";
+import { SavedEvidenceUrlRow } from "./saved-evidence-url-row";
 import { useAppTranslation } from "../i18n/hooks/use-app-translation";
 import type {
   ChecklistItem as ChecklistItemModel,
@@ -95,35 +96,16 @@ export function ChecklistItem({
             {item.evidence_entries.map((entry) => (
               <li key={entry.id}>
                 {entry.reference_url ? (
-                  <div className="saved-evidence-url-row">
-                    <a
-                      href={entry.reference_url}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      {entry.reference_url}
-                    </a>
-                    <div className="saved-evidence-actions">
-                      <button
-                        className="secondary-button"
-                        onClick={() => {
-                          onEditEvidenceEntry(entry);
-                        }}
-                        type="button"
-                      >
-                        {tCommon("actions.edit")}
-                      </button>
-                      <button
-                        className="secondary-button"
-                        onClick={() => {
-                          onDeleteEvidenceEntry(entry.id);
-                        }}
-                        type="button"
-                      >
-                        {tCommon("actions.delete")}
-                      </button>
-                    </div>
-                  </div>
+                  <SavedEvidenceUrlRow
+                    notes={entry.notes}
+                    onDelete={() => {
+                      onDeleteEvidenceEntry(entry.id);
+                    }}
+                    onEdit={() => {
+                      onEditEvidenceEntry(entry);
+                    }}
+                    referenceUrl={entry.reference_url}
+                  />
                 ) : (
                   <>
                     <div className="saved-evidence-main">
@@ -153,9 +135,6 @@ export function ChecklistItem({
                     </div>
                   </>
                 )}
-                {entry.reference_url && entry.notes ? (
-                  <span className="saved-evidence-notes">{entry.notes}</span>
-                ) : null}
               </li>
             ))}
           </ul>
