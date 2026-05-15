@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { AssessmentCard } from "./components/assessment-card";
+import { ChecklistItem as ChecklistItemRow } from "./components/checklist-item";
 import { LiveBackendInputSidebar } from "./components/live-backend-input-sidebar";
-import {
-  ChecklistStatusSelect,
-  PriorityBadge,
-  ResponseBlock,
-} from "./components/gdpr-playground-parts";
+import { ResponseBlock } from "./components/gdpr-playground-parts";
 import { formatDateTime } from "./i18n/format";
 import { useAppTranslation } from "./i18n/hooks/use-app-translation";
 import i18n from "./i18n";
@@ -145,7 +143,6 @@ export default function GdprPlayground({
 }: Readonly<GdprPlaygroundProps>) {
   const { t } = useAppTranslation("playground");
   const { t: tErrors } = useAppTranslation("errors");
-  const { t: tCommon } = useAppTranslation("common");
   const [selector] = useState(initialSelector);
   const [currentAssessment, setCurrentAssessment] =
     useState<GDPRAssessmentResponse | null>(initialAssessment);
@@ -676,146 +673,40 @@ export default function GdprPlayground({
                   itemEvidenceEditIds[item.id] !== null;
 
                 return (
-                  <li className="checklist-item" key={item.id}>
-                    <div className="checklist-item-header">
-                      <strong>{item.title}</strong>
-                      <PriorityBadge priority={item.priority} />
-                    </div>
-                    {hasUnsavedEvidenceDraft && (
-                      <span className="status-note">{t("checklist.unsavedDraft")}</span>
-                    )}
-                    <ChecklistStatusSelect
-                      onChange={(nextStatus) => {
-                        void handleSaveChecklistItem(item, nextStatus);
-                      }}
-                      value={item.status}
-                    />
-                    <span>{item.concrete_action}</span>
-                    <span>{item.evidence_request}</span>
-                    <textarea
-                      className="rule-checkbox"
-                      onChange={(event) => {
-                        updateEvidenceDraft(item.id, {
-                          notes: event.target.value,
-                          referenceUrl: currentDraft.referenceUrl,
-                        });
-                      }}
-                      placeholder={t("checklist.evidenceNotesPlaceholder")}
-                      rows={2}
-                      value={currentDraft.notes}
-                    />
-                    <input
-                      className="rule-checkbox"
-                      onChange={(event) => {
-                        updateEvidenceDraft(item.id, {
-                          notes: currentDraft.notes,
-                          referenceUrl: event.target.value,
-                        });
-                      }}
-                      placeholder={t("checklist.evidenceUrlPlaceholder")}
-                      type="url"
-                      value={currentDraft.referenceUrl}
-                    />
-                    <button
-                      className="secondary-button"
-                      onClick={() => {
-                        void handleSaveEvidenceEntry(item);
-                      }}
-                      type="button"
-                    >
-                      {isEditingExistingEvidence
-                        ? t("checklist.updateEvidence")
-                        : t("checklist.saveEvidence")}
-                    </button>
-                    {isEditingExistingEvidence && (
-                      <button
-                        className="secondary-button"
-                        onClick={() => {
-                          cancelEditingEvidenceEntry(item.id);
-                        }}
-                        type="button"
-                      >
-                        {tCommon("actions.cancelEdit")}
-                      </button>
-                    )}
-                    {item.evidence_entries.length > 0 && (
-                      <div className="saved-evidence-list">
-                        <span>
-                          {t("checklist.savedEntries", {
-                            count: item.evidence_entries.length,
-                          })}
-                        </span>
-                        <ul className="saved-evidence-items">
-                          {item.evidence_entries.map((entry) => (
-                            <li key={entry.id}>
-                              {entry.reference_url ? (
-                                <div className="saved-evidence-url-row">
-                                  <a
-                                    href={entry.reference_url}
-                                    rel="noopener noreferrer"
-                                    target="_blank"
-                                  >
-                                    {entry.reference_url}
-                                  </a>
-                                  <div className="saved-evidence-actions">
-                                    <button
-                                      className="secondary-button"
-                                      onClick={() => {
-                                        startEditingEvidenceEntry(item.id, entry);
-                                      }}
-                                      type="button"
-                                    >
-                                      {tCommon("actions.edit")}
-                                    </button>
-                                    <button
-                                      className="secondary-button"
-                                      onClick={() => {
-                                        void handleDeleteEvidenceEntry(item, entry.id);
-                                      }}
-                                      type="button"
-                                    >
-                                      {tCommon("actions.delete")}
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <>
-                                  <div className="saved-evidence-main">
-                                    <span>{entry.label}</span>
-                                    <span>{t("checklist.noUrlSaved")}</span>
-                                    {entry.notes ? <span>{entry.notes}</span> : null}
-                                  </div>
-                                  <div className="saved-evidence-actions">
-                                    <button
-                                      className="secondary-button"
-                                      onClick={() => {
-                                        startEditingEvidenceEntry(item.id, entry);
-                                      }}
-                                      type="button"
-                                    >
-                                      {tCommon("actions.edit")}
-                                    </button>
-                                    <button
-                                      className="secondary-button"
-                                      onClick={() => {
-                                        void handleDeleteEvidenceEntry(item, entry.id);
-                                      }}
-                                      type="button"
-                                    >
-                                      {tCommon("actions.delete")}
-                                    </button>
-                                  </div>
-                                </>
-                              )}
-                              {entry.reference_url && entry.notes ? (
-                                <span className="saved-evidence-notes">{entry.notes}</span>
-                              ) : null}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </li>
+                  <ChecklistItemRow
+                    evidenceDraft={currentDraft}
+                    hasUnsavedEvidenceDraft={hasUnsavedEvidenceDraft}
+                    isEditingExistingEvidence={isEditingExistingEvidence}
+                    item={item}
+                    key={item.id}
+                    onCancelEdit={() => {
+                      cancelEditingEvidenceEntry(item.id);
+                    }}
+                    onDeleteEvidenceEntry={(entryId) => {
+                      void handleDeleteEvidenceEntry(item, entryId);
+                    }}
+                    onEditEvidenceEntry={(entry) => {
+                      startEditingEvidenceEntry(item.id, entry);
+                    }}
+                    onEvidenceNotesChange={(notes) => {
+                      updateEvidenceDraft(item.id, {
+                        notes,
+                        referenceUrl: currentDraft.referenceUrl,
+                      });
+                    }}
+                    onEvidenceUrlChange={(referenceUrl) => {
+                      updateEvidenceDraft(item.id, {
+                        notes: currentDraft.notes,
+                        referenceUrl,
+                      });
+                    }}
+                    onSaveEvidence={() => {
+                      void handleSaveEvidenceEntry(item);
+                    }}
+                    onStatusChange={(nextStatus) => {
+                      void handleSaveChecklistItem(item, nextStatus);
+                    }}
+                  />
                 );
               })}
             </ResponseBlock>
@@ -826,19 +717,7 @@ export default function GdprPlayground({
 
         <ResponseBlock title={t("output.history")}>
           {history.map((item) => (
-            <li key={item.assessment_id}>
-              <strong>{item.company_type}</strong>
-              <span>{formatTimestamp(item.created_at)}</span>
-              <span>
-                {item.service_description || t("output.noServiceDescription")}
-              </span>
-              <span>
-                {t("output.historySummary", {
-                  total: item.total_items,
-                  high: item.high_priority_items,
-                })}
-              </span>
-            </li>
+            <AssessmentCard item={item} key={item.assessment_id} />
           ))}
         </ResponseBlock>
         </article>

@@ -120,7 +120,6 @@ export function ChecklistStatusSelect({
 
   return (
     <div className="checklist-status-control" ref={containerRef}>
-      <span className="checklist-status-label">{t("checklist.status")}</span>
       <div className="checklist-status-dropdown">
         <button
           aria-expanded={isOpen}
