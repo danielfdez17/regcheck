@@ -30,7 +30,7 @@
     },
     "highPriority": {
       "label": "Alta prioridad",
-      "description": "Controles que deberían abordarse primero"
+      "description": "{{done}} de {{total}} marcados como TERMINADO · controles a abordar primero"
     },
     "history": {
       "label": "Historial de evaluaciones",

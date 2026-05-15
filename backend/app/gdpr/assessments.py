@@ -76,14 +76,7 @@ def get_latest_assessment(session: Session, tenant_id: str) -> GDPRAssessmentRes
     domain_mode = load_domain_mode(session)
     selected_rules = load_selected_rules(session, row.selected_rule_ids)
     checklist_items = [ChecklistItem.model_validate(item) for item in row.checklist_items]
-    summary = AssessmentSummary(
-        selected_rule_count=len(row.selected_rule_ids),
-        total_items=row.total_items,
-        high_priority_items=row.high_priority_items,
-        medium_priority_items=row.medium_priority_items,
-        low_priority_items=row.low_priority_items,
-        recommended_rule_count=len(row.recommended_rule_ids),
-    )
+    summary = build_assessment_summary(checklist_items, row.recommended_rule_ids)
     request = GDPRChecklistRequest(
         selected_rule_ids=row.selected_rule_ids,
         company_profile=row.company_profile or None,
@@ -207,10 +200,16 @@ def build_assessment_summary(
     """Aggregate checklist metrics for dashboard display."""
 
     priorities = Counter(item.priority for item in checklist_items)
+    high_priority_done_items = sum(
+        1
+        for item in checklist_items
+        if item.priority == "high" and item.status == "done"
+    )
     return AssessmentSummary(
         selected_rule_count=len({item.rule_id for item in checklist_items}),
         total_items=len(checklist_items),
         high_priority_items=priorities.get("high", 0),
+        high_priority_done_items=high_priority_done_items,
         medium_priority_items=priorities.get("medium", 0),
         low_priority_items=priorities.get("low", 0),
         recommended_rule_count=len(recommended_rule_ids),

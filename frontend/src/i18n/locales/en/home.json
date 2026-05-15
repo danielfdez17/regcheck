@@ -30,7 +30,7 @@
     },
     "highPriority": {
       "label": "High priority",
-      "description": "Controls that should be addressed first"
+      "description": "{{done}} of {{total}} marked DONE · controls to address first"
     },
     "history": {
       "label": "Assessment history",

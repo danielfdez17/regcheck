@@ -84,7 +84,7 @@
       },
       "highPriority": {
         "label": "High priority",
-        "description": "Items to address first"
+        "description": "{{done}} of {{total}} marked DONE · items to address first"
       },
       "recommendations": {
         "label": "Recommendations",

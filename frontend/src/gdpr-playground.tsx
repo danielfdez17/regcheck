@@ -21,6 +21,7 @@ import {
   type RuleOption,
   updateAssessmentChecklistItem,
 } from "./lib/regcheck-api";
+import { formatHighPriorityMetricValue } from "./lib/assessment-metrics";
 import { buildAssessmentReportHtml } from "./lib/report-export";
 
 type GdprPlaygroundProps = {
@@ -107,6 +108,9 @@ function buildPrioritySummary(checklistItems: ChecklistItem[]) {
       total_items: summary.total_items + 1,
       high_priority_items:
         summary.high_priority_items + (item.priority === "high" ? 1 : 0),
+      high_priority_done_items:
+        summary.high_priority_done_items +
+        (item.priority === "high" && item.status === "done" ? 1 : 0),
       medium_priority_items:
         summary.medium_priority_items + (item.priority === "medium" ? 1 : 0),
       low_priority_items:
@@ -115,6 +119,7 @@ function buildPrioritySummary(checklistItems: ChecklistItem[]) {
     {
       total_items: 0,
       high_priority_items: 0,
+      high_priority_done_items: 0,
       medium_priority_items: 0,
       low_priority_items: 0,
     },
@@ -301,6 +306,7 @@ export default function GdprPlayground({
         selected_rule_count: selectedRuleIdsSet.size,
         total_items: summary.total_items,
         high_priority_items: summary.high_priority_items,
+        high_priority_done_items: summary.high_priority_done_items,
         medium_priority_items: summary.medium_priority_items,
         low_priority_items: summary.low_priority_items,
         recommended_rule_count: recommendedRuleIds.length,
@@ -639,9 +645,12 @@ export default function GdprPlayground({
                 value={String(liveAssessment.summary.total_items)}
               />
               <MetricTile
-                description={t("output.metrics.highPriority.description")}
+                description={t("output.metrics.highPriority.description", {
+                  done: liveAssessment.summary.high_priority_done_items,
+                  total: liveAssessment.summary.high_priority_items,
+                })}
                 label={t("output.metrics.highPriority.label")}
-                value={String(liveAssessment.summary.high_priority_items)}
+                value={formatHighPriorityMetricValue(liveAssessment.summary)}
               />
               <MetricTile
                 description={t("output.metrics.recommendations.description")}

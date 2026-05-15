@@ -84,7 +84,7 @@
       },
       "highPriority": {
         "label": "Alta prioridad",
-        "description": "Elementos que deberían abordarse primero"
+        "description": "{{done}} de {{total}} marcados como TERMINADO · elementos a abordar primero"
       },
       "recommendations": {
         "label": "Recomendaciones",
