@@ -26,11 +26,11 @@
     },
     "checklistItems": {
       "label": "Checklist items",
-      "description": "Items ready for evidence collection"
+      "description": "{{done}} of {{total}} marked DONE · items ready for evidence collection"
     },
     "highPriority": {
       "label": "High priority",
-      "description": "Controls that should be addressed first"
+      "description": "{{done}} of {{total}} marked DONE · controls to address first"
     },
     "history": {
       "label": "Assessment history",

@@ -80,11 +80,11 @@
       },
       "checklistItems": {
         "label": "Elementos de la lista de verificación",
-        "description": "Elementos de la lista de verificación que ahora necesitan evidencias"
+        "description": "{{done}} de {{total}} marcados como TERMINADO · elementos que ahora necesitan evidencias"
       },
       "highPriority": {
         "label": "Alta prioridad",
-        "description": "Elementos que deberían abordarse primero"
+        "description": "{{done}} de {{total}} marcados como TERMINADO · elementos a abordar primero"
       },
       "recommendations": {
         "label": "Recomendaciones",

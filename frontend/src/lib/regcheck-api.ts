@@ -100,7 +100,9 @@ export interface GDPRChecklistRequest {
 export interface AssessmentSummary {
   selected_rule_count: number;
   total_items: number;
+  done_items: number;
   high_priority_items: number;
+  high_priority_done_items: number;
   medium_priority_items: number;
   low_priority_items: number;
   recommended_rule_count: number;

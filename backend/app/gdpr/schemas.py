@@ -109,7 +109,9 @@ class AssessmentSummary(BaseModel):
 
     selected_rule_count: int
     total_items: int
+    done_items: int
     high_priority_items: int
+    high_priority_done_items: int
     medium_priority_items: int
     low_priority_items: int
     recommended_rule_count: int

@@ -26,11 +26,11 @@
     },
     "checklistItems": {
       "label": "Elementos de la lista de verificación",
-      "description": "Elementos listos para la recopilación de evidencias"
+      "description": "{{done}} de {{total}} marcados como TERMINADO · elementos listos para la recopilación de evidencias"
     },
     "highPriority": {
       "label": "Alta prioridad",
-      "description": "Controles que deberían abordarse primero"
+      "description": "{{done}} de {{total}} marcados como TERMINADO · controles a abordar primero"
     },
     "history": {
       "label": "Historial de evaluaciones",
