@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Generator
 
+from sqlalchemy import inspect, text
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from app.core.config import settings
@@ -38,12 +39,39 @@ def initialize_database() -> None:
     """Create all tables and insert default GDPR catalog rows if missing."""
 
     SQLModel.metadata.create_all(engine)
+    ensure_compliance_assessment_schema()
 
     with Session(engine) as session:
         seed_domain_mode(session)
         seed_rules(session)
         seed_checklist_items(session)
         session.commit()
+
+
+def ensure_compliance_assessment_schema() -> None:
+    """Add assessment ownership metadata for existing SQLite databases."""
+
+    inspector = inspect(engine)
+    if "compliance_assessments" not in inspector.get_table_names():
+        return
+
+    column_names = {
+        column["name"] for column in inspector.get_columns("compliance_assessments")
+    }
+    if "created_by_user_id" in column_names:
+        return
+
+    with engine.begin() as connection:
+        connection.execute(
+            text("ALTER TABLE compliance_assessments ADD COLUMN created_by_user_id VARCHAR")
+        )
+        connection.execute(
+            text(
+                "CREATE INDEX IF NOT EXISTS "
+                "ix_compliance_assessments_created_by_user_id "
+                "ON compliance_assessments (created_by_user_id)"
+            )
+        )
 
 
 def seed_domain_mode(session: Session) -> None:

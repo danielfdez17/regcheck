@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -23,10 +24,18 @@ from app.gdpr.schemas import (
 )
 
 
+@dataclass(frozen=True)
+class AssessmentOwner:
+    """Authenticated ownership scope for persisted assessments."""
+
+    tenant_id: str
+    user_id: str
+
+
 def create_assessment(
     session: Session,
     request: GDPRChecklistRequest,
-    tenant_id: str,
+    owner: AssessmentOwner,
 ) -> GDPRAssessmentResponse:
     """Generate, persist, and return a GDPR assessment snapshot."""
 
@@ -35,7 +44,8 @@ def create_assessment(
     assessment_row = ComplianceAssessmentModel(
         id=uuid4().hex,
         created_at=datetime.now(timezone.utc),
-        tenant_id=tenant_id,
+        tenant_id=owner.tenant_id,
+        created_by_user_id=owner.user_id,
         domain_mode_id=checklist.domain_mode.id,
         company_profile=request.company_profile.model_dump() if request.company_profile else {},
         selected_rule_ids=[rule.id for rule in checklist.selected_rules],
@@ -62,12 +72,16 @@ def create_assessment(
     )
 
 
-def get_latest_assessment(session: Session, tenant_id: str) -> GDPRAssessmentResponse | None:
-    """Return the latest stored assessment for one tenant, if one exists."""
+def get_latest_assessment(
+    session: Session,
+    owner: AssessmentOwner,
+) -> GDPRAssessmentResponse | None:
+    """Return the latest stored assessment for one user, if one exists."""
 
     row = session.exec(
         select(ComplianceAssessmentModel)
-        .where(ComplianceAssessmentModel.tenant_id == tenant_id)
+        .where(ComplianceAssessmentModel.tenant_id == owner.tenant_id)
+        .where(ComplianceAssessmentModel.created_by_user_id == owner.user_id)
         .order_by(desc(ComplianceAssessmentModel.created_at))
     ).first()
     if row is None:
@@ -96,15 +110,16 @@ def get_latest_assessment(session: Session, tenant_id: str) -> GDPRAssessmentRes
 
 def list_assessments(
     session: Session,
-    tenant_id: str,
+    owner: AssessmentOwner,
     limit: int = 5,
 ) -> AssessmentHistoryResponse:
-    """Return recent stored assessments with compact summaries for one tenant."""
+    """Return recent stored assessments with compact summaries for one user."""
 
     capped_limit = max(1, min(limit, 20))
     rows = session.exec(
         select(ComplianceAssessmentModel)
-        .where(ComplianceAssessmentModel.tenant_id == tenant_id)
+        .where(ComplianceAssessmentModel.tenant_id == owner.tenant_id)
+        .where(ComplianceAssessmentModel.created_by_user_id == owner.user_id)
         .order_by(desc(ComplianceAssessmentModel.created_at))
         .limit(capped_limit)
     ).all()
@@ -137,12 +152,16 @@ def update_assessment_checklist_item(
     assessment_id: str,
     checklist_item_id: str,
     payload: ChecklistItemUpdateRequest,
-    tenant_id: str,
+    owner: AssessmentOwner,
 ) -> GDPRAssessmentResponse | None:
     """Update one checklist item status/evidence metadata in an assessment."""
 
     row = session.get(ComplianceAssessmentModel, assessment_id)
-    if row is None or row.tenant_id != tenant_id:
+    if (
+        row is None
+        or row.tenant_id != owner.tenant_id
+        or row.created_by_user_id != owner.user_id
+    ):
         return None
 
     checklist_items = [ChecklistItem.model_validate(item) for item in row.checklist_items]

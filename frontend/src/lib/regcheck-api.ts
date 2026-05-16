@@ -312,8 +312,8 @@ export async function createAssessment(
   });
 }
 
-export async function getLatestAssessment(): Promise<GDPRAssessmentResponse> {
-  return requestJson<GDPRAssessmentResponse>({
+export async function getLatestAssessment(): Promise<GDPRAssessmentResponse | null> {
+  return requestJson<GDPRAssessmentResponse | null>({
     path: "/api/v1/gdpr/assessments/latest",
     method: "GET",
   });

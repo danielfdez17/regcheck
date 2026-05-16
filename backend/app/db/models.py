@@ -79,6 +79,11 @@ class ComplianceAssessmentModel(SQLModel, table=True):
     id: str = Field(primary_key=True)
     created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
     tenant_id: str = Field(foreign_key="tenants.id", index=True)
+    created_by_user_id: str | None = Field(
+        default=None,
+        foreign_key="users.id",
+        index=True,
+    )
     domain_mode_id: str = Field(foreign_key="domain_modes.id", index=True)
     company_profile: dict[str, Any] = Field(
         default_factory=dict,

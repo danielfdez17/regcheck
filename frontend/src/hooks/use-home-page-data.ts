@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 import i18n from "../i18n";
 import {
-  createAssessment,
   getAssessmentHistory,
   getRuleSelector,
   getLatestAssessment,
@@ -34,10 +33,7 @@ async function loadHomePageData(): Promise<HomePageData> {
         assessmentHistory: history,
       };
     }
-
-    const firstRule = selector.available_rules[0] ?? null;
-
-    if (firstRule === null) {
+    if (selector.available_rules.length === 0) {
       return {
         connected: true,
         errorMessage: i18n.t("backend.noRules", { ns: "errors" }),
@@ -47,27 +43,12 @@ async function loadHomePageData(): Promise<HomePageData> {
       };
     }
 
-    const bootstrapAssessment = await createAssessment({
-      selectedRuleIds: [firstRule.id],
-      companyProfile: {
-        company_type: "other",
-        department_types: [],
-        service_description: "General data processing activities",
-        requested_frameworks: ["gdpr"],
-        uses_cloud: false,
-        has_physical_buildings: false,
-        supports_remote_work_vpn: false,
-      },
-    });
-
-    const refreshedHistory = await getAssessmentHistory();
-
     return {
       connected: true,
       errorMessage: null,
       selector,
-      currentAssessment: bootstrapAssessment,
-      assessmentHistory: refreshedHistory,
+      currentAssessment: null,
+      assessmentHistory: history,
     };
   } catch (error) {
     const message =

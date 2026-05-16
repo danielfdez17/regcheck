@@ -8,6 +8,7 @@ from sqlmodel import Session
 from app.auth.dependencies import CurrentUser, get_current_user
 from app.db.session import get_session
 from app.gdpr.assessments import (
+    AssessmentOwner,
     create_assessment,
     get_latest_assessment,
     list_assessments,
@@ -24,6 +25,15 @@ from app.gdpr.schemas import (
 )
 
 router = APIRouter(prefix="/gdpr", tags=["gdpr"])
+
+
+def build_assessment_owner(current_user: CurrentUser) -> AssessmentOwner:
+    """Build the persistence scope for the authenticated user."""
+
+    return AssessmentOwner(
+        tenant_id=current_user.tenant_id,
+        user_id=current_user.user_id,
+    )
 
 
 @router.get("/rule-selector")
@@ -55,28 +65,21 @@ async def create_assessment_snapshot(
 ) -> GDPRAssessmentResponse:
     """Generate and persist a GDPR assessment snapshot."""
 
-    return create_assessment(session, request, current_user.tenant_id)
+    return create_assessment(
+        session,
+        request,
+        build_assessment_owner(current_user),
+    )
 
 
 @router.get("/assessments/latest")
 async def read_latest_assessment(
     session: Annotated[Session, Depends(get_session)],
     current_user: Annotated[CurrentUser, Depends(get_current_user)],
-) -> GDPRAssessmentResponse:
-    """Return the latest persisted GDPR assessment."""
+) -> GDPRAssessmentResponse | None:
+    """Return the latest persisted GDPR assessment for the current user."""
 
-    latest_assessment = get_latest_assessment(session, current_user.tenant_id)
-    if latest_assessment is None:
-        return create_assessment(
-            session,
-            GDPRChecklistRequest(
-                selected_rule_ids=[],
-                company_profile=None,
-            ),
-            current_user.tenant_id,
-        )
-
-    return latest_assessment
+    return get_latest_assessment(session, build_assessment_owner(current_user))
 
 
 @router.get("/assessments")
@@ -85,9 +88,13 @@ async def read_assessment_history(
     current_user: Annotated[CurrentUser, Depends(get_current_user)],
     limit: int = 5,
 ) -> AssessmentHistoryResponse:
-    """Return recent persisted GDPR assessments."""
+    """Return recent persisted GDPR assessments for the current user."""
 
-    return list_assessments(session, current_user.tenant_id, limit=limit)
+    return list_assessments(
+        session,
+        build_assessment_owner(current_user),
+        limit=limit,
+    )
 
 
 @router.patch("/assessments/{assessment_id}/checklist-items/{checklist_item_id}")
@@ -105,7 +112,7 @@ async def patch_assessment_checklist_item(
         assessment_id=assessment_id,
         checklist_item_id=checklist_item_id,
         payload=payload,
-        tenant_id=current_user.tenant_id,
+        owner=build_assessment_owner(current_user),
     )
     if assessment is None:
         raise HTTPException(
