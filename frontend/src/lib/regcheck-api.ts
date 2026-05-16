@@ -151,6 +151,11 @@ interface RequestOptions extends RequestInit {
   path: string;
 }
 
+type ApiErrorDetail =
+  | string
+  | { message?: string; msg?: string }
+  | Array<{ message?: string; msg?: string }>;
+
 const DEFAULT_API_BASE_URL = "http://localhost:8000";
 export const AUTH_TOKEN_STORAGE_KEY = "regcheck-auth-token";
 
@@ -181,6 +186,23 @@ export function setUnauthorizedHandler(handler: (() => void) | null): void {
   onUnauthorized = handler;
 }
 
+function formatApiErrorDetail(detail: ApiErrorDetail | undefined): string | null {
+  if (typeof detail === "string") {
+    return detail;
+  }
+  if (Array.isArray(detail)) {
+    const firstMessage = detail.find((item) => typeof item.msg === "string")?.msg;
+    return firstMessage?.replace(/^Value error, /, "") ?? null;
+  }
+  if (detail !== undefined && typeof detail.message === "string") {
+    return detail.message;
+  }
+  if (detail !== undefined && typeof detail.msg === "string") {
+    return detail.msg.replace(/^Value error, /, "");
+  }
+  return null;
+}
+
 async function requestJson<T>({ path, ...init }: RequestOptions): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -203,16 +225,8 @@ async function requestJson<T>({ path, ...init }: RequestOptions): Promise<T> {
   if (!response.ok) {
     let detail = `${response.status} ${response.statusText}`;
     try {
-      const payload = (await response.json()) as { detail?: string | { message?: string } };
-      if (typeof payload.detail === "string") {
-        detail = payload.detail;
-      } else if (
-        payload.detail !== undefined &&
-        typeof payload.detail === "object" &&
-        typeof payload.detail.message === "string"
-      ) {
-        detail = payload.detail.message;
-      }
+      const payload = (await response.json()) as { detail?: ApiErrorDetail };
+      detail = formatApiErrorDetail(payload.detail) ?? detail;
     } catch {
       // Keep the default status-based message.
     }

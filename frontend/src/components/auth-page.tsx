@@ -1,10 +1,23 @@
 import { useState, type FormEvent } from "react";
 
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  getPasswordPolicyViolations,
+} from "../auth/password-policy";
 import { useAuth } from "../auth/use-auth";
 import { useAppTranslation } from "../i18n/hooks/use-app-translation";
 import AppShell, { AppFooter } from "./app-shell";
 
 type AuthMode = "login" | "signup";
+const PASSWORD_POLICY_RULE_IDS = [
+  "minLength",
+  "lowercase",
+  "uppercase",
+  "number",
+  "symbol",
+  "noSpaces",
+];
 
 type AuthFormState = {
   firstName: string;
@@ -22,6 +35,20 @@ const EMPTY_FORM: AuthFormState = {
   password: "",
 };
 
+function getSubmitButtonLabel(
+  mode: AuthMode,
+  isSubmitting: boolean,
+  t: (key: string) => string,
+) {
+  if (isSubmitting) {
+    return t("submit.waiting");
+  }
+  if (mode === "login") {
+    return t("submit.signIn");
+  }
+  return t("submit.createAccount");
+}
+
 export default function AuthPage() {
   const { login, signup } = useAuth();
   const { t } = useAppTranslation("auth");
@@ -29,6 +56,9 @@ export default function AuthPage() {
   const [form, setForm] = useState<AuthFormState>(EMPTY_FORM);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const passwordPolicyViolations =
+    mode === "signup" ? getPasswordPolicyViolations(form.password) : [];
+  const submitButtonLabel = getSubmitButtonLabel(mode, isSubmitting, t);
 
   const updateField = (field: keyof AuthFormState, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -37,6 +67,12 @@ export default function AuthPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage(null);
+
+    if (mode === "signup" && passwordPolicyViolations.length > 0) {
+      setErrorMessage(t("passwordPolicy.error"));
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -164,7 +200,8 @@ export default function AuthPage() {
                 <span>{t("fields.password")}</span>
                 <input
                   autoComplete={mode === "login" ? "current-password" : "new-password"}
-                  minLength={8}
+                  maxLength={PASSWORD_MAX_LENGTH}
+                  minLength={mode === "signup" ? PASSWORD_MIN_LENGTH : 1}
                   required
                   type="password"
                   value={form.password}
@@ -174,18 +211,30 @@ export default function AuthPage() {
                 />
               </label>
 
-              {errorMessage !== null ? (
+              {mode === "signup" ? (
+                <div className="password-policy" aria-live="polite">
+                  <p>{t("passwordPolicy.heading")}</p>
+                  <ul>
+                    {PASSWORD_POLICY_RULE_IDS.map((ruleId) => (
+                      <li
+                        key={ruleId}
+                        data-satisfied={!passwordPolicyViolations.includes(ruleId)}
+                      >
+                        {t(`passwordPolicy.rules.${ruleId}`)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {errorMessage ? (
                 <p className="status-note auth-error" role="alert">
                   {errorMessage}
                 </p>
               ) : null}
 
               <button className="primary-button" disabled={isSubmitting} type="submit">
-                {isSubmitting
-                  ? t("submit.waiting")
-                  : mode === "login"
-                    ? t("submit.signIn")
-                    : t("submit.createAccount")}
+                {submitButtonLabel}
               </button>
             </form>
           </section>

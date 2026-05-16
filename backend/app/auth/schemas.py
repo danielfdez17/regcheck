@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
+
+from app.auth.password_policy import (
+    MAX_PASSWORD_LENGTH,
+    validate_password_policy,
+)
 
 
 class SignupRequest(BaseModel):
@@ -12,7 +17,14 @@ class SignupRequest(BaseModel):
     last_name: str = Field(min_length=1, max_length=100)
     enterprise: str = Field(min_length=1, max_length=200)
     email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=1, max_length=MAX_PASSWORD_LENGTH)
+
+    @field_validator("password")
+    @classmethod
+    def password_meets_policy(cls, password: str) -> str:
+        """Ensure new accounts start with a strong password."""
+
+        return validate_password_policy(password)
 
 
 class LoginRequest(BaseModel):

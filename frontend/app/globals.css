@@ -228,6 +228,31 @@ textarea {
   margin: 0;
 }
 
+.password-policy {
+  margin-top: -0.25rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.password-policy p {
+  margin: 0 0 0.35rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.password-policy ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.password-policy li {
+  margin-top: 0.2rem;
+}
+
+.password-policy li[data-satisfied="true"] {
+  color: var(--success, var(--muted));
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
