@@ -1,0 +1,27 @@
+services:
+  backend:
+    build:
+      target: development
+    environment:
+      REGCHECK_DEBUG: "true"
+      REGCHECK_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-regcheck}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-regcheck}
+      REGCHECK_FRONTEND_ORIGIN: ${REGCHECK_FRONTEND_ORIGIN:-http://localhost:3001}
+      REGCHECK_JWT_SECRET_KEY: ${REGCHECK_JWT_SECRET_KEY:-change-me-in-production}
+    volumes:
+      - ./backend:/app/backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      target: development
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:${BACKEND_PORT:-8000}}
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:${BACKEND_PORT:-8000}}
+    volumes:
+      - ./frontend:/app/frontend
+      - frontend-node-modules:/app/frontend/node_modules
+    command: pnpm exec vite --host 0.0.0.0 --port 3001 --strictPort
+
+volumes:
+  frontend-node-modules:

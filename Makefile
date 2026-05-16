@@ -25,6 +25,7 @@ echo -e "$(CYAN)═════════════════════�
 endef
 
 DC := docker compose -f $(ROOT)docker-compose.yml
+DC_DEV := docker compose -f $(ROOT)docker-compose.yml -f $(ROOT)docker-compose.dev.yml
 PYTHON ?= python3
 VENV := .venv
 VENV_BIN := $(VENV)/bin
@@ -63,27 +64,33 @@ dev-backend: ## Start FastAPI backend only (http://localhost:8000)
 	@$(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}
 
 .PHONY: dev-docker
-dev-docker: ## Start full stack via Docker (Vite :3001 + FastAPI :8000)
-	@$(call print_banner,Start full stack via Docker (Vite :3001 + FastAPI :8000))
-	@echo -e "$(INFO) Starting full stack (frontend + backend) via Docker…$(RESET)"
-	@$(DC) up -d --build
+dev-docker: ## Start hot-reload Docker stack (Vite :3001 + FastAPI :8000 + Postgres)
+	@$(call print_banner,Start hot-reload Docker stack (Vite :3001 + FastAPI :8000 + Postgres))
+	@echo -e "$(INFO) Starting hot-reload stack via Docker…$(RESET)"
+	@$(DC_DEV) up -d --build
 	@echo -e "$(SUCCESS) Stack running:$(RESET)"
 	@echo -e "  Frontend:   http://localhost:$${FRONTEND_PORT:-3001}"
 	@echo -e "  Backend:    http://localhost:$${BACKEND_PORT:-8000}"
 
 .PHONY: up
-up: dev-docker ## Alias for dev-docker
+up: ## Start production-like Docker stack
+	@$(call print_banner,Start production-like Docker stack)
+	@echo -e "$(INFO) Starting production-like stack via Docker…$(RESET)"
+	@$(DC) up -d --build
+	@echo -e "$(SUCCESS) Stack running:$(RESET)"
+	@echo -e "  Frontend:   http://localhost:$${FRONTEND_PORT:-3001}"
+	@echo -e "  Backend:    http://localhost:$${BACKEND_PORT:-8000}"
 
 .PHONY: stop
 stop: ## Stop Docker stack
 	@$(call print_banner,Stop Docker stack)
-	@$(DC) stop
+	@$(DC_DEV) stop
 	@echo -e "$(SUCCESS) Stack stopped$(RESET)"
 
 .PHONY: down
 down: ## Stop and remove Docker containers + networks
 	@$(call print_banner,Stop and remove Docker containers + networks)
-	@$(DC) down
+	@$(DC_DEV) down --remove-orphans
 	@echo -e "$(SUCCESS) Stack removed$(RESET)"
 
 # ── Build ────────────────────────────────────────────────────────────────
@@ -94,6 +101,12 @@ build: ## Build frontend for production and validate backend modules
 	@pnpm --dir frontend run build
 	@$(VENV_BIN)/python -m compileall backend
 	@echo -e "$(SUCCESS) Build complete$(RESET)"
+
+.PHONY: build-docker
+build-docker: ## Build production Docker images
+	@$(call print_banner,Build production Docker images)
+	@$(DC) build
+	@echo -e "$(SUCCESS) Docker images built$(RESET)"
 
 .PHONY: typecheck
 typecheck: ## Run TypeScript type-checking for Vite frontend
@@ -127,6 +140,13 @@ audit: ## Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQu
 	@$(MAKE) -s lint
 	@$(MAKE) -s pylint
 
+.PHONY: ci
+ci: ## Run local CI checks
+	@$(call print_banner,Run local CI checks)
+	@$(MAKE) -s typecheck
+	@$(MAKE) -s lint
+	@$(MAKE) -s build
+
 # ── Database ─────────────────────────────────────────────────────────────
 
 # ── Reset ────────────────────────────────────────────────────────────────
@@ -135,9 +155,14 @@ audit: ## Full analysis: Typecheck + Lint + Pylint + SonarQube (requires SonarQu
 re: ## Full restart: wipe everything and start fresh
 	@$(call print_banner,Full Restart: wipe everything and start fresh)
 	@echo -e "$(CYAN)══ Full restart ══$(RESET)"
-	@$(DC) down -v --remove-orphans 2>/dev/null || true
-	@$(DC) up -d --build
+	@$(DC_DEV) down -v --remove-orphans 2>/dev/null || true
+	@$(DC_DEV) up -d --build
 	@echo -e "$(GREEN)══ Restart complete ══$(RESET)"
+
+.PHONY: logs
+logs: ## Follow Docker stack logs
+	@$(call print_banner,Follow Docker stack logs)
+	@$(DC_DEV) logs -f
 
 .PHONY: clean
 clean: ## Remove frontend and backend build artifacts
