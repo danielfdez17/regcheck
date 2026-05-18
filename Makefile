@@ -197,3 +197,13 @@ merge-dev-to-main: ## Merges the develop branch into the main branch using a scr
 .PHONY: delete-local-branches
 delete-local-branches: ## Deletes local branches except main and develop
 	@bash ./vendor/scripts/git/delete_all_local_branches.sh
+
+.PHONY: ensure-env
+ensure-env: ## Ensures the .env file is present
+	@$(call print_banner,Ensure .env file is present)
+	@if [ ! -f .env ]; then \
+		echo -e "$(WARN) .env file not found. Please create it using .env.example as a template.$(RESET)"; \
+		cp .env.example .env; \
+		echo -e "$(SUCCESS) .env file created from .env.example$(RESET)"; \
+	fi
+	@echo -e "$(SUCCESS) .env file present$(RESET)"
