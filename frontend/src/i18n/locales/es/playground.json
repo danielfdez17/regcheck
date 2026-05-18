@@ -96,7 +96,7 @@
     "checklistItems": "Elementos de la lista de verificación",
     "history": "Historial de evaluaciones",
     "noServiceDescription": "No hay descripción del servicio",
-    "historySummary": "{{total}} elementos · {{high}} alta prioridad"
+    "historySummary": "{{done}} de {{total}} terminados · {{high}} alta prioridad · {{rules}} reglas"
   },
   "checklist": {
     "status": "Estado",

@@ -30,6 +30,7 @@ type GdprPlaygroundProps = {
   initialAssessment: GDPRAssessmentResponse | null;
   initialHistory: AssessmentHistoryResponse;
   isInputSidebarOpen: boolean;
+  onAssessmentHistoryChange?: (history: AssessmentHistoryResponse) => void;
   onInputSidebarOpenChange: (isOpen: boolean) => void;
   onLiveDashboardChange?: (dashboard: LiveDashboardState) => void;
 };
@@ -148,6 +149,7 @@ export default function GdprPlayground({
   initialAssessment,
   initialHistory,
   isInputSidebarOpen,
+  onAssessmentHistoryChange,
   onInputSidebarOpenChange,
   onLiveDashboardChange,
 }: Readonly<GdprPlaygroundProps>) {
@@ -335,6 +337,40 @@ export default function GdprPlayground({
     onLiveDashboardChange?.(liveDashboard);
   }, [liveDashboard, onLiveDashboardChange]);
 
+  useEffect(() => {
+    onAssessmentHistoryChange?.({ items: history });
+  }, [history, onAssessmentHistoryChange]);
+
+  function syncAssessmentHistory(nextAssessment: GDPRAssessmentResponse) {
+    setHistory((currentHistory) => {
+      return [
+        {
+          assessment_id: nextAssessment.assessment_id,
+          created_at: nextAssessment.created_at,
+          company_type:
+            nextAssessment.request.company_profile?.company_type ?? "other",
+          service_description:
+            nextAssessment.request.company_profile?.service_description ?? "",
+          selected_rule_labels: nextAssessment.selected_rules.map(
+            (rule) => rule.label,
+          ),
+          selected_rule_count: nextAssessment.summary.selected_rule_count,
+          total_items: nextAssessment.summary.total_items,
+          done_items: nextAssessment.summary.done_items,
+          high_priority_items: nextAssessment.summary.high_priority_items,
+          high_priority_done_items:
+            nextAssessment.summary.high_priority_done_items,
+          medium_priority_items: nextAssessment.summary.medium_priority_items,
+          low_priority_items: nextAssessment.summary.low_priority_items,
+        },
+        ...currentHistory.filter(
+          (assessment) =>
+            assessment.assessment_id !== nextAssessment.assessment_id,
+        ),
+      ];
+    });
+  }
+
   async function handleGenerateChecklist() {
     setIsSubmitting(true);
 
@@ -346,27 +382,7 @@ export default function GdprPlayground({
         companyProfile: liveCompanyProfile,
       });
       setCurrentAssessment(nextAssessment);
-      setHistory((currentHistory) => [
-        {
-          assessment_id: nextAssessment.assessment_id,
-          created_at: nextAssessment.created_at,
-          company_type:
-            nextAssessment.request.company_profile?.company_type ?? "other",
-          service_description:
-            nextAssessment.request.company_profile?.service_description ?? "",
-          selected_rule_labels: nextAssessment.selected_rules.map(
-            (rule) => rule.label,
-          ),
-          total_items: nextAssessment.summary.total_items,
-          high_priority_items: nextAssessment.summary.high_priority_items,
-          medium_priority_items: nextAssessment.summary.medium_priority_items,
-          low_priority_items: nextAssessment.summary.low_priority_items,
-        },
-        ...currentHistory.filter(
-          (assessment) =>
-            assessment.assessment_id !== nextAssessment.assessment_id,
-        ),
-      ]);
+      syncAssessmentHistory(nextAssessment);
       const generatedAt = formatTimestamp(nextAssessment.created_at);
       setStatusMessage(
         tErrors("assessment.savedAt", {
@@ -403,6 +419,7 @@ export default function GdprPlayground({
         evidenceEntries: item.evidence_entries,
       });
       setCurrentAssessment(nextAssessment);
+      syncAssessmentHistory(nextAssessment);
       setStatusMessage(tErrors("assessment.updatedItem", { title: item.title }));
     } catch (error) {
       const message =
@@ -462,6 +479,7 @@ export default function GdprPlayground({
         evidenceEntries: nextEvidenceEntries,
       });
       setCurrentAssessment(nextAssessment);
+      syncAssessmentHistory(nextAssessment);
       updateEvidenceDraft(item.id, { notes: "", referenceUrl: "" });
       setItemEvidenceEditIds((current) => ({ ...current, [item.id]: null }));
       setStatusMessage(
@@ -497,6 +515,7 @@ export default function GdprPlayground({
         evidenceEntries: nextEvidenceEntries,
       });
       setCurrentAssessment(nextAssessment);
+      syncAssessmentHistory(nextAssessment);
       setItemEvidenceEditIds((current) => ({ ...current, [item.id]: null }));
       updateEvidenceDraft(item.id, { notes: "", referenceUrl: "" });
       setStatusMessage(tErrors("assessment.evidenceDeleted"));

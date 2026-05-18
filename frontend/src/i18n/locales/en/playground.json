@@ -96,7 +96,7 @@
     "checklistItems": "Checklist items",
     "history": "Assessment history",
     "noServiceDescription": "No service description",
-    "historySummary": "{{total}} items · {{high}} high priority"
+    "historySummary": "{{done}} of {{total}} done · {{high}} high priority · {{rules}} rules"
   },
   "checklist": {
     "status": "Status",

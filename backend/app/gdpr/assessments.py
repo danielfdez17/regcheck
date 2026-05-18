@@ -87,35 +87,35 @@ def get_latest_assessment(
     if row is None:
         return None
 
-    domain_mode = load_domain_mode(session)
-    selected_rules = load_selected_rules(session, row.selected_rule_ids)
-    checklist_items = [ChecklistItem.model_validate(item) for item in row.checklist_items]
-    summary = build_assessment_summary(checklist_items, row.recommended_rule_ids)
-    request = GDPRChecklistRequest(
-        selected_rule_ids=row.selected_rule_ids,
-        company_profile=row.company_profile or None,
-    )
+    return build_assessment_response(session, row)
 
-    return GDPRAssessmentResponse(
-        assessment_id=row.id,
-        created_at=row.created_at,
-        request=request,
-        domain_mode=domain_mode,
-        selected_rules=selected_rules,
-        checklist_items=checklist_items,
-        recommended_rule_ids=row.recommended_rule_ids,
-        summary=summary,
-    )
+
+def get_assessment(
+    session: Session,
+    assessment_id: str,
+    owner: AssessmentOwner,
+) -> GDPRAssessmentResponse | None:
+    """Return one stored assessment for the current user, if it exists."""
+
+    row = session.get(ComplianceAssessmentModel, assessment_id)
+    if (
+        row is None
+        or row.tenant_id != owner.tenant_id
+        or row.created_by_user_id != owner.user_id
+    ):
+        return None
+
+    return build_assessment_response(session, row)
 
 
 def list_assessments(
     session: Session,
     owner: AssessmentOwner,
-    limit: int = 5,
+    limit: int = 50,
 ) -> AssessmentHistoryResponse:
     """Return recent stored assessments with compact summaries for one user."""
 
-    capped_limit = max(1, min(limit, 20))
+    capped_limit = max(1, min(limit, 100))
     rows = session.exec(
         select(ComplianceAssessmentModel)
         .where(ComplianceAssessmentModel.tenant_id == owner.tenant_id)
@@ -127,22 +127,41 @@ def list_assessments(
         return AssessmentHistoryResponse(items=[])
 
     selected_rule_map = load_rule_label_map(session)
-    items = [
-        AssessmentHistoryItem(
-            assessment_id=row.id,
-            created_at=row.created_at,
-            company_type=str((row.company_profile or {}).get("company_type", "other")),
-            service_description=str((row.company_profile or {}).get("service_description", "")),
-            selected_rule_labels=[
-                selected_rule_map.get(rule_id, rule_id) for rule_id in row.selected_rule_ids
-            ],
-            total_items=row.total_items,
-            high_priority_items=row.high_priority_items,
-            medium_priority_items=row.medium_priority_items,
-            low_priority_items=row.low_priority_items,
+    items: list[AssessmentHistoryItem] = []
+    for row in rows:
+        checklist_items = [
+            ChecklistItem.model_validate(item) for item in row.checklist_items
+        ]
+        high_priority_done_items = sum(
+            1
+            for item in checklist_items
+            if item.priority == "high" and item.status == "done"
         )
-        for row in rows
-    ]
+        items.append(
+            AssessmentHistoryItem(
+                assessment_id=row.id,
+                created_at=row.created_at,
+                company_type=str(
+                    (row.company_profile or {}).get("company_type", "other")
+                ),
+                service_description=str(
+                    (row.company_profile or {}).get("service_description", "")
+                ),
+                selected_rule_labels=[
+                    selected_rule_map.get(rule_id, rule_id)
+                    for rule_id in row.selected_rule_ids
+                ],
+                selected_rule_count=len(row.selected_rule_ids),
+                total_items=row.total_items,
+                done_items=sum(
+                    1 for item in checklist_items if item.status == "done"
+                ),
+                high_priority_items=row.high_priority_items,
+                high_priority_done_items=high_priority_done_items,
+                medium_priority_items=row.medium_priority_items,
+                low_priority_items=row.low_priority_items,
+            )
+        )
 
     return AssessmentHistoryResponse(items=items)
 
@@ -234,6 +253,33 @@ def build_assessment_summary(
         medium_priority_items=priorities.get("medium", 0),
         low_priority_items=priorities.get("low", 0),
         recommended_rule_count=len(recommended_rule_ids),
+    )
+
+
+def build_assessment_response(
+    session: Session,
+    row: ComplianceAssessmentModel,
+) -> GDPRAssessmentResponse:
+    """Build the public response payload for a persisted assessment row."""
+
+    domain_mode = load_domain_mode(session)
+    selected_rules = load_selected_rules(session, row.selected_rule_ids)
+    checklist_items = [ChecklistItem.model_validate(item) for item in row.checklist_items]
+    summary = build_assessment_summary(checklist_items, row.recommended_rule_ids)
+    request = GDPRChecklistRequest(
+        selected_rule_ids=row.selected_rule_ids,
+        company_profile=row.company_profile or None,
+    )
+
+    return GDPRAssessmentResponse(
+        assessment_id=row.id,
+        created_at=row.created_at,
+        request=request,
+        domain_mode=domain_mode,
+        selected_rules=selected_rules,
+        checklist_items=checklist_items,
+        recommended_rule_ids=row.recommended_rule_ids,
+        summary=summary,
     )
 
 

@@ -10,6 +10,7 @@ from app.db.session import get_session
 from app.gdpr.assessments import (
     AssessmentOwner,
     create_assessment,
+    get_assessment,
     get_latest_assessment,
     list_assessments,
     update_assessment_checklist_item,
@@ -86,7 +87,7 @@ async def read_latest_assessment(
 async def read_assessment_history(
     session: Annotated[Session, Depends(get_session)],
     current_user: Annotated[CurrentUser, Depends(get_current_user)],
-    limit: int = 5,
+    limit: int = 50,
 ) -> AssessmentHistoryResponse:
     """Return recent persisted GDPR assessments for the current user."""
 
@@ -95,6 +96,31 @@ async def read_assessment_history(
         build_assessment_owner(current_user),
         limit=limit,
     )
+
+
+@router.get("/assessments/{assessment_id}")
+async def read_assessment(
+    assessment_id: str,
+    session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
+) -> GDPRAssessmentResponse:
+    """Return one persisted GDPR assessment for the current user."""
+
+    assessment = get_assessment(
+        session,
+        assessment_id,
+        build_assessment_owner(current_user),
+    )
+    if assessment is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "message": "Assessment not found.",
+                "assessment_id": assessment_id,
+            },
+        )
+
+    return assessment
 
 
 @router.patch("/assessments/{assessment_id}/checklist-items/{checklist_item_id}")

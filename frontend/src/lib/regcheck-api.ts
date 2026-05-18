@@ -125,8 +125,11 @@ export interface AssessmentHistoryItem {
   company_type: string;
   service_description: string;
   selected_rule_labels: string[];
+  selected_rule_count: number;
   total_items: number;
+  done_items: number;
   high_priority_items: number;
+  high_priority_done_items: number;
   medium_priority_items: number;
   low_priority_items: number;
 }
@@ -320,10 +323,19 @@ export async function getLatestAssessment(): Promise<GDPRAssessmentResponse | nu
 }
 
 export async function getAssessmentHistory(
-  limit = 5,
+  limit = 50,
 ): Promise<AssessmentHistoryResponse> {
   return requestJson<AssessmentHistoryResponse>({
     path: `/api/v1/gdpr/assessments?limit=${limit}`,
+    method: "GET",
+  });
+}
+
+export async function getAssessment(
+  assessmentId: string,
+): Promise<GDPRAssessmentResponse> {
+  return requestJson<GDPRAssessmentResponse>({
+    path: `/api/v1/gdpr/assessments/${assessmentId}`,
     method: "GET",
   });
 }

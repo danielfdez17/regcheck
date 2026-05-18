@@ -19,7 +19,9 @@ export function AssessmentCard({ item }: Readonly<AssessmentCardProps>) {
       <span>
         {t("output.historySummary", {
           total: item.total_items,
+          done: item.done_items,
           high: item.high_priority_items,
+          rules: item.selected_rule_count,
         })}
       </span>
     </li>

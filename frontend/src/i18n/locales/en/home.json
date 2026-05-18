@@ -37,6 +37,28 @@
       "description": "Stored snapshots in SQLite"
     }
   },
+  "dashboard": {
+    "ariaLabel": "Assessment dashboard",
+    "backToDashboard": "Back to dashboard",
+    "actions": {
+      "kicker": "Dashboard",
+      "title": "Choose what to work on",
+      "description": "Start a new assessment or reopen a saved one. Existing assessments stay editable so teams can continue evidence collection over time.",
+      "newAssessment": "Create new assessment",
+      "continueLatest": "Continue latest assessment",
+      "loadingAssessment": "Loading assessment..."
+    },
+    "history": {
+      "kicker": "Saved assessments",
+      "title": "Assessment summaries",
+      "count": "{{count}} saved",
+      "empty": "No saved assessments yet. Create a new assessment to start building history.",
+      "noServiceDescription": "No service description",
+      "summary": "{{done}} of {{total}} items done · {{rules}} selected rules",
+      "openAssessment": "View and edit",
+      "unexpectedLoadError": "The assessment could not be loaded."
+    }
+  },
   "selectorUnavailable": {
     "kicker": "Default rule selector",
     "title": "Rule unavailable",

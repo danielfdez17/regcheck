@@ -37,6 +37,28 @@
       "description": "Capturas persistentes en SQLite"
     }
   },
+  "dashboard": {
+    "ariaLabel": "Panel de evaluaciones",
+    "backToDashboard": "Volver al panel",
+    "actions": {
+      "kicker": "Panel",
+      "title": "Elige en qué trabajar",
+      "description": "Inicia una nueva evaluación o reabre una guardada. Las evaluaciones existentes siguen siendo editables para continuar la recopilación de evidencias en el tiempo.",
+      "newAssessment": "Crear nueva evaluación",
+      "continueLatest": "Continuar la evaluación más reciente",
+      "loadingAssessment": "Cargando evaluación..."
+    },
+    "history": {
+      "kicker": "Evaluaciones guardadas",
+      "title": "Resúmenes de evaluaciones",
+      "count": "{{count}} guardadas",
+      "empty": "Aún no hay evaluaciones guardadas. Crea una nueva evaluación para empezar a construir el historial.",
+      "noServiceDescription": "No hay descripción del servicio",
+      "summary": "{{done}} de {{total}} elementos terminados · {{rules}} reglas seleccionadas",
+      "openAssessment": "Ver y editar",
+      "unexpectedLoadError": "No se pudo cargar la evaluación."
+    }
+  },
   "selectorUnavailable": {
     "kicker": "Selector de reglas por defecto",
     "title": "Regla no disponible",

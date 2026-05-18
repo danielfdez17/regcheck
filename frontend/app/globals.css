@@ -534,6 +534,76 @@ textarea {
   line-height: 1.45;
 }
 
+.dashboard-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.8fr) minmax(0, 1.2fr);
+  gap: 1rem;
+}
+
+.dashboard-action-card,
+.dashboard-history-card {
+  min-width: 0;
+}
+
+.dashboard-section-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.dashboard-section-header h2 {
+  margin-bottom: 0;
+}
+
+.assessment-dashboard-list {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.assessment-dashboard-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--panel-strong) 92%, transparent);
+}
+
+.assessment-dashboard-card-copy {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.assessment-dashboard-card-copy strong {
+  font-size: 1rem;
+}
+
+.assessment-dashboard-card-copy span,
+.assessment-dashboard-card-copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.assessment-dashboard-open,
+.dashboard-back-button {
+  width: auto;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.dashboard-back-button {
+  margin-bottom: 1rem;
+}
+
 .page-body {
   --playground-sidebar-inset: 0.7rem;
   --playground-sidebar-gap: 0.65rem;
@@ -1073,6 +1143,10 @@ textarea.rule-checkbox {
     grid-template-columns: 1fr 1fr;
   }
 
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
   .page-body {
     margin-left: 0;
   }
@@ -1091,9 +1165,18 @@ textarea.rule-checkbox {
   }
 
   .playground-grid,
+  .dashboard-grid,
   .metric-grid,
   .mini-metric-grid {
     grid-template-columns: 1fr;
+  }
+
+  .assessment-dashboard-list li {
+    grid-template-columns: 1fr;
+  }
+
+  .assessment-dashboard-open {
+    width: 100%;
   }
 
   .app-footer-inner {

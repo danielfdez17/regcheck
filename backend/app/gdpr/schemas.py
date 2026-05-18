@@ -138,8 +138,11 @@ class AssessmentHistoryItem(BaseModel):
     company_type: str
     service_description: str
     selected_rule_labels: list[str] = Field(default_factory=list)
+    selected_rule_count: int
     total_items: int
+    done_items: int
     high_priority_items: int
+    high_priority_done_items: int
     medium_priority_items: int
     low_priority_items: int
 

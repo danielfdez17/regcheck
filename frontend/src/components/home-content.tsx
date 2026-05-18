@@ -1,4 +1,8 @@
-import type { AssessmentSummary } from "../lib/regcheck-api";
+import { formatDateTime } from "../i18n/format";
+import type {
+  AssessmentHistoryItem,
+  AssessmentSummary,
+} from "../lib/regcheck-api";
 import {
   formatChecklistItemsMetricValue,
   formatHighPriorityMetricValue,
@@ -21,6 +25,13 @@ type LoadingOverviewProps = {
 
 type SelectorUnavailableProps = {
   message: string;
+};
+
+type AssessmentDashboardProps = {
+  assessments: AssessmentHistoryItem[];
+  isLoadingAssessment: boolean;
+  onCreateAssessment: () => void;
+  onOpenAssessment: (assessmentId: string) => void;
 };
 
 type OverviewSectionProps = {
@@ -129,6 +140,95 @@ export function DashboardMetrics({
         <p className="metric-label">{t("metrics.history.label")}</p>
         <strong>{historyCount}</strong>
         <span>{t("metrics.history.description")}</span>
+      </article>
+    </section>
+  );
+}
+
+export function AssessmentDashboard({
+  assessments,
+  isLoadingAssessment,
+  onCreateAssessment,
+  onOpenAssessment,
+}: Readonly<AssessmentDashboardProps>) {
+  const { t } = useAppTranslation("home");
+  const latestAssessment = assessments[0];
+
+  return (
+    <section className="dashboard-grid" aria-label={t("dashboard.ariaLabel")}>
+      <article className="panel panel-highlight dashboard-action-card">
+        <p className="panel-kicker">{t("dashboard.actions.kicker")}</p>
+        <h2>{t("dashboard.actions.title")}</h2>
+        <p className="panel-copy">{t("dashboard.actions.description")}</p>
+        <button
+          className="primary-button"
+          onClick={onCreateAssessment}
+          type="button"
+        >
+          {t("dashboard.actions.newAssessment")}
+        </button>
+        <button
+          className="secondary-button"
+          disabled={latestAssessment === undefined || isLoadingAssessment}
+          onClick={() => {
+            if (latestAssessment !== undefined) {
+              onOpenAssessment(latestAssessment.assessment_id);
+            }
+          }}
+          type="button"
+        >
+          {isLoadingAssessment
+            ? t("dashboard.actions.loadingAssessment")
+            : t("dashboard.actions.continueLatest")}
+        </button>
+      </article>
+
+      <article className="panel dashboard-history-card">
+        <div className="dashboard-section-header">
+          <div>
+            <p className="panel-kicker">{t("dashboard.history.kicker")}</p>
+            <h2>{t("dashboard.history.title")}</h2>
+          </div>
+          <span className="badge badge-soft">
+            {t("dashboard.history.count", { count: assessments.length })}
+          </span>
+        </div>
+
+        {assessments.length === 0 ? (
+          <p className="status-hint">{t("dashboard.history.empty")}</p>
+        ) : (
+          <ul className="assessment-dashboard-list">
+            {assessments.map((assessment) => (
+              <li key={assessment.assessment_id}>
+                <div className="assessment-dashboard-card-copy">
+                  <strong>{assessment.company_type}</strong>
+                  <span>{formatDateTime(assessment.created_at)}</span>
+                  <p>
+                    {assessment.service_description ||
+                      t("dashboard.history.noServiceDescription")}
+                  </p>
+                  <span>
+                    {t("dashboard.history.summary", {
+                      done: assessment.done_items,
+                      total: assessment.total_items,
+                      rules: assessment.selected_rule_count,
+                    })}
+                  </span>
+                </div>
+                <button
+                  className="secondary-button assessment-dashboard-open"
+                  disabled={isLoadingAssessment}
+                  onClick={() => {
+                    onOpenAssessment(assessment.assessment_id);
+                  }}
+                  type="button"
+                >
+                  {t("dashboard.history.openAssessment")}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </article>
     </section>
   );
