@@ -610,6 +610,10 @@ textarea {
   --playground-sidebar-collapsed-width: 4.2rem;
   --playground-sidebar-expanded-width: min(22.5rem, calc(100vw - 1.4rem));
   --playground-sidebar-width: var(--playground-sidebar-collapsed-width);
+}
+
+.page-body.sidebar-closed,
+.page-body.sidebar-open {
   margin-left: calc(
     var(--playground-sidebar-inset) + var(--playground-sidebar-width) +
       var(--playground-sidebar-gap)

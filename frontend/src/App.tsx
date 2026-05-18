@@ -92,6 +92,13 @@ function AuthenticatedContent({
 }: Readonly<AuthenticatedContentProps>) {
   const { t } = useAppTranslation("home");
   const { connected, errorMessage, selector } = pageData;
+  const sidebarStateClassName = isInputSidebarOpen
+    ? "sidebar-open"
+    : "sidebar-closed";
+  const pageBodyClassName =
+    activeView === "editor"
+      ? `page-body ${sidebarStateClassName}`
+      : "page-body";
 
   if (selector === null) {
     return (
@@ -111,9 +118,7 @@ function AuthenticatedContent({
   }
 
   return (
-    <div
-      className={`page-body ${isInputSidebarOpen ? "sidebar-open" : "sidebar-closed"}`}
-    >
+    <div className={pageBodyClassName}>
       <HeroSection connected={connected} errorMessage={errorMessage} />
 
       {dashboardMetrics ? (
