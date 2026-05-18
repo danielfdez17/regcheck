@@ -36,7 +36,7 @@ help: ## Show available targets
 	@$(call print_banner,Show available targets)
 	@echo ""
 	@grep -hE '^[a-zA-Z_-]+:.*## .*$$' Makefile | \
-		awk 'BEGIN {FS = ":.*## "}; {printf "  $(CYAN)%-18s$(RESET) %s\n", $$1, $$2}'
+		awk 'BEGIN {FS = ":.*## "}; {printf "  $(CYAN)%-22s$(RESET) %s\n", $$1, $$2}'
 	@echo ""
 
 # ── Development ──────────────────────────────────────────────────────────
