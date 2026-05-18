@@ -19,10 +19,6 @@ import {
   type RuleOption,
   updateAssessmentChecklistItem,
 } from "./lib/regcheck-api";
-import {
-  formatChecklistItemsMetricValue,
-  formatHighPriorityMetricValue,
-} from "./lib/assessment-metrics";
 import { buildAssessmentReportHtml } from "./lib/report-export";
 
 type GdprPlaygroundProps = {
@@ -39,22 +35,6 @@ export type LiveDashboardState = {
   summary: AssessmentSummary;
   historyCount: number;
 };
-
-type MetricProps = {
-  label: string;
-  value: string;
-  description: string;
-};
-
-function MetricTile({ label, value, description }: Readonly<MetricProps>) {
-  return (
-    <article className="mini-metric">
-      <p>{label}</p>
-      <strong>{value}</strong>
-      <span>{description}</span>
-    </article>
-  );
-}
 
 function formatTimestamp(timestamp: string): string {
   return formatDateTime(timestamp);
@@ -654,35 +634,6 @@ export default function GdprPlayground({
           <>
             <h2>{liveAssessment.domain_mode.label}</h2>
             <p>{liveAssessment.domain_mode.description}</p>
-
-            <div className="mini-metric-grid">
-              <MetricTile
-                description={t("output.metrics.selectedRules.description")}
-                label={t("output.metrics.selectedRules.label")}
-                value={String(liveAssessment.summary.selected_rule_count)}
-              />
-              <MetricTile
-                description={t("output.metrics.checklistItems.description", {
-                  done: liveAssessment.summary.done_items,
-                  total: liveAssessment.summary.total_items,
-                })}
-                label={t("output.metrics.checklistItems.label")}
-                value={formatChecklistItemsMetricValue(liveAssessment.summary)}
-              />
-              <MetricTile
-                description={t("output.metrics.highPriority.description", {
-                  done: liveAssessment.summary.high_priority_done_items,
-                  total: liveAssessment.summary.high_priority_items,
-                })}
-                label={t("output.metrics.highPriority.label")}
-                value={formatHighPriorityMetricValue(liveAssessment.summary)}
-              />
-              <MetricTile
-                description={t("output.metrics.recommendations.description")}
-                label={t("output.metrics.recommendations.label")}
-                value={String(liveAssessment.summary.recommended_rule_count)}
-              />
-            </div>
 
             <ResponseBlock title={t("output.recommendedRules")}>
               {liveAssessment.recommended_rule_ids.map((ruleId) => (
