@@ -209,20 +209,12 @@ function AuthenticatedApp() {
     );
   }
 
-  const { currentAssessment } = pageData;
   const visibleAssessmentHistory =
     assessmentHistory.items.length > 0 || pageData.assessmentHistory.items.length === 0
       ? assessmentHistory
       : pageData.assessmentHistory;
 
-  const dashboardMetrics =
-    liveDashboard ??
-    (activeView === "dashboard" && currentAssessment
-      ? {
-          summary: currentAssessment.summary,
-          historyCount: visibleAssessmentHistory.items.length,
-        }
-      : null);
+  const dashboardMetrics = activeView === "editor" ? liveDashboard : null;
 
   function openNewAssessment() {
     setActiveAssessment(null);
