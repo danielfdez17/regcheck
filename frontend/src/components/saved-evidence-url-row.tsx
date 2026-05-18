@@ -1,4 +1,5 @@
 import { useAppTranslation } from "../i18n/hooks/use-app-translation";
+import { toAbsoluteEvidenceUrl } from "../evidence-url";
 
 type SavedEvidenceUrlRowProps = {
   referenceUrl: string;
@@ -14,11 +15,12 @@ export function SavedEvidenceUrlRow({
   onDelete,
 }: Readonly<SavedEvidenceUrlRowProps>) {
   const { t: tCommon } = useAppTranslation("common");
+  const absoluteReferenceUrl = toAbsoluteEvidenceUrl(referenceUrl);
 
   return (
     <>
       <div className="saved-evidence-url-row">
-        <a href={referenceUrl} rel="noopener noreferrer" target="_blank">
+        <a href={absoluteReferenceUrl} rel="noopener noreferrer" target="_blank">
           {referenceUrl}
         </a>
         <div className="saved-evidence-actions">

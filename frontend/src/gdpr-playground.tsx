@@ -23,6 +23,7 @@ import {
   formatChecklistItemsMetricValue,
   formatHighPriorityMetricValue,
 } from "./lib/assessment-metrics";
+import { toAbsoluteEvidenceUrl } from "./evidence-url";
 import { buildAssessmentReportHtml } from "./lib/report-export";
 
 type GdprPlaygroundProps = {
@@ -431,7 +432,7 @@ export default function GdprPlayground({
 
     const draft = itemEvidenceDrafts[item.id] ?? { notes: "", referenceUrl: "" };
     const notes = normalizeEvidenceDraft(draft.notes);
-    const referenceUrl = normalizeEvidenceDraft(draft.referenceUrl);
+    const referenceUrl = toAbsoluteEvidenceUrl(draft.referenceUrl);
     if (!notes && !referenceUrl) {
       setErrorMessage(tErrors("assessment.addEvidenceBeforeSave"));
       return;
