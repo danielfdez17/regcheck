@@ -29,6 +29,7 @@ DC_DEV := docker compose -f $(ROOT)docker-compose.yml -f $(ROOT)docker-compose.d
 PYTHON ?= python3
 VENV := .venv
 VENV_BIN := $(VENV)/bin
+DEV_BACKEND_DATABASE_URL ?= sqlite:///./regcheck.db
 
 .DEFAULT_GOAL := help
 .PHONY: help
@@ -61,7 +62,7 @@ dev-frontend: ## Start Vite frontend only (http://localhost:3001)
 dev-backend: ## Start FastAPI backend only (http://localhost:8000)
 	@$(call print_banner,Start FastAPI backend only (http://localhost:8000))
 	@echo -e "$(INFO) Starting FastAPI backend on http://localhost:8000$(RESET)"
-	@$(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}
+	@REGCHECK_DATABASE_URL="$(DEV_BACKEND_DATABASE_URL)" $(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}
 
 .PHONY: dev-docker
 dev-docker: ## Start hot-reload Docker stack (Vite :3001 + FastAPI :8000 + Postgres)

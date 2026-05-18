@@ -166,10 +166,9 @@ let authToken: string | null = null;
 let onUnauthorized: (() => void) | null = null;
 
 function getApiBaseUrl(): string {
-  return (import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL).replace(
-    /\/$/,
-    "",
-  );
+  const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+
+  return (configuredBaseUrl || DEFAULT_API_BASE_URL).replace(/\/$/, "");
 }
 
 export function setAuthToken(token: string | null): void {

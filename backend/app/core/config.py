@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 480
 
-    model_config = SettingsConfigDict(env_file=".env", env_prefix="REGCHECK_")
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="REGCHECK_", extra="ignore")
 
 
 settings = Settings()
