@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/obsidian/PROJECT-REPORT.md",
+                "file": "docs/obsidian/reports/11-05-2026.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "PROJECT-REPORT"
+              "title": "11-05-2026"
             }
           }
         ]
@@ -219,22 +219,21 @@
   },
   "active": "7c70b1671daf57e1",
   "lastOpenFiles": [
+    "docs/obsidian/reports/19-05-2026.md",
+    "docs/obsidian/PROJECT-REPORT.md",
+    "backend/app/gdpr/export.py",
     "regcheck.db-journal",
     "backend/app/gdpr/__pycache__/export.cpython-312.pyc",
-    "docs/obsidian/reports/19-05-2026.md",
-    "backend/app/gdpr/export.py",
     "frontend/node_modules/@vitejs",
     "frontend/node_modules/@typescript-eslint",
     "frontend/node_modules/@types",
     "frontend/node_modules",
     "frontend/_tmp_21730_0b49696040da4b76c391e8e56a0537ca",
-    "docs/obsidian/PROJECT-REPORT.md",
     "frontend/src/components/live-backend-input-sidebar.tsx",
     "docs/obsidian/reports/11-05-2026.md",
     "vendor/scripts/aliases.md",
     "docs/obsidian/02-sqlite-schema-and-seeding.md",
     "frontend/dist/index.html",
-    "frontend/dist/assets/index-fCrVROGp.css",
     "docs/obsidian/Untitled.md",
     "docs/obsidian/01-sqlite-persistence-goal.md",
     "docs/obsidian/00-index.md",
