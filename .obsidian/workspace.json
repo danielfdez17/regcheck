@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/obsidian/reports/11-05-2026.md",
+                "file": "docs/obsidian/PROJECT-REPORT.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "11-05-2026"
+              "title": "PROJECT-REPORT"
             }
           }
         ]
@@ -217,31 +217,33 @@
       "bases:Create new base": false
     }
   },
-  "active": "5ba4bd1c6cb3edd8",
+  "active": "7c70b1671daf57e1",
   "lastOpenFiles": [
+    "regcheck.db-journal",
+    "backend/app/gdpr/__pycache__/export.cpython-312.pyc",
+    "docs/obsidian/reports/19-05-2026.md",
+    "backend/app/gdpr/export.py",
+    "frontend/node_modules/@vitejs",
+    "frontend/node_modules/@typescript-eslint",
+    "frontend/node_modules/@types",
+    "frontend/node_modules",
+    "frontend/_tmp_21730_0b49696040da4b76c391e8e56a0537ca",
+    "docs/obsidian/PROJECT-REPORT.md",
     "frontend/src/components/live-backend-input-sidebar.tsx",
     "docs/obsidian/reports/11-05-2026.md",
     "vendor/scripts/aliases.md",
     "docs/obsidian/02-sqlite-schema-and-seeding.md",
-    "regcheck.db-journal",
     "frontend/dist/index.html",
     "frontend/dist/assets/index-fCrVROGp.css",
-    "frontend/dist/assets/index-Ch5Kge1u.js",
-    "frontend/dist/assets",
-    "docs/obsidian/reports",
     "docs/obsidian/Untitled.md",
     "docs/obsidian/01-sqlite-persistence-goal.md",
     "docs/obsidian/00-index.md",
     "docs/obsidian/000 - To-do list features (Tokyo Night appearance).md",
     "docs/obsidian/RegCheck (20-04-2026 -> 25-05-2026).md",
-    "vendor/scripts/git/delete_remote_branches.sh",
     "docs/obsidian/06-live-dashboard-and-report-export.md",
     "docs/obsidian/05-frontend-backend-integration.md",
     "docs/obsidian/04-validation-and-operations.md",
     "docs/obsidian/03-fastapi-db-integration.md",
-    "frontend/dist/assets/index-jaarg3ap.js",
-    "frontend/dist/assets/index-Dv9JTOra.js",
-    "frontend/src/lib/report-export.ts",
     "docs/obsidian/Subject_pr1.ES.md",
     "docs/obsidian/Subject_pr1.EN.md",
     "docs/obsidian/templates/Kanban.md",

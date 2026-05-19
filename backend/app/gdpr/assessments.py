@@ -72,6 +72,82 @@ def create_assessment(
     )
 
 
+def update_assessment(
+    session: Session,
+    assessment_id: str,
+    request: GDPRChecklistRequest,
+    owner: AssessmentOwner,
+) -> GDPRAssessmentResponse | None:
+    """Regenerate and persist an existing assessment snapshot for the current user."""
+
+    row = session.get(ComplianceAssessmentModel, assessment_id)
+    if (
+        row is None
+        or row.tenant_id != owner.tenant_id
+        or row.created_by_user_id != owner.user_id
+    ):
+        return None
+
+    checklist = build_gdpr_checklist(session, request)
+    previous_items = [ChecklistItem.model_validate(item) for item in row.checklist_items]
+    checklist_items = merge_checklist_item_state(
+        checklist.checklist_items,
+        previous_items,
+    )
+    summary = build_assessment_summary(checklist_items, checklist.recommended_rule_ids)
+    row.domain_mode_id = checklist.domain_mode.id
+    row.company_profile = (
+        request.company_profile.model_dump() if request.company_profile else {}
+    )
+    row.selected_rule_ids = [rule.id for rule in checklist.selected_rules]
+    row.recommended_rule_ids = checklist.recommended_rule_ids
+    row.checklist_items = [item.model_dump(mode="json") for item in checklist_items]
+    row.total_items = summary.total_items
+    row.high_priority_items = summary.high_priority_items
+    row.medium_priority_items = summary.medium_priority_items
+    row.low_priority_items = summary.low_priority_items
+    session.add(row)
+    session.commit()
+    session.refresh(row)
+
+    return GDPRAssessmentResponse(
+        assessment_id=row.id,
+        created_at=row.created_at,
+        request=request,
+        domain_mode=checklist.domain_mode,
+        selected_rules=checklist.selected_rules,
+        checklist_items=checklist_items,
+        recommended_rule_ids=checklist.recommended_rule_ids,
+        summary=summary,
+    )
+
+
+def merge_checklist_item_state(
+    checklist_items: list[ChecklistItem],
+    previous_items: list[ChecklistItem],
+) -> list[ChecklistItem]:
+    """Keep status and evidence when an item id already exists in the snapshot."""
+
+    previous_by_id = {item.id: item for item in previous_items}
+    merged_items: list[ChecklistItem] = []
+
+    for item in checklist_items:
+        previous_item = previous_by_id.get(item.id)
+        if previous_item is None:
+            merged_items.append(item)
+            continue
+        merged_items.append(
+            item.model_copy(
+                update={
+                    "status": previous_item.status,
+                    "evidence_entries": previous_item.evidence_entries,
+                }
+            )
+        )
+
+    return merged_items
+
+
 def get_latest_assessment(
     session: Session,
     owner: AssessmentOwner,

@@ -339,6 +339,58 @@ export async function getAssessment(
   });
 }
 
+export async function updateAssessment(
+  assessmentId: string,
+  input: CreateChecklistInput,
+): Promise<GDPRAssessmentResponse> {
+  return requestJson<GDPRAssessmentResponse>({
+    path: `/api/v1/gdpr/assessments/${assessmentId}`,
+    method: "PATCH",
+    body: JSON.stringify({
+      selected_rule_ids: input.selectedRuleIds,
+      company_profile: input.companyProfile,
+    }),
+  });
+}
+
+export type AssessmentExportFormat = "csv" | "markdown";
+
+export async function exportAssessment(
+  assessmentId: string,
+  format: AssessmentExportFormat,
+): Promise<Blob> {
+  const headers: Record<string, string> = {};
+  if (authToken !== null) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+
+  const response = await fetch(
+    `${getApiBaseUrl()}/api/v1/gdpr/assessments/${assessmentId}/export?format=${format}`,
+    {
+      method: "GET",
+      headers,
+      cache: "no-store",
+    },
+  );
+
+  if (response.status === 401 && onUnauthorized !== null) {
+    onUnauthorized();
+  }
+
+  if (!response.ok) {
+    let detail = `${response.status} ${response.statusText}`;
+    try {
+      const payload = (await response.json()) as { detail?: ApiErrorDetail };
+      detail = formatApiErrorDetail(payload.detail) ?? detail;
+    } catch {
+      // Keep the default status-based message.
+    }
+    throw new Error(detail);
+  }
+
+  return response.blob();
+}
+
 export async function updateAssessmentChecklistItem(
   input: UpdateChecklistItemInput,
 ): Promise<GDPRAssessmentResponse> {

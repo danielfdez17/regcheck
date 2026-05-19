@@ -15,9 +15,13 @@
     "evidenceUpdated": "Evidence entry updated.",
     "evidenceSaved": "Evidence entry saved.",
     "evidenceDeleted": "Evidence entry deleted.",
-    "notLoaded": "No assessment has been loaded yet."
+    "notLoaded": "No assessment has been loaded yet.",
+    "saveBeforeExport": "Generate and save an assessment before exporting CSV or Markdown."
   },
   "report": {
-    "exported": "Report exported as HTML. Open it in the browser and print to PDF if needed."
+    "exported": "Report exported as HTML. Open it in the browser and print to PDF if needed.",
+    "exportedCsv": "Assessment exported as CSV.",
+    "exportedMarkdown": "Assessment exported as Markdown.",
+    "unexpectedExport": "Unexpected error while exporting the assessment."
   }
 }

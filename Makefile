@@ -62,6 +62,7 @@ dev-frontend: ## Start Vite frontend only (http://localhost:3001)
 dev-backend: ## Start FastAPI backend only (http://localhost:8000)
 	@$(call print_banner,Start FastAPI backend only (http://localhost:8000))
 	@echo -e "$(INFO) Starting FastAPI backend on http://localhost:8000$(RESET)"
+	@echo -e "$(INFO) Swagger UI: http://localhost:$${BACKEND_PORT:-8000}/api/docs$(RESET)"
 	@REGCHECK_DATABASE_URL="$(DEV_BACKEND_DATABASE_URL)" $(VENV_BIN)/uvicorn app.main:app --app-dir backend --reload --host 0.0.0.0 --port $${BACKEND_PORT:-8000}
 
 .PHONY: dev-docker
@@ -72,6 +73,8 @@ dev-docker: ## Start hot-reload Docker stack (Vite :3001 + FastAPI :8000 + Postg
 	@echo -e "$(SUCCESS) Stack running:$(RESET)"
 	@echo -e "  Frontend:   http://localhost:$${FRONTEND_PORT:-3001}"
 	@echo -e "  Backend:    http://localhost:$${BACKEND_PORT:-8000}"
+	@echo -e "  Swagger UI: http://localhost:$${BACKEND_PORT:-8000}/api/docs"
+	@echo -e "              http://localhost:$${FRONTEND_PORT:-3001}/api/docs (via frontend proxy)"
 
 .PHONY: up
 up: ## Start production-like Docker stack
@@ -81,6 +84,8 @@ up: ## Start production-like Docker stack
 	@echo -e "$(SUCCESS) Stack running:$(RESET)"
 	@echo -e "  Frontend:   http://localhost:$${FRONTEND_PORT:-3001}"
 	@echo -e "  Backend:    http://localhost:$${BACKEND_PORT:-8000}"
+	@echo -e "  Swagger UI: http://localhost:$${BACKEND_PORT:-8000}/api/docs"
+	@echo -e "              http://localhost:$${FRONTEND_PORT:-3001}/api/docs (via frontend proxy)"
 
 .PHONY: stop
 stop: ## Stop Docker stack

@@ -1,8 +1,9 @@
 """GDPR domain mode endpoints."""
 
-from typing import Annotated
+from typing import Annotated, Literal
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import Response
 from sqlmodel import Session
 
 from app.auth.dependencies import CurrentUser, get_current_user
@@ -13,9 +14,11 @@ from app.gdpr.assessments import (
     get_assessment,
     get_latest_assessment,
     list_assessments,
+    update_assessment,
     update_assessment_checklist_item,
 )
 from app.gdpr.catalog import build_gdpr_checklist, get_gdpr_rule_selector
+from app.gdpr.export import build_assessment_csv, build_assessment_markdown
 from app.gdpr.schemas import (
     AssessmentHistoryResponse,
     ChecklistItemUpdateRequest,
@@ -26,6 +29,12 @@ from app.gdpr.schemas import (
 )
 
 router = APIRouter(prefix="/gdpr", tags=["gdpr"])
+
+ExportFormat = Literal["csv", "markdown"]
+EXPORT_MEDIA_TYPES: dict[ExportFormat, str] = {
+    "csv": "text/csv; charset=utf-8",
+    "markdown": "text/markdown; charset=utf-8",
+}
 
 
 def build_assessment_owner(current_user: CurrentUser) -> AssessmentOwner:
@@ -121,6 +130,74 @@ async def read_assessment(
         )
 
     return assessment
+
+
+@router.patch("/assessments/{assessment_id}")
+async def patch_assessment_snapshot(
+    assessment_id: str,
+    request: GDPRChecklistRequest,
+    session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
+) -> GDPRAssessmentResponse:
+    """Regenerate and persist an existing GDPR assessment snapshot."""
+
+    assessment = update_assessment(
+        session,
+        assessment_id,
+        request,
+        build_assessment_owner(current_user),
+    )
+    if assessment is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "message": "Assessment not found.",
+                "assessment_id": assessment_id,
+            },
+        )
+
+    return assessment
+
+
+@router.get("/assessments/{assessment_id}/export")
+async def export_assessment(
+    assessment_id: str,
+    session: Annotated[Session, Depends(get_session)],
+    current_user: Annotated[CurrentUser, Depends(get_current_user)],
+    export_format: ExportFormat = Query(
+        ...,
+        alias="format",
+        description="Export format: csv or markdown.",
+    ),
+) -> Response:
+    """Download a persisted assessment checklist as CSV or Markdown."""
+
+    assessment = get_assessment(
+        session,
+        assessment_id,
+        build_assessment_owner(current_user),
+    )
+    if assessment is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "message": "Assessment not found.",
+                "assessment_id": assessment_id,
+            },
+        )
+
+    if export_format == "csv":
+        content = build_assessment_csv(assessment)
+        filename = f"regcheck-assessment-{assessment_id}.csv"
+    else:
+        content = build_assessment_markdown(assessment)
+        filename = f"regcheck-assessment-{assessment_id}.md"
+
+    return Response(
+        content=content,
+        media_type=EXPORT_MEDIA_TYPES[export_format],
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.patch("/assessments/{assessment_id}/checklist-items/{checklist_item_id}")

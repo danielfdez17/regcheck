@@ -80,6 +80,10 @@ Endpoints:
 - Frontend: http://localhost:3001
 - Backend: http://localhost:8000
 - Health: http://localhost:8000/api/v1/health
+- Swagger UI (interactive API docs): http://localhost:8000/api/docs
+- ReDoc: http://localhost:8000/api/redoc
+
+With Docker, the frontend nginx proxy also serves Swagger at http://localhost:3001/api/docs.
 
 ---
 

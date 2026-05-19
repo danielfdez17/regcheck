@@ -68,8 +68,10 @@
     },
     "generateAssessment": "Generate assessment",
     "savingAssessment": "Saving assessment...",
-    "exportReport": "Export report",
-    "exportHint": "The export generates a self-contained HTML report with the sections requested in the project brief."
+    "exportReport": "Export HTML report",
+    "exportCsv": "Export CSV",
+    "exportMarkdown": "Export Markdown",
+    "exportHint": "HTML is generated in the browser. CSV and Markdown are downloaded from the API after the assessment is saved."
   },
   "output": {
     "kicker": "Assessment output",
