@@ -36,6 +36,8 @@ type LiveBackendInputSidebarProps = {
   isSubmitting: boolean;
   onGenerateAssessment: () => void;
   onExportReport: () => void;
+  onExportCsv: () => void;
+  onExportMarkdown: () => void;
   errorMessage: string | null;
   statusMessage: string | null;
 };
@@ -74,6 +76,8 @@ export function LiveBackendInputSidebar({
   isSubmitting,
   onGenerateAssessment,
   onExportReport,
+  onExportCsv,
+  onExportMarkdown,
   errorMessage,
   statusMessage,
 }: Readonly<LiveBackendInputSidebarProps>) {
@@ -348,6 +352,24 @@ export function LiveBackendInputSidebar({
             type="button"
           >
             {t("sidebar.exportReport")}
+          </button>
+
+          <button
+            className="secondary-button"
+            disabled={selectedRuleIds.length === 0}
+            onClick={onExportCsv}
+            type="button"
+          >
+            {t("sidebar.exportCsv")}
+          </button>
+
+          <button
+            className="secondary-button"
+            disabled={selectedRuleIds.length === 0}
+            onClick={onExportMarkdown}
+            type="button"
+          >
+            {t("sidebar.exportMarkdown")}
           </button>
 
           <p className="status-hint">{t("sidebar.exportHint")}</p>

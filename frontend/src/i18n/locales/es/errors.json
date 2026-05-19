@@ -15,9 +15,13 @@
     "evidenceUpdated": "Entrada de evidencia actualizada.",
     "evidenceSaved": "Entrada de evidencia guardada.",
     "evidenceDeleted": "Entrada de evidencia eliminada.",
-    "notLoaded": "No hay ninguna evaluación cargada aún."
+    "notLoaded": "No hay ninguna evaluación cargada aún.",
+    "saveBeforeExport": "Genera y guarda una evaluación antes de exportar CSV o Markdown."
   },
   "report": {
-    "exported": "Reporte exportado como HTML. Abrelo en el navegador y imprime a PDF si es necesario."
+    "exported": "Reporte exportado como HTML. Abrelo en el navegador y imprime a PDF si es necesario.",
+    "exportedCsv": "Evaluación exportada como CSV.",
+    "exportedMarkdown": "Evaluación exportada como Markdown.",
+    "unexpectedExport": "Error inesperado al exportar la evaluación."
   }
 }

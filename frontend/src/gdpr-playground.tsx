@@ -9,6 +9,8 @@ import { useAppTranslation } from "./i18n/hooks/use-app-translation";
 import i18n from "./i18n";
 import {
   createAssessment,
+  exportAssessment,
+  updateAssessment,
   type AssessmentHistoryResponse,
   type AssessmentSummary,
   type ChecklistItem,
@@ -123,6 +125,18 @@ function buildEvidenceEntryDraft(entry: EvidenceEntry): {
     notes: entry.notes ?? "",
     referenceUrl: entry.reference_url ?? "",
   };
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+  const downloadUrl = globalThis.URL.createObjectURL(blob);
+  const downloadLink = document.createElement("a");
+  downloadLink.href = downloadUrl;
+  downloadLink.download = filename;
+  downloadLink.rel = "noopener noreferrer";
+  document.body.append(downloadLink);
+  downloadLink.click();
+  downloadLink.remove();
+  globalThis.URL.revokeObjectURL(downloadUrl);
 }
 
 export default function GdprPlayground({
@@ -358,10 +372,14 @@ export default function GdprPlayground({
     try {
       setErrorMessage(null);
       setStatusMessage(null);
-      const nextAssessment = await createAssessment({
+      const saveInput = {
         selectedRuleIds,
         companyProfile: liveCompanyProfile,
-      });
+      };
+      const nextAssessment =
+        liveAssessment.assessment_id === "draft-preview"
+          ? await createAssessment(saveInput)
+          : await updateAssessment(liveAssessment.assessment_id, saveInput);
       setCurrentAssessment(nextAssessment);
       syncAssessmentHistory(nextAssessment);
       const generatedAt = formatTimestamp(nextAssessment.created_at);
@@ -531,18 +549,40 @@ export default function GdprPlayground({
       assessment: liveAssessment,
       history,
     });
-    const blob = new Blob([reportHtml], { type: "text/html;charset=utf-8" });
-    const downloadUrl = globalThis.URL.createObjectURL(blob);
-    const downloadLink = document.createElement("a");
-    downloadLink.href = downloadUrl;
-    downloadLink.download = `regcheck-report-${liveAssessment.assessment_id}.html`;
-    downloadLink.rel = "noopener noreferrer";
-    document.body.append(downloadLink);
-    downloadLink.click();
-    downloadLink.remove();
-    globalThis.URL.revokeObjectURL(downloadUrl);
+    downloadBlob(
+      new Blob([reportHtml], { type: "text/html;charset=utf-8" }),
+      `regcheck-report-${liveAssessment.assessment_id}.html`,
+    );
     setStatusMessage(tErrors("report.exported"));
     setErrorMessage(null);
+  }
+
+  async function handleExportAssessment(format: "csv" | "markdown") {
+    if (liveAssessment.assessment_id === "draft-preview") {
+      setErrorMessage(tErrors("assessment.saveBeforeExport"));
+      return;
+    }
+
+    try {
+      setErrorMessage(null);
+      const blob = await exportAssessment(liveAssessment.assessment_id, format);
+      const extension = format === "csv" ? "csv" : "md";
+      downloadBlob(
+        blob,
+        `regcheck-assessment-${liveAssessment.assessment_id}.${extension}`,
+      );
+      setStatusMessage(
+        format === "csv"
+          ? tErrors("report.exportedCsv")
+          : tErrors("report.exportedMarkdown"),
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : tErrors("report.unexpectedExport");
+      setErrorMessage(message);
+    }
   }
 
   function toggleRule(ruleId: string) {
@@ -593,6 +633,12 @@ export default function GdprPlayground({
         onCyberMonitoringNotesChange={setCyberMonitoringNotes}
         onDevelopmentLifecycleNotesChange={setDevelopmentLifecycleNotes}
         onExportReport={handleExportReport}
+        onExportCsv={() => {
+          void handleExportAssessment("csv");
+        }}
+        onExportMarkdown={() => {
+          void handleExportAssessment("markdown");
+        }}
         onGenerateAssessment={() => {
           void handleGenerateChecklist();
         }}

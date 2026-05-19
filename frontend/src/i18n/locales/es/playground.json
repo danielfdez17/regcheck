@@ -68,8 +68,10 @@
     },
     "generateAssessment": "Generar evaluación",
     "savingAssessment": "Guardando evaluación...",
-    "exportReport": "Exportar informe",
-    "exportHint": "La exportación genera un informe HTML autónomo con las secciones solicitadas en el proyecto."
+    "exportReport": "Exportar informe HTML",
+    "exportCsv": "Exportar CSV",
+    "exportMarkdown": "Exportar Markdown",
+    "exportHint": "El HTML se genera en el navegador. CSV y Markdown se descargan desde la API después de guardar la evaluación."
   },
   "output": {
     "kicker": "Salida de evaluación",
