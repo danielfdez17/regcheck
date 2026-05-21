@@ -54,11 +54,19 @@ dev-docker: ## Start hot-reload frontend container (Vite :3001)
 	@echo -e "$(SUCCESS) Frontend running: http://localhost:$${FRONTEND_PORT:-3001}$(RESET)"
 
 .PHONY: up
-up: ## Start production-like frontend container
+up: ## Start production-like frontend container (backend must run on host :8000)
 	@$(call print_banner,Start production-like frontend container)
+	@echo -e "$(INFO) Ensure regcheck-backend is running on port $${BACKEND_PORT:-8000}$(RESET)"
 	@echo -e "$(INFO) Starting frontend via Docker…$(RESET)"
 	@$(DC) up -d --build
 	@echo -e "$(SUCCESS) Frontend running: http://localhost:$${FRONTEND_PORT:-3001}$(RESET)"
+	@echo -e "$(INFO) API proxied to host.docker.internal:$${BACKEND_PORT:-8000}$(RESET)"
+
+.PHONY: preview
+preview: build ## Run production build locally via Vite preview (calls backend on :8000)
+	@$(call print_banner,Run production build via Vite preview)
+	@echo -e "$(INFO) Ensure regcheck-backend is running on $${VITE_API_BASE_URL:-http://localhost:8000}$(RESET)"
+	@pnpm --dir frontend exec vite preview --host 0.0.0.0 --port $${FRONTEND_PORT:-3001} --strictPort
 
 .PHONY: stop
 stop: ## Stop Docker frontend container

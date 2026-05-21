@@ -1,48 +1,46 @@
 # RegCheck Frontend
 
-React + Vite + TypeScript UI for RegCheck. The API lives in [regcheck-backend](https://github.com/your-org/regcheck-backend); PostgreSQL is deployed separately (e.g. Railway).
+React + Vite + TypeScript UI for RegCheck. The API lives in [regcheck-backend](https://github.com/your-org/regcheck-backend).
 
-## Quick start
+## Quick start (development)
 
-1. Copy environment defaults:
-   - `cp .env.example .env`
-2. Set `VITE_API_BASE_URL` to your backend **full URL** including `https://` (e.g. `https://regcheck-backend.up.railway.app`). A bare hostname like `regcheck-backend` is auto-corrected to `https://regcheck-backend`, but the public Railway URL is preferred.
-3. Install and run:
-   - `make install`
-   - `make dev`
+1. `cp .env.example .env`
+2. `make install`
+3. Start backend in **regcheck-backend**: `make dev` (port 8000)
+4. Start frontend: `make dev` → http://localhost:3001
 
-Endpoints:
+API calls go directly to `VITE_API_BASE_URL` (`http://localhost:8000`).
 
-- Frontend: http://localhost:3001
-- Backend (separate repo): configure via `VITE_API_BASE_URL`
+## Local production testing
 
-## Docker
+Backend must be running on port 8000.
 
-Production-like static build + nginx:
+| Command | How the API is reached |
+|--------|-------------------------|
+| `make preview` | Production build; browser → `http://localhost:8000` |
+| `make up` | Docker + nginx on :3001; browser → `http://localhost:8000` (same as dev) |
 
 ```bash
+# Option A: Vite preview (no Docker)
+make preview
+
+# Option B: Production-like nginx container
 make up
 ```
 
-Hot-reload dev container:
+## Docker / Railway (deployed frontend)
 
 ```bash
-make dev-docker
+make up   # local only; see above
 ```
 
-Set `VITE_API_BASE_URL` in `.env` before `make up` so the built assets call the correct API.
-
-### Railway (frontend service)
-
-Set a **runtime** variable on the frontend service (no rebuild needed when only the backend URL changes):
+On Railway, set:
 
 ```env
 REGCHECK_API_BASE_URL=https://your-backend.up.railway.app
 ```
 
-Use the full public backend URL including `https://`. On each container start, this is written to `/runtime-config.js` and used for all API calls.
-
-You may also set `VITE_API_BASE_URL` at **build time** as a fallback, but `REGCHECK_API_BASE_URL` at runtime is what fixes split-host deploys.
+The browser uses same-origin `/api/...`; nginx proxies to the backend (no CORS). Do not point the SPA at the backend URL on Railway.
 
 ## Quality checks
 

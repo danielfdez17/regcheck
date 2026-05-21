@@ -1,28 +1,29 @@
-const DEFAULT_PRODUCTION_API_BASE_URL = "http://localhost:8000";
+const DEFAULT_DEV_API_BASE_URL = "http://localhost:8000";
 
 const LOCAL_HOST_PATTERN =
   /^(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i;
 
 declare global {
   interface Window {
-    /** Injected at container start by docker-entrypoint.sh (Railway runtime env). */
+    /** Production deploy: empty = same-origin /api via nginx proxy. */
     __REGCHECK_API_BASE_URL__?: string;
   }
 }
 
-/**
- * Turn env values into an absolute API origin safe for cross-origin deploys.
- *
- * Values like `regcheck-backend` or `/regcheck-backend` (no scheme) become relative
- * URLs on the frontend host unless normalized to `https://…`.
- */
+function isLocalBrowserHost(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  const hostname = window.location.hostname;
+  return hostname === "localhost" || hostname === "127.0.0.1";
+}
+
 export function normalizeApiBaseUrl(raw: string, allowRelative = false): string {
   let value = raw.trim().replace(/\/+$/, "");
   if (!value) {
     return "";
   }
 
-  // `/regcheck-backend` is often a mistaken path prefix — treat as hostname.
   if (value.startsWith("/") && !value.startsWith("/api")) {
     value = value.slice(1);
   }
@@ -43,37 +44,44 @@ function readRuntimeApiBaseUrl(): string | undefined {
   if (typeof window === "undefined") {
     return undefined;
   }
-  const runtime = window.__REGCHECK_API_BASE_URL__?.trim();
-  return runtime || undefined;
+  if (typeof window.__REGCHECK_API_BASE_URL__ === "string") {
+    return window.__REGCHECK_API_BASE_URL__;
+  }
+  return undefined;
 }
 
-export function resolveApiBaseUrl(
-  buildTimeValue: string | undefined,
-  dev: boolean,
-): string {
-  const runtime = readRuntimeApiBaseUrl();
-  if (runtime) {
-    const normalized = normalizeApiBaseUrl(runtime, dev);
-    if (normalized) {
-      return normalized;
-    }
-  }
-
-  const trimmed = buildTimeValue?.trim();
-  if (!trimmed) {
-    return dev ? "" : DEFAULT_PRODUCTION_API_BASE_URL;
-  }
-
-  const normalized = normalizeApiBaseUrl(trimmed, dev);
-  return normalized || (dev ? "" : DEFAULT_PRODUCTION_API_BASE_URL);
-}
-
-/** Resolved backend origin used for all API calls. */
+/**
+ * - Dev (`make dev`): direct calls to VITE_API_BASE_URL (backend on host).
+ * - Prod Docker / Railway: same-origin `/api` (nginx proxy).
+ * - Local prod without Docker (`make preview`): direct calls to backend on host.
+ */
 export function getApiBaseUrl(): string {
-  return resolveApiBaseUrl(import.meta.env.VITE_API_BASE_URL, import.meta.env.DEV);
+  if (import.meta.env.DEV) {
+    const fromEnv = import.meta.env.VITE_API_BASE_URL?.trim();
+    if (fromEnv) {
+      return normalizeApiBaseUrl(fromEnv, true) || DEFAULT_DEV_API_BASE_URL;
+    }
+    return DEFAULT_DEV_API_BASE_URL;
+  }
+
+  const runtime = readRuntimeApiBaseUrl();
+  if (runtime !== undefined && runtime.trim()) {
+    return normalizeApiBaseUrl(runtime);
+  }
+
+  // Same-origin /api proxy (nginx on Railway or make up).
+  if (runtime !== undefined && !runtime.trim() && !isLocalBrowserHost()) {
+    return "";
+  }
+
+  // Local production (vite preview or static on localhost): talk to backend on host.
+  if (isLocalBrowserHost()) {
+    return DEFAULT_DEV_API_BASE_URL;
+  }
+
+  return "";
 }
 
-/** Join API origin and path (`/api/v1/...`) as an absolute URL when possible. */
 export function buildApiUrl(baseUrl: string, path: string): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
@@ -87,14 +95,7 @@ export function buildApiUrl(baseUrl: string, path: string): string {
   }
 
   if (!/^https?:\/\//i.test(absoluteBase)) {
-    if (import.meta.env.DEV) {
-      return `${absoluteBase}${normalizedPath}`;
-    }
-    console.error(
-      `[regcheck] API base URL "${baseUrl}" is not absolute. ` +
-        "Set REGCHECK_API_BASE_URL to your backend URL (e.g. https://your-backend.up.railway.app).",
-    );
-    return normalizedPath;
+    return `${absoluteBase}${normalizedPath}`;
   }
 
   return new URL(normalizedPath, `${absoluteBase}/`).href;

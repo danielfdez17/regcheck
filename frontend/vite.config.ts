@@ -1,5 +1,11 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
+
+const frontendDir = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(frontendDir, "..");
 
 function resolveDevProxyTarget(apiBaseUrl: string | undefined): string {
   const trimmed = apiBaseUrl?.trim();
@@ -17,26 +23,32 @@ function resolveDevProxyTarget(apiBaseUrl: string | undefined): string {
 }
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
-  const proxyTarget = resolveDevProxyTarget(env.VITE_API_BASE_URL);
+  const env = loadEnv(mode, repoRoot, "");
+  const isProductionBuild = mode === "production";
+  const devApiBaseUrl =
+    env.VITE_API_BASE_URL?.trim() || "http://localhost:8000";
 
   return {
+    envDir: repoRoot,
     plugins: [react()],
+    define: isProductionBuild
+      ? { "import.meta.env.VITE_API_BASE_URL": JSON.stringify("") }
+      : undefined,
     server: {
       host: "0.0.0.0",
       port: 3001,
       strictPort: true,
-      proxy: {
-        "/api": {
-          target: proxyTarget,
-          changeOrigin: true,
-        },
-      },
     },
     preview: {
       host: "0.0.0.0",
       port: 3001,
       strictPort: true,
+      proxy: {
+        "/api": {
+          target: resolveDevProxyTarget(devApiBaseUrl),
+          changeOrigin: true,
+        },
+      },
     },
   };
 });
