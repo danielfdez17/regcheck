@@ -21,16 +21,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: backend/requirements.txt
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -46,8 +36,7 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: |
-          make install
+        run: make install
 
       - name: Typecheck
         run: make typecheck
@@ -55,5 +44,5 @@ jobs:
       - name: Lint
         run: make lint
 
-      - name: Pylint
-        run: make pylint
+      - name: Build
+        run: make build
