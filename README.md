@@ -34,11 +34,15 @@ Set `VITE_API_BASE_URL` in `.env` before `make up` so the built assets call the 
 
 ### Railway (frontend service)
 
-Set **`VITE_API_BASE_URL` at build time** to the public backend URL, for example:
+Set a **runtime** variable on the frontend service (no rebuild needed when only the backend URL changes):
 
-`https://regcheck-backend.up.railway.app`
+```env
+REGCHECK_API_BASE_URL=https://your-backend.up.railway.app
+```
 
-Do not use a path-only value like `/regcheck-backend` — the browser would call the frontend host instead of the API.
+Use the full public backend URL including `https://`. On each container start, this is written to `/runtime-config.js` and used for all API calls.
+
+You may also set `VITE_API_BASE_URL` at **build time** as a fallback, but `REGCHECK_API_BASE_URL` at runtime is what fixes split-host deploys.
 
 ## Quality checks
 

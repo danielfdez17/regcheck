@@ -1,4 +1,4 @@
-import { buildApiUrl, resolveApiBaseUrl } from "./api-base-url";
+import { buildApiUrl, getApiBaseUrl } from "./api-base-url";
 
 export type ChecklistStatus = "pending" | "in_progress" | "done";
 export type ChecklistPriority = "high" | "medium" | "low";
@@ -165,10 +165,6 @@ export const AUTH_TOKEN_STORAGE_KEY = "regcheck-auth-token";
 
 let authToken: string | null = null;
 let onUnauthorized: (() => void) | null = null;
-
-function getApiBaseUrl(): string {
-  return resolveApiBaseUrl(import.meta.env.VITE_API_BASE_URL, import.meta.env.DEV);
-}
 
 export function setAuthToken(token: string | null): void {
   authToken = token;
