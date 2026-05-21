@@ -1,3 +1,5 @@
+import { buildApiUrl, resolveApiBaseUrl } from "./api-base-url";
+
 export type ChecklistStatus = "pending" | "in_progress" | "done";
 export type ChecklistPriority = "high" | "medium" | "low";
 
@@ -159,16 +161,13 @@ type ApiErrorDetail =
   | { message?: string; msg?: string }
   | Array<{ message?: string; msg?: string }>;
 
-const DEFAULT_API_BASE_URL = "http://localhost:8000";
 export const AUTH_TOKEN_STORAGE_KEY = "regcheck-auth-token";
 
 let authToken: string | null = null;
 let onUnauthorized: (() => void) | null = null;
 
 function getApiBaseUrl(): string {
-  const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
-
-  return (configuredBaseUrl || DEFAULT_API_BASE_URL).replace(/\/$/, "");
+  return resolveApiBaseUrl(import.meta.env.VITE_API_BASE_URL, import.meta.env.DEV);
 }
 
 export function setAuthToken(token: string | null): void {
@@ -214,7 +213,7 @@ async function requestJson<T>({ path, ...init }: RequestOptions): Promise<T> {
     headers.Authorization = `Bearer ${authToken}`;
   }
 
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
+  const response = await fetch(buildApiUrl(getApiBaseUrl(), path), {
     ...init,
     headers,
     cache: "no-store",
@@ -365,7 +364,10 @@ export async function exportAssessment(
   }
 
   const response = await fetch(
-    `${getApiBaseUrl()}/api/v1/gdpr/assessments/${assessmentId}/export?format=${format}`,
+    buildApiUrl(
+      getApiBaseUrl(),
+      `/api/v1/gdpr/assessments/${assessmentId}/export?format=${format}`,
+    ),
     {
       method: "GET",
       headers,

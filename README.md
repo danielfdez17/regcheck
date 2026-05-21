@@ -6,7 +6,7 @@ React + Vite + TypeScript UI for RegCheck. The API lives in [regcheck-backend](h
 
 1. Copy environment defaults:
    - `cp .env.example .env`
-2. Set `VITE_API_BASE_URL` to your backend URL (local: `http://localhost:8000`).
+2. Set `VITE_API_BASE_URL` to your backend **full URL** including `https://` (e.g. `https://regcheck-backend.up.railway.app`). A bare hostname like `regcheck-backend` is auto-corrected to `https://regcheck-backend`, but the public Railway URL is preferred.
 3. Install and run:
    - `make install`
    - `make dev`
@@ -31,6 +31,14 @@ make dev-docker
 ```
 
 Set `VITE_API_BASE_URL` in `.env` before `make up` so the built assets call the correct API.
+
+### Railway (frontend service)
+
+Set **`VITE_API_BASE_URL` at build time** to the public backend URL, for example:
+
+`https://regcheck-backend.up.railway.app`
+
+Do not use a path-only value like `/regcheck-backend` — the browser would call the frontend host instead of the API.
 
 ## Quality checks
 
