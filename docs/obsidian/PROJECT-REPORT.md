@@ -1,7 +1,9 @@
-# RegCheck — Project Report (Extended)
+# RegCheck — Project Report
 
-**Generated:** 19-05-2026  
-**Repository:** `regcheck`  
+**Generated:** 22-05-2026  
+**Repositories:** `regcheck` (frontend), `regcheck-backend` (API) — separate Git repos, developed and deployed independently  
+**URLs:** https://github.com/danielfdez17/regcheck, https://github.com/danielfdez17/regcheck-backend  
+**Deployments (Railway):** https://regcheck-production.up.railway.app/, https://regcheck-backend-production.up.railway.app/api/docs  
 **Version:** 0.1.0 (MVP)  
 **Status:** Active development — GDPR-focused compliance assistant  
 **Primary audience:** Developers, reviewers, academic evaluators
@@ -46,13 +48,13 @@
 
 The product sits in the **Regulation and Compliance** track of an AI-assisted cybersecurity development practice. It combines:
 
-- A **Python + FastAPI** REST API with SQL persistence
-- A **React + TypeScript + Vite** single-page application
+- A **Python + FastAPI** REST API with SQL persistence (`regcheck-backend`)
+- A **React + TypeScript + Vite** single-page application (`regcheck`)
 - **Multi-tenant authentication** (organization + user)
 - A **deterministic rule engine** that maps company context to recommended controls
 - **Assessment snapshots** that preserve checklist state and evidence over time
 
-The MVP is functional end-to-end: users sign up, configure organizational context, generate and save assessments, track checklist progress, attach evidence references, and export HTML reports suitable for printing to PDF. The stack is containerized with Docker Compose (PostgreSQL in Docker; SQLite for frictionless local backend development).
+The MVP is functional end-to-end: users sign up, configure organizational context, generate and save assessments, track checklist progress, attach evidence references, and export HTML, CSV, and Markdown reports. The codebase is split into two repositories: the **frontend** (`regcheck`) ships as a Vite SPA with optional nginx `/api` reverse proxy for production; the **backend** (`regcheck-backend`) is a FastAPI service with PostgreSQL in Docker or SQLite for local development. Both services are deployed on **Railway**; a Hetzner VPS deployment remains on the academic roadmap.
 
 **Strategic positioning:** RegCheck does not replace legal advice. It operationalizes regulation into checklists that SMEs can execute, while building an evidence trail suitable for internal audits and academic demonstration.
 
@@ -66,7 +68,7 @@ RegCheck aligns with **Practice 1 — Development of an AI-Powered Cybersecurity
 |-------------|---------------------------|
 | **Web dashboard** | Authenticated SPA with assessment dashboard, live metrics, checklist editor, and export |
 | **GitHub repository** | Public/private repo with structured commits, `main`/`develop` workflow, CI on push/PR |
-| **Hetzner deployment** | Planned; Docker Compose stack ready for VPS provisioning |
+| **Hetzner deployment** | Planned for academic submission; **Railway** hosts production frontend + backend today |
 | **PDF documentation report** | This Markdown report + HTML export + Obsidian knowledge base feed the PDF deliverable |
 | **Practice 2 roadmap** | Section [24](#24-roadmap--practice-2-and-beyond) |
 
@@ -91,7 +93,7 @@ From the repository README, the one-month planning phases were:
 | 3 | Self-evaluation and scoring logic |
 | 4 | UX polish, export, final demo |
 
-As of 19-05-2026, weeks 1–2 objectives are substantially met; week 3 scoring is partial (done/total metrics exist; formal scoring model pending); week 4 export and UX polish are in progress.
+As of 22-05-2026, weeks 1–2 objectives are met; week 3 scoring is partial (done/total metrics exist; formal scoring model pending); week 4 export is largely done (HTML client-side, CSV/Markdown server-side, assessment PATCH for edits); UX polish and Hetzner migration remain in progress.
 
 ---
 
@@ -172,7 +174,7 @@ sequenceDiagram
 | 2 | Basic rule engine | Done | Keyword, department, framework, and boolean toggles in `catalog.py` |
 | 3 | Checklist generation | Done | `POST /gdpr/checklists` preview; `POST /gdpr/assessments` persist |
 | 4 | Status lifecycle | Done | `pending`, `in_progress`, `done` via PATCH |
-| 5 | Export (PDF/CSV/Markdown) | Partial | HTML export (print-to-PDF); CSV/Markdown via `GET /gdpr/assessments/{id}/export?format=` |
+| 5 | Export (PDF/CSV/Markdown) | Partial | HTML export (print-to-PDF); CSV/Markdown via `GET /gdpr/assessments/{id}/export?format=`; native PDF not implemented |
 
 ### 4.2 Extended requirements (knowledge base / Submit 1)
 
@@ -207,8 +209,9 @@ And return:
 - Per-user assessment ownership and history (up to 50 items per list request)
 - Live UI preview without mandatory API round-trips for checkbox changes
 - Bilingual UI shell (English + Spanish)
-- Dockerized full stack with health checks
-- Local developer workflow with SQLite backend
+- Dockerized frontend and backend (separate Compose files per repo)
+- Local developer workflow: frontend on :3001, backend on :8000 with SQLite
+- Railway production deployment for both services
 
 ### 5.2 Out of scope (MVP)
 
@@ -223,9 +226,12 @@ And return:
 
 ### 5.3 Known technical debt
 
-- **Dual database story:** Docker uses PostgreSQL; `make dev-backend` uses SQLite by default
+- **Split repositories:** Frontend and backend must be started from two repos; no single-root Compose for the full stack
+- **Dual database story:** Backend Docker uses PostgreSQL; `make dev` in `regcheck-backend` uses SQLite by default
 - **Schema migrations:** Alembic listed in requirements; startup uses `create_all` + manual SQLite `ALTER` for `created_by_user_id`
 - **API content language:** Checklist titles/descriptions are English from seed; UI is localized separately
+- **No automated tests:** CI runs typecheck/lint/build (frontend) or compileall/pylint (backend) only
+- **Pre-push hook:** `hooks/pre-push` calls `make audit`, which is not defined in either Makefile
 
 ---
 
@@ -236,11 +242,16 @@ And return:
 ```mermaid
 flowchart TB
     subgraph Browser
-        SPA[React SPA :3001]
+        SPA[React SPA]
         SS[sessionStorage JWT]
     end
 
-    subgraph API["FastAPI :8000"]
+    subgraph FE["regcheck — frontend"]
+        VITE[Vite dev :3001]
+        NGX[nginx prod :3001]
+    end
+
+    subgraph BE["regcheck-backend — API :8000"]
         R1[health]
         R2[auth]
         R3[gdpr]
@@ -249,12 +260,16 @@ flowchart TB
     end
 
     subgraph Persistence
-        PG[(PostgreSQL 16 — Docker)]
-        SQL[(SQLite — local dev)]
+        PG[(PostgreSQL 16 — Docker / Railway)]
+        SQL[(SQLite — local make dev)]
     end
 
     SPA --> SS
-    SPA -->|Bearer JWT| MW --> R2 & R3
+    SPA --> VITE
+    SPA --> NGX
+    VITE -->|direct VITE_API_BASE_URL| MW
+    NGX -->|/api proxy| MW
+    MW --> R2 & R3
     R1 & R2 & R3 --> PG
     R1 & R2 & R3 --> SQL
     LIFE --> PG & SQL
@@ -274,16 +289,20 @@ flowchart TB
 
 | Mode | Commands | Frontend | Backend | Database | Hot reload |
 |------|----------|----------|---------|----------|------------|
-| Local split | `make dev-frontend` + `make dev-backend` | :3001 Vite | :8000 Uvicorn `--reload` | SQLite `regcheck.db` | Yes |
-| Docker prod-like | `make up` | :3001 nginx | :8000 Uvicorn | PostgreSQL volume | No |
-| Docker dev | `make dev-docker` | :3001 Vite in container | :8000 Uvicorn `--reload` | PostgreSQL volume | Yes |
+| Local split (recommended) | `make dev` in **regcheck** + `make dev` in **regcheck-backend** | :3001 Vite | :8000 Uvicorn `--reload` | SQLite `regcheck.db` | Yes |
+| Frontend Docker | `make up` in **regcheck** (backend on host :8000) | :3001 nginx → host | :8000 on host | Backend DB unchanged | No |
+| Backend Docker | `make up` in **regcheck-backend** | — | :8000 Uvicorn | PostgreSQL volume | No |
+| Backend Docker dev | `make dev-docker` in **regcheck-backend** | — | :8000 `--reload` | PostgreSQL volume | Yes |
+| Railway production | Deploy each repo | SPA + nginx `/api` proxy | FastAPI + managed Postgres | PostgreSQL | No |
 
-**Health endpoint:** `GET http://localhost:8000/api/v1/health`
+**Health endpoint:** `GET http://localhost:8000/api/v1/health` (or production backend URL)
 
 ### 6.4 CORS and browser security
 
-- Allowed origins: `REGCHECK_FRONTEND_ORIGIN` (default `http://localhost:3001`) and `http://127.0.0.1:3001`
-- Methods/headers: `*` for MVP local development
+- **Local dev:** Browser calls backend directly at `VITE_API_BASE_URL`; CORS allowlist from `REGCHECK_CORS_ORIGINS` and `REGCHECK_FRONTEND_ORIGIN` (default `http://localhost:3001`, `http://127.0.0.1:3001`)
+- **Production (Railway / Docker nginx):** Browser uses same-origin `/api/...`; nginx proxies to the backend — no browser CORS for API calls
+- **Railway regex:** `REGCHECK_CORS_ORIGIN_REGEX` defaults to `^https://[a-zA-Z0-9.-]+\.up\.railway\.app$` for cross-origin SPA→API when not proxied
+- Methods: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`; headers: `*`
 - Credentials: `allow_credentials=False` (JWT in `Authorization` header, not cookies)
 
 ---
@@ -320,17 +339,21 @@ flowchart TB
 
 | Component | Details |
 |-----------|---------|
-| Containers | Docker Compose 3 services: `postgres`, `backend`, `frontend` |
-| Frontend prod image | Multi-stage: Node build → nginx serves `dist/` on :3001 |
-| Backend image | Python 3.12-slim, non-root `appuser`, multi-stage venv |
-| CI | GitHub Actions on Ubuntu, `make install` + quality targets |
+| **regcheck** containers | Docker Compose: `frontend` only (nginx :3001, proxies `/api` to `REGCHECK_API_BASE_URL`) |
+| **regcheck-backend** containers | Docker Compose: `postgres` + `backend` (:8000) |
+| Frontend prod image | Multi-stage: Node build → nginx `nginx.conf.template` + `docker-entrypoint.sh` |
+| Backend image | Python 3.12-slim, multi-stage venv (`backend/Dockerfile`) |
+| CI | Separate GitHub Actions per repo (frontend: typecheck/lint/build; backend: compileall/pylint) |
+| Deploy | Railway (`railway.json` in each repo) |
 | Package manager | pnpm 11.1.1 (frontend) |
 
 ### 7.4 Design decisions
 
 | Decision | Choice | Why |
 |----------|--------|-----|
+| Monorepo vs split repos | Two Git repos | Frontend and backend deploy and CI independently; docs live in `regcheck` |
 | SPA vs Next.js | Vite + React | Simpler MVP; README originally mentioned Next.js but tree uses Vite |
+| Production API routing | nginx `/api` proxy | Same-origin calls on Railway; avoids CORS and exposed backend URL in browser |
 | SQLModel vs raw SQL | SQLModel | FastAPI ecosystem fit, Pydantic integration |
 | JSON snapshots | `compliance_assessments.checklist_items` | Preserve historical state when catalog templates change |
 | JWT in sessionStorage | Not httpOnly cookies | Simpler SPA auth; XSS is the main threat surface |
@@ -340,67 +363,72 @@ flowchart TB
 
 ## 8. Repository structure
 
+The project uses **two repositories**. Paths below are relative to each repo root.
+
+### 8.1 `regcheck` (frontend)
+
 ```
 regcheck/
-├── backend/
-│   ├── app/
-│   │   ├── main.py                 # FastAPI app, CORS, lifespan, router mount
-│   │   ├── api/
-│   │   │   ├── router.py           # Aggregates v1 routers
-│   │   │   └── v1/
-│   │   │       ├── auth.py         # signup, login, me, logout
-│   │   │       ├── gdpr.py         # rule selector, assessments, PATCH items
-│   │   │       └── health.py       # health check
-│   │   ├── auth/
-│   │   │   ├── service.py          # signup, login, profile
-│   │   │   ├── security.py         # bcrypt, JWT encode/decode
-│   │   │   ├── schemas.py          # Pydantic auth models
-│   │   │   ├── dependencies.py     # get_current_user
-│   │   │   └── password_policy.py  # server-side password rules
-│   │   ├── core/
-│   │   │   └── config.py           # Settings (REGCHECK_ prefix)
-│   │   ├── db/
-│   │   │   ├── models.py           # SQLModel tables
-│   │   │   └── session.py          # engine, seed, SQLite migration guard
-│   │   └── gdpr/
-│   │       ├── catalog.py          # rule engine, checklist builder
-│   │       ├── assessments.py    # CRUD snapshots, summary metrics
-│   │       ├── seed_data.py        # DEFAULT_RULES, DEFAULT_CHECKLIST_ITEMS
-│   │       └── schemas.py          # GDPR Pydantic models
-│   ├── requirements.txt
-│   └── Dockerfile                  # base → builder → runtime → development
 ├── frontend/
 │   ├── src/
 │   │   ├── App.tsx                 # auth gate, dashboard vs editor routing
 │   │   ├── main.tsx                # React root, providers
 │   │   ├── gdpr-playground.tsx     # assessment editor, live state, export
-│   │   ├── components/
-│   │   │   ├── app-shell.tsx       # layout, navbar, footer
-│   │   │   ├── auth-page.tsx       # login/signup forms
-│   │   │   ├── home-content.tsx    # hero, dashboard, metrics
-│   │   │   ├── assessment-card.tsx # history card UI
-│   │   │   ├── checklist-item.tsx  # per-item status/evidence UI
-│   │   │   ├── live-backend-input-sidebar.tsx
-│   │   │   ├── saved-evidence-url-row.tsx
-│   │   │   └── gdpr-playground-parts.tsx
-│   │   ├── auth/                   # context, provider, hooks, password policy
+│   │   ├── components/             # auth-page, app-shell, home-content, checklist-item, …
+│   │   ├── auth/                   # context, provider, password policy
 │   │   ├── hooks/use-home-page-data.ts
-│   │   ├── lib/regcheck-api.ts     # typed HTTP client
-│   │   ├── lib/assessment-metrics.ts
-│   │   ├── evidence-url.ts         # URL normalization helpers
-│   │   └── i18n/                   # config, locales en/es, hooks
+│   │   ├── lib/
+│   │   │   ├── regcheck-api.ts     # typed HTTP client
+│   │   │   ├── api-base-url.ts     # dev direct / prod same-origin /api
+│   │   │   ├── assessment-metrics.ts
+│   │   │   └── report-export.ts    # client-side HTML report builder
+│   │   ├── evidence-url.ts
+│   │   └── i18n/                   # config, locales en/es
+│   ├── public/runtime-config.js    # production API base (Docker entrypoint)
 │   ├── package.json
 │   ├── vite.config.ts
-│   ├── nginx.conf                  # production static serving
+│   ├── nginx.conf.template         # /api reverse proxy template
+│   ├── docker-entrypoint.sh
 │   └── Dockerfile
-├── docs/obsidian/                  # Knowledge base (wiki links)
-│   ├── 00-index.md … 06-*.md
-│   ├── reports/                    # DD-MM-YYYY daily logs
-│   └── PROJECT-REPORT.md           # This document
-├── vendor/scripts/                 # Git submodule (merge, push helpers)
-├── .github/workflows/ci.yml
-├── docker-compose.yml
+├── docs/obsidian/                  # Knowledge base + PROJECT-REPORT.md
+├── vendor/scripts/                 # Git submodule (git workflow helpers)
+├── .github/workflows/ci.yml        # typecheck, lint, build
+├── docker-compose.yml              # frontend service only
 ├── docker-compose.dev.yml
+├── railway.json
+├── Makefile
+├── .env.example
+└── README.md
+```
+
+### 8.2 `regcheck-backend` (API)
+
+```
+regcheck-backend/
+├── backend/
+│   ├── app/
+│   │   ├── main.py                 # FastAPI app, CORS, lifespan, router mount
+│   │   ├── api/
+│   │   │   ├── router.py
+│   │   │   └── v1/
+│   │   │       ├── auth.py
+│   │   │       ├── gdpr.py         # assessments, export, PATCH items
+│   │   │       └── health.py
+│   │   ├── auth/                   # service, security, dependencies, password_policy
+│   │   ├── core/config.py          # Settings (REGCHECK_* + Railway DATABASE_URL)
+│   │   ├── db/                     # models.py, session.py (seed, SQLite ALTER guard)
+│   │   └── gdpr/
+│   │       ├── catalog.py
+│   │       ├── assessments.py
+│   │       ├── export.py           # CSV/Markdown builders
+│   │       ├── seed_data.py
+│   │       └── schemas.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── .github/workflows/ci.yml        # compileall, pylint
+├── docker-compose.yml              # postgres + backend
+├── docker-compose.dev.yml
+├── railway.json
 ├── Makefile
 ├── .env.example
 └── README.md
@@ -627,7 +655,7 @@ Authentication: `Authorization: Bearer <jwt>` (required for all routes except he
 **ReDoc:** `http://localhost:8000/api/redoc`  
 **OpenAPI schema:** `http://localhost:8000/api/openapi.json`  
 
-With Docker, the frontend nginx proxy exposes the same paths under port 3001 (for example `http://localhost:3001/api/docs`). Use the **Authorize** button in Swagger UI with `Bearer <access_token>` after signup or login.
+With the frontend Docker image (`make up` in **regcheck**), nginx proxies `/api/` to the backend configured in `REGCHECK_API_BASE_URL`, so Swagger is available at `http://localhost:3001/api/docs` when the backend is reachable. In local Vite dev, open `http://localhost:8000/api/docs` directly. Use the **Authorize** button with `Bearer <access_token>` after signup or login.
 
 ### 11.1 Health
 
@@ -865,7 +893,9 @@ stateDiagram-v2
 | `app-shell.tsx` | Navbar, footer, page layout |
 | `navbar-dropdown.tsx` | Language and theme compact menus |
 | `use-home-page-data.ts` | Bootstrap rule selector on load |
-| `regcheck-api.ts` | Typed fetch wrapper, token management |
+| `regcheck-api.ts` | Typed fetch wrapper, token management, `updateAssessment`, `exportAssessment` |
+| `api-base-url.ts` | Resolves dev direct URL vs same-origin `/api` proxy |
+| `report-export.ts` | Client-side HTML report download |
 | `assessment-metrics.ts` | `done / total` formatting helpers |
 | `evidence-url.ts` | Normalize URLs (`https://` prefix) |
 
@@ -876,8 +906,8 @@ From [[06-live-dashboard-and-report-export]]:
 1. User changes checkboxes / profile in sidebar
 2. Frontend builds `liveAssessment` locally (mirrors backend checklist shape)
 3. Metrics panel updates immediately
-4. **Save** triggers `POST /gdpr/assessments` or reuses existing ID for updates via PATCH on items
-5. Export uses live state + history — no extra API call required at export time
+4. **Save** triggers `POST /gdpr/assessments` for new snapshots or `PATCH /gdpr/assessments/{id}` when editing an existing assessment; per-item status/evidence uses `PATCH .../checklist-items/{id}`
+5. HTML export uses live state; CSV/Markdown require a saved assessment (`GET .../export`)
 
 ### 13.4 Theming
 
@@ -962,12 +992,15 @@ Date/number formatting: `formatDateTime`, `formatNumber` in `i18n/format.ts` (`e
 
 ## 16. Report export
 
-### 16.1 Mechanism
+### 16.1 Mechanisms
 
-- Triggered from GDPR playground
-- Builds self-contained HTML in browser (`Blob` + download link)
-- Filename: `regcheck-report-<assessment_id>.html`
-- User prints to PDF via browser print dialog
+| Format | Where | Requirement |
+|--------|-------|-------------|
+| HTML | `frontend/src/lib/report-export.ts` — browser `Blob` download | Works on live/draft state |
+| CSV / Markdown | `GET /api/v1/gdpr/assessments/{id}/export?format=` | Saved assessment only; frontend `exportAssessment()` |
+
+- HTML filename: `regcheck-report-<assessment_id>.html` — user prints to PDF via browser
+- Server export filenames: `regcheck-assessment-<id>.csv` / `.md`
 
 ### 16.2 Report sections (academic alignment)
 
@@ -998,34 +1031,46 @@ Per [[06-live-dashboard-and-report-export]], exported documents include:
 
 ## 17. Configuration and environment
 
-### 17.1 Environment variables (`.env.example`)
+### 17.1 Frontend (`regcheck/.env.example`)
 
 | Variable | Default | Used by |
 |----------|---------|---------|
 | `FRONTEND_PORT` | 3001 | Docker port mapping |
-| `BACKEND_PORT` | 8000 | Docker / local uvicorn |
-| `POSTGRES_DB` | regcheck | PostgreSQL |
-| `POSTGRES_USER` | regcheck | PostgreSQL |
-| `POSTGRES_PASSWORD` | (required in Docker) | PostgreSQL |
-| `DEV_BACKEND_DATABASE_URL` | `sqlite:///./regcheck.db` | Documented for local dev |
-| `REGCHECK_DATABASE_URL` | PostgreSQL DSN | Backend in Docker |
-| `VITE_API_BASE_URL` | `http://localhost:8000` | Frontend build/runtime |
-| `REGCHECK_FRONTEND_ORIGIN` | `http://localhost:3001` | CORS |
+| `BACKEND_PORT` | 8000 | Documented; backend runs in other repo |
+| `VITE_API_BASE_URL` | `http://localhost:8000` | Vite dev / preview — browser calls backend directly |
+| `REGCHECK_API_BASE_URL` | `http://localhost:8000` | nginx `/api` upstream in Docker (`make up`) |
+
+On **Railway**, set `REGCHECK_API_BASE_URL` to the backend service URL (e.g. `https://regcheck-backend-production.up.railway.app`). The SPA uses same-origin `/api`; do not set the browser-facing build to the backend URL.
+
+### 17.2 Backend (`regcheck-backend/.env.example`)
+
+| Variable | Default | Used by |
+|----------|---------|---------|
+| `BACKEND_PORT` | 8000 | Uvicorn / Docker |
+| `POSTGRES_*` | regcheck | Docker Compose Postgres |
+| `REGCHECK_DATABASE_URL` | PostgreSQL DSN in Docker | SQLAlchemy |
+| `DEV_BACKEND_DATABASE_URL` | `sqlite:///./regcheck.db` | `make dev` local SQLite |
+| `REGCHECK_FRONTEND_ORIGIN` | `http://localhost:3001` | CORS primary origin |
+| `REGCHECK_CORS_ORIGINS` | localhost:3001, 127.0.0.1:3001 | CORS CSV list |
 | `REGCHECK_JWT_SECRET_KEY` | `change-me-in-production` | JWT signing |
 
-### 17.2 Backend settings (`REGCHECK_` prefix)
+Railway injects `DATABASE_URL` / `DATABASE_PRIVATE_URL`; the app normalizes `postgres://` → `postgresql+psycopg://` when `REGCHECK_DATABASE_URL` is unset.
+
+### 17.3 Backend settings (`REGCHECK_` prefix)
 
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `REGCHECK_DEBUG` | false | Debug mode |
-| `REGCHECK_DATABASE_URL` | sqlite:///./regcheck.db | SQLAlchemy URL |
+| `REGCHECK_DATABASE_URL` | sqlite:///./regcheck.db | SQLAlchemy URL (overridden by Railway `DATABASE_URL`) |
 | `REGCHECK_DB_ECHO` | false | SQL echo |
 | `REGCHECK_FRONTEND_ORIGIN` | http://localhost:3001 | CORS |
+| `REGCHECK_CORS_ORIGINS` | localhost origins | Extra CORS origins (CSV) |
+| `REGCHECK_CORS_ORIGIN_REGEX` | `*.up.railway.app` | Optional regex CORS |
 | `REGCHECK_JWT_SECRET_KEY` | change-me… | JWT secret |
 | `REGCHECK_JWT_ALGORITHM` | HS256 | JWT algorithm |
 | `REGCHECK_JWT_EXPIRE_MINUTES` | 480 | Token TTL |
 
-`extra="ignore"` on settings — non-`REGCHECK_` keys in `.env` do not break startup (fixed 18-05-2026 for local dev).
+`extra="ignore"` on settings — non-prefixed keys in `.env` do not break startup.
 
 ---
 
@@ -1033,117 +1078,126 @@ Per [[06-live-dashboard-and-report-export]], exported documents include:
 
 ### 18.1 Prerequisites
 
-- Python 3.12+
-- Node.js 22+
-- pnpm 11+
-- Docker & Docker Compose (optional, for full stack)
+- **Frontend:** Node.js 22+, pnpm 11+
+- **Backend:** Python 3.12+
+- Docker & Docker Compose (optional, per repo)
 
-### 18.2 First-time setup
+### 18.2 First-time setup (two repos)
+
+**Backend (`regcheck-backend`):**
 
 ```bash
+cd regcheck-backend
 cp .env.example .env
-make install          # venv + pip + pnpm
-make ci               # typecheck, lint, build
+make install
+make ci               # compileall + pylint
+make dev              # http://localhost:8000 — SQLite regcheck.db
 ```
 
-### 18.3 Daily development loops
-
-**Frontend only:**
+**Frontend (`regcheck`):**
 
 ```bash
-make dev-frontend
-# http://localhost:3001 — type 'r' + Enter in terminal to restart Vite
+cd regcheck
+cp .env.example .env
+make install
+make ci               # typecheck + lint + build
+make dev              # http://localhost:3001 — requires backend on :8000
 ```
 
-**Backend only:**
+### 18.3 Daily development loop (recommended)
+
+Run both services in separate terminals:
 
 ```bash
-make dev-backend
-# http://localhost:8000 — uses SQLite regcheck.db
+# Terminal 1
+cd regcheck-backend && make dev
+
+# Terminal 2
+cd regcheck && make dev
 ```
 
-**Full stack (hot reload):**
+Swagger: `http://localhost:8000/api/docs`. Frontend: `http://localhost:3001`.
 
-```bash
-make dev-docker
-make logs             # follow container logs
-```
-
-### 18.4 Make targets (complete)
+### 18.4 Make targets — `regcheck` (frontend)
 
 | Target | Description |
 |--------|-------------|
-| `help` | List targets |
-| `install` | venv + frontend + backend deps |
-| `dev-frontend` | Vite on :3001 |
-| `dev-backend` | Uvicorn on :8000, SQLite |
-| `dev-docker` | Compose dev overlay |
-| `up` | Production-like compose |
-| `stop` / `down` | Stop / remove containers |
-| `build` | Frontend prod build + compileall |
-| `build-docker` | Build images |
-| `typecheck` | `tsc --noEmit` |
-| `lint` | ESLint max-warnings 0 |
-| `pylint` | All backend Python |
-| `audit` | typecheck + lint + pylint |
+| `install` | `pnpm install` in `frontend/` |
+| `dev` | Vite on :3001 |
+| `preview` | Production build + Vite preview |
+| `dev-docker` | Hot-reload frontend container |
+| `up` | Production-like nginx container (backend on host :8000) |
+| `stop` / `down` | Stop / remove frontend containers |
+| `build` | Vite production build |
+| `build-docker` | Build frontend image |
+| `typecheck` / `lint` | TypeScript quality |
 | `ci` | typecheck + lint + build |
-| `re` | down -v, rebuild, up |
-| `logs` | compose logs -f |
-| `clean` | Remove dist, node_modules, caches |
-| `ensure-env` | Copy .env.example if missing |
-| `update-submodules` | git submodule update |
-| `push-new-branch` / `merge-to-dev` / `merge-dev-to-main` | Git workflow scripts |
+| `logs` / `clean` / `ensure-env` | Ops helpers |
 
-### 18.5 Git workflow scripts
+### 18.5 Make targets — `regcheck-backend`
 
-Located in `vendor/scripts/git/` (submodule):
+| Target | Description |
+|--------|-------------|
+| `install` | Python venv + pip requirements |
+| `dev` | Uvicorn `--reload`, SQLite |
+| `dev-docker` / `up` | Postgres + backend containers |
+| `stop` / `down` | Stop / remove backend stack |
+| `build` | `compileall` backend |
+| `pylint` | Lint all Python modules |
+| `ci` | build + pylint |
+| `logs` / `clean` / `ensure-env` | Ops helpers |
 
-- `push_to_origin.sh` — push new branch
-- `merge_to_dev.sh` — merge current branch into develop
-- `merge_dev_to_main.sh` — merge develop into main
-- `delete_all_local_branches.sh` — cleanup local branches
+### 18.6 Git workflow scripts
+
+In **regcheck** only, `vendor/scripts/git/` (submodule): `push_to_origin.sh`, `merge_to_dev.sh`, `merge_dev_to_main.sh`, etc.
 
 ---
 
 ## 19. Docker and deployment
 
-### 19.1 Service matrix
+### 19.1 Railway (current production)
+
+| Service | Repo | URL | Notes |
+|---------|------|-----|-------|
+| Frontend | `regcheck` | https://regcheck-production.up.railway.app/ | `REGCHECK_API_BASE_URL` → backend; nginx proxies `/api` |
+| Backend | `regcheck-backend` | https://regcheck-backend-production.up.railway.app/ | Managed Postgres via `DATABASE_URL`; Swagger at `/api/docs` |
+
+Each repo includes `railway.json` pointing at its `Dockerfile`.
+
+### 19.2 Docker Compose — `regcheck-backend`
 
 | Service | Image / build | Port | Depends on |
 |---------|---------------|------|------------|
 | postgres | postgres:16-alpine | internal | — |
-| backend | backend/Dockerfile | 8000 | postgres healthy |
-| frontend | frontend/Dockerfile | 3001 | backend healthy |
+| backend | `backend/Dockerfile` | 8000 | postgres healthy |
 
-### 19.2 Health checks
+Health: `pg_isready`; backend GET `/api/v1/health`. Dev overlay: bind-mount `backend/`, uvicorn `--reload`.
 
-- **Postgres:** `pg_isready`
-- **Backend:** Python urllib GET `/api/v1/health`
-- **Frontend:** wget homepage
+### 19.3 Docker Compose — `regcheck` (frontend only)
 
-### 19.3 Development overlay (`docker-compose.dev.yml`)
+| Service | Build | Port | Notes |
+|---------|-------|------|-------|
+| frontend | `frontend/Dockerfile` | 3001 | Proxies `/api/` to `REGCHECK_API_BASE_URL` (rewrites `localhost` → `host.docker.internal` in container) |
 
-- Backend: volume mount `./backend`, uvicorn `--reload`, `REGCHECK_DEBUG=true`
-- Frontend: volume mount `./frontend`, anonymous `node_modules` volume, Vite dev server
-- `VITE_API_BASE_URL` points to host-accessible backend URL
+Health: wget homepage. Dev overlay: Vite dev server in container.
 
 ### 19.4 Production frontend image
 
 1. `pnpm install --frozen-lockfile`
-2. `pnpm run build` with `VITE_API_BASE_URL` build arg
-3. nginx serves static `dist/` per `frontend/nginx.conf`
+2. `pnpm run build` (`VITE_API_BASE_URL` empty in production — same-origin `/api`)
+3. `docker-entrypoint.sh` renders `nginx.conf.template` and sets `runtime-config.js`
+4. nginx serves `dist/` and proxies `/api/` to the backend upstream
 
-### 19.5 Hetzner deployment (planned)
+### 19.5 Hetzner deployment (academic target)
 
-Recommended steps for academic requirement:
+Railway satisfies interim hosting. For the subject’s Hetzner requirement:
 
 1. Provision Ubuntu VPS on Hetzner Cloud
 2. Install Docker + Compose
-3. Clone repository, configure `.env` with strong secrets
-4. `make up` or `docker compose up -d`
-5. Configure reverse proxy (Caddy/nginx) with TLS
-6. Point subdomain DNS to VPS
-7. Verify health endpoints and demo signup flow
+3. Clone **both** repositories; configure `.env` with strong secrets
+4. `make up` in `regcheck-backend`, then `make up` in `regcheck` (or a single VPS compose overlay)
+5. Reverse proxy (Caddy/nginx) with TLS in front of :3001
+6. Point DNS to VPS; verify health and signup on the public URL
 
 ---
 
@@ -1151,32 +1205,35 @@ Recommended steps for academic requirement:
 
 ### 20.1 Local gates
 
-| Command | Validates |
-|---------|-----------|
-| `make typecheck` | TypeScript types |
-| `make lint` | ESLint, zero warnings |
-| `make pylint` | Python style/errors |
-| `make build` | Vite production build + Python compile |
-| `make ci` | typecheck + lint + build (CI subset) |
+| Repo | Command | Validates |
+|------|---------|-----------|
+| `regcheck` | `make typecheck` | TypeScript types |
+| `regcheck` | `make lint` | ESLint, zero warnings |
+| `regcheck` | `make build` | Vite production build |
+| `regcheck` | `make ci` | typecheck + lint + build |
+| `regcheck-backend` | `make build` | Python `compileall` |
+| `regcheck-backend` | `make pylint` | Python style/errors |
+| `regcheck-backend` | `make ci` | build + pylint |
 
-### 20.2 GitHub Actions
+### 20.2 GitHub Actions (per repository)
 
-File: `.github/workflows/ci.yml`
+**`regcheck/.github/workflows/ci.yml`:** checkout → pnpm 11 → Node 22 → `make install` → typecheck → lint → build
 
-- **Triggers:** push to `main`, `develop`, `fix/**`, `feat/**`; PRs to `main`/`develop`
-- **Concurrency:** cancel in-progress on same ref
-- **Steps:** checkout (with submodules) → Python 3.12 → pnpm 11 → Node 22 → `make install` → typecheck → lint → pylint
+**`regcheck-backend/.github/workflows/ci.yml`:** checkout → Python 3.12 → `make install` → build → pylint
 
-### 20.3 Verification practices (from daily reports)
+Triggers (both): push to `main`, `develop`, `fix/**`, `feat/**`; PRs to `main`/`develop`. Concurrency cancels in-progress runs on the same ref.
+
+### 20.3 Testing gap
+
+Neither repository ships automated unit or integration tests. Regression relies on CI static analysis, manual smoke tests (`make dev` in both repos), and daily report verification notes.
+
+### 20.4 Verification practices (from daily reports)
 
 Typical verification before merging:
 
-- `make typecheck` / `make lint`
-- `pnpm --dir frontend run typecheck` with `CI=true`
-- `.venv/bin/python -m compileall backend/...`
-- `.venv/bin/python -m pylint` on touched modules
-- IDE diagnostics on edited frontend files
-- Manual smoke: `make dev-backend` → "Application startup complete"
+- Frontend: `make typecheck`, `make lint`, `make build`
+- Backend: `make pylint` on touched modules, `make build`
+- Manual smoke: backend startup + frontend login → save assessment → export HTML/CSV
 
 ---
 
@@ -1249,6 +1306,19 @@ Detailed logs in `docs/obsidian/reports/`. Summary by date:
 - Local backend SQLite default; settings ignore stray `.env` keys
 - Full-width dashboard when editor closed
 
+### 19-05-2026 — Assessment update and server export
+
+- `PATCH /gdpr/assessments/{id}` — regenerate snapshot while preserving status/evidence for unchanged items
+- `GET /gdpr/assessments/{id}/export?format=csv|markdown`
+- Frontend save uses PATCH for persisted assessments; sidebar CSV/Markdown export actions
+
+### Post-19-05-2026 — Split repositories and Railway
+
+- **Frontend** and **backend** moved to separate Git repos (`regcheck`, `regcheck-backend`)
+- Frontend nginx `/api` reverse proxy and `api-base-url.ts` for dev vs production routing
+- Railway deployment for both services; CORS origin regex for `*.up.railway.app`
+- CI split: frontend-only workflow in `regcheck`, backend-only in `regcheck-backend`
+
 ---
 
 ## 23. Academic compliance checklist
@@ -1270,7 +1340,7 @@ Use this when preparing the PDF submission:
 
 **Live demo checklist:**
 
-- [ ] Signup/login works on deployed URL
+- [x] Signup/login works on Railway URLs (verify before evaluation)
 - [ ] Create assessment with cloud + dev toggles
 - [ ] Show live metric update without save
 - [ ] Save, refresh, reopen from dashboard
@@ -1397,21 +1467,15 @@ RegCheck output is **informational**. Organizations should validate controls wit
 
 ## 27. Conclusion
 
-RegCheck is a **functional GDPR compliance checklist MVP** with a clear architecture, documented development history, and a path toward academic deliverables (Hetzner deployment, PDF report, Practice 2 roadmap). The system successfully bridges the gap between regulatory abstraction and operational tasks through:
+RegCheck is a **functional GDPR compliance checklist MVP** with a clear split-repo architecture, documented development history, and production hosting on Railway while Hetzner remains the academic VPS target. The system successfully bridges the gap between regulatory abstraction and operational tasks through:
 
 - A **deterministic, explainable rule engine** (not a black-box AI in v1)
 - **Persisted assessments** with per-user history
 - **Evidence metadata** and **exportable reports**
-- A **modern developer experience** (Docker, Make, CI, i18n)
+- A **modern developer experience** (split repos, Docker per service, CI, i18n, Railway deploy)
 
-The codebase is structured for incremental enhancement: catalog expansion, AI assistance, stronger auth, and production hardening can be added without rewriting the core assessment snapshot model.
-
-**Next documentation actions:**
-
-- Add deployment screenshots to `docs/obsidian/` when Hetzner is live
-- Convert this report to PDF for campus submission
-- Continue daily logs in `docs/obsidian/reports/DD-MM-YYYY.md`
+The codebase is structured for incremental enhancement: catalog expansion, AI assistance, stronger auth, automated tests, and Hetzner migration can proceed without rewriting the core assessment snapshot model.
 
 ---
 
-*Report version: extended — 19-05-2026. Maintained alongside the codebase; update when features, APIs, or deployment targets change.*
+*Report version: 22-05-2026. Maintained in `regcheck/docs/obsidian/`; covers both `regcheck` and `regcheck-backend`. Update when features, APIs, or deployment targets change.*
