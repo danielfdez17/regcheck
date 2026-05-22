@@ -47,3 +47,20 @@ The browser uses same-origin `/api/...`; nginx proxies to the backend (no CORS).
 ```bash
 make ci
 ```
+
+## PDF generation
+The PDF report has been generated from the markdown file [[PROJECT-REPORT]] using a [python script](https://github.com/danielfdez17/univers42scripts/blob/main-functional/md-to-pdf/md-to-pdf.py).
+
+To generate a PDF from a Markdown file using the python script mentioned above execute the following commands:
+```
+git clone https://github.com/danielfdez17/univers42scripts.git
+cd univers42scripts
+git switch main-functional
+cd md-to-pdf
+python3 -m venv myvenv
+source /myvenv/bin/activate
+pip install -r requiremnts.txt
+python3 md-to-pdf.py <route/to/desired/mardown_file.MD>
+```
+
+> [!important] After running those commands both PDF and HTML files will be generated in the same route of the markdown file.
